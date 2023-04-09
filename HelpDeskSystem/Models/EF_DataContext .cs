@@ -19,5 +19,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<Account> Accounts
+        {
+            get;
+            set;
+        }
     }
 }

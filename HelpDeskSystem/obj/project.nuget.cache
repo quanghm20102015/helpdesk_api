@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "mGVroIrUlIv6ORkiNKY7Ezp0Q/fftnvdpMG1VejfA8MLR80wNskMPRPuw9z0wKJn/zBt2+awolrurDrxs6/gXQ==",
+  "dgSpecHash": "wNOfiAPoaaoBso8h6USixEzp4xZrsOWWs2Lp9DvpyUnKcVVvK5q0CEtUFRJXBda0XqWuGrh3+w+e4CYoyg/qxg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDeskSystem\\HelpDeskSystem\\HelpDeskSystem.csproj",
+  "projectFilePath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\HelpDeskSystem\\HelpDeskSystem.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\quang\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\quang\\.nuget\\packages\\messagepack\\2.1.152\\messagepack.2.1.152.nupkg.sha512",

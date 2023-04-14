@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Model.Account;
+using Interfaces.Constants;
 
 namespace HelpDeskSystem.Controller
 {
@@ -24,10 +26,10 @@ namespace HelpDeskSystem.Controller
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
         {
-          if (_context.Accounts == null)
-          {
-              return NotFound();
-          }
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
             return await _context.Accounts.ToListAsync();
         }
 
@@ -35,10 +37,10 @@ namespace HelpDeskSystem.Controller
         [HttpGet("{id}")]
         public async Task<ActionResult<Account>> GetAccount(int id)
         {
-          if (_context.Accounts == null)
-          {
-              return NotFound();
-          }
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
             var account = await _context.Accounts.FindAsync(id);
 
             if (account == null)
@@ -83,16 +85,53 @@ namespace HelpDeskSystem.Controller
         // POST: api/Accounts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount(Account account)
+        public async Task<SignupResponse> PostAccount(Account account)
         {
-          if (_context.Accounts == null)
-          {
-              return Problem("Entity set 'EF_DataContext.Accounts'  is null.");
-          }
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
+            string message = "";
+            var accountEmail = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.workemail.Equals(account.workemail));
 
-            return CreatedAtAction("GetAccount", new { id = account.id }, account);
+            var accountCompany = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.company.Equals(account.company));
+
+            if(accountEmail != null)
+            {
+                message += "Email already exist" + System.Environment.NewLine;
+            }
+            if (accountCompany != null)
+            {
+                message += "Company already exist" + System.Environment.NewLine;
+            }
+
+            if (_context.Accounts == null)
+            {
+                return new SignupResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = ""
+                };
+            }
+            else
+            {
+                if (message != "")
+                {
+                    return new SignupResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = message
+                    };
+                }
+                else
+                {
+                    _context.Accounts.Add(account);
+                    await _context.SaveChangesAsync();
+
+                    return new SignupResponse
+                    {
+                        Status = ResponseStatus.Susscess
+                    };
+                }
+            }
         }
 
         // DELETE: api/Accounts/5
@@ -118,6 +157,29 @@ namespace HelpDeskSystem.Controller
         private bool AccountExists(int id)
         {
             return (_context.Accounts?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpPost]
+        [Route("Login")]
+        public async Task<LoginResponse> CheckLogin([FromBody] LoginRequest user)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.workemail.Equals(user.workemail) && u.password.Equals(user.password));
+
+
+            if (account == null)
+            {
+                return new LoginResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Invalid login credentials. Please try again."
+                };
+            }
+
+            return new LoginResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
     }
 }

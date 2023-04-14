@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     [DbContext(typeof(EF_DataContext))]
-    [Migration("20230409173618_MyMigration")]
-    partial class MyMigration
+    [Migration("20230410111812_MyFirstMigration")]
+    partial class MyFirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

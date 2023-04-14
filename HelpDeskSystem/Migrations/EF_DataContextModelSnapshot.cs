@@ -40,6 +40,9 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("password")
                         .HasColumnType("text");
 
+                    b.Property<string>("test")
+                        .HasColumnType("text");
+
                     b.Property<string>("workemail")
                         .HasColumnType("text");
 

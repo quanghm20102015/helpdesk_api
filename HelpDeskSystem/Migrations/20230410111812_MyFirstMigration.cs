@@ -7,11 +7,27 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDatabase : Migration
+    public partial class MyFirstMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Accounts",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
+                    fullname = table.Column<string>(type: "text", nullable: false),
+                    company = table.Column<string>(type: "text", nullable: true),
+                    workemail = table.Column<string>(type: "text", nullable: true),
+                    password = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Accounts", x => x.id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
@@ -61,6 +77,9 @@ namespace HelpDeskSystem.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Accounts");
+
             migrationBuilder.DropTable(
                 name: "Orders");
 

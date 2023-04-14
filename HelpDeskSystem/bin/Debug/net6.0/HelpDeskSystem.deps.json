@@ -8,17 +8,28 @@
     ".NETCoreApp,Version=v6.0": {
       "HelpDeskSystem/1.0.0": {
         "dependencies": {
+          "BCrypt.Net-Next": "4.0.3",
+          "Interfaces": "1.0.0",
           "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": "6.0.15",
+          "Microsoft.EntityFrameworkCore": "7.0.4",
           "Microsoft.EntityFrameworkCore.Design": "7.0.4",
           "Microsoft.EntityFrameworkCore.InMemory": "7.0.4",
           "Microsoft.EntityFrameworkCore.SqlServer": "6.0.15",
-          "Microsoft.EntityFrameworkCore.Tools": "6.0.15",
+          "Microsoft.EntityFrameworkCore.Tools": "7.0.4",
           "Microsoft.VisualStudio.Web.CodeGeneration.Design": "6.0.13",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "7.0.3",
           "Swashbuckle.AspNetCore": "6.2.3"
         },
         "runtime": {
           "HelpDeskSystem.dll": {}
+        }
+      },
+      "BCrypt.Net-Next/4.0.3": {
+        "runtime": {
+          "lib/net6.0/BCrypt.Net-Next.dll": {
+            "assemblyVersion": "4.0.3.0",
+            "fileVersion": "4.0.3.0"
+          }
         }
       },
       "Humanizer.Core/2.14.1": {
@@ -962,7 +973,7 @@
           }
         }
       },
-      "Microsoft.EntityFrameworkCore.Tools/6.0.15": {
+      "Microsoft.EntityFrameworkCore.Tools/7.0.4": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Design": "7.0.4"
         }
@@ -2437,6 +2448,11 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
         }
+      },
+      "Interfaces/1.0.0": {
+        "runtime": {
+          "Interfaces.dll": {}
+        }
       }
     }
   },
@@ -2445,6 +2461,13 @@
       "type": "project",
       "serviceable": false,
       "sha512": ""
+    },
+    "BCrypt.Net-Next/4.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-W+U9WvmZQgi5cX6FS5GDtDoPzUCV4LkBLkywq/kRZhuDwcbavOzcDAr3LXJFqHUi952Yj3LEYoWW0jbEUQChsA==",
+      "path": "bcrypt.net-next/4.0.3",
+      "hashPath": "bcrypt.net-next.4.0.3.nupkg.sha512"
     },
     "Humanizer.Core/2.14.1": {
       "type": "package",
@@ -2698,12 +2721,12 @@
       "path": "microsoft.entityframeworkcore.sqlserver/6.0.15",
       "hashPath": "microsoft.entityframeworkcore.sqlserver.6.0.15.nupkg.sha512"
     },
-    "Microsoft.EntityFrameworkCore.Tools/6.0.15": {
+    "Microsoft.EntityFrameworkCore.Tools/7.0.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-xqbrSDOj+5xDD/bC7e6PIAH4iTqnuERgxJhwZxJMjULAUUs3cg+m66XQDDFRyTj3m4T1bZwrMZKhE5d/aGL1lg==",
-      "path": "microsoft.entityframeworkcore.tools/6.0.15",
-      "hashPath": "microsoft.entityframeworkcore.tools.6.0.15.nupkg.sha512"
+      "sha512": "sha512-58hDB+ENGisuSjJBl1RBHL9qzFJTukFSQFl/wCU8/3ApcOH/rPrRG4PWThiJTmfHRmh8H8HExdYbtkv7wa7BLg==",
+      "path": "microsoft.entityframeworkcore.tools/7.0.4",
+      "hashPath": "microsoft.entityframeworkcore.tools.7.0.4.nupkg.sha512"
     },
     "Microsoft.Extensions.ApiDescription.Server/3.0.0": {
       "type": "package",
@@ -3740,6 +3763,11 @@
       "sha512": "sha512-5zJ0XDxAIg8iy+t4aMnQAu0MqVbqyvfoUVl1yDV61xdo3Vth45oA2FoY4pPkxYAH5f8ixpmTqXeEIya95x0aCQ==",
       "path": "system.xml.xdocument/4.3.0",
       "hashPath": "system.xml.xdocument.4.3.0.nupkg.sha512"
+    },
+    "Interfaces/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

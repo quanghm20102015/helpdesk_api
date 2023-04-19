@@ -1,45 +1,41 @@
 {
   "format": 1,
   "restore": {
-    "D:\\project\\HelpDeskSystem\\helpdesk_api\\HelpDeskSystem\\HelpDeskSystem.csproj": {}
+    "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\HelpDeskSystem\\HelpDeskSystem.csproj": {}
   },
   "projects": {
-    "D:\\project\\HelpDeskSystem\\helpdesk_api\\HelpDeskSystem\\HelpDeskSystem.csproj": {
+    "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\HelpDeskSystem\\HelpDeskSystem.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\project\\HelpDeskSystem\\helpdesk_api\\HelpDeskSystem\\HelpDeskSystem.csproj",
+        "projectUniqueName": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\HelpDeskSystem\\HelpDeskSystem.csproj",
         "projectName": "HelpDeskSystem",
-        "projectPath": "D:\\project\\HelpDeskSystem\\helpdesk_api\\HelpDeskSystem\\HelpDeskSystem.csproj",
-        "packagesPath": "C:\\Users\\SV-01\\.nuget\\packages\\",
-        "outputPath": "D:\\project\\HelpDeskSystem\\helpdesk_api\\HelpDeskSystem\\obj\\",
+        "projectPath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\HelpDeskSystem\\HelpDeskSystem.csproj",
+        "packagesPath": "C:\\Users\\quang\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\HelpDeskSystem\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\Program\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "C:\\Program Files (x86)\\DevExpress 20.2\\Components\\Offline Packages",
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\SV-01\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 18.2.config",
+          "C:\\Users\\quang\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 19.1.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 21.2.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 20.2.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\DevExpress 19.1\\Components\\System\\Components\\Packages": {},
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "D:\\Program\\DevExpress 18.2\\Components\\System\\Components\\Packages": {},
-          "D:\\Program\\Program Files (x86)\\DevExpress 21.2\\Components\\System\\Components\\Packages": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "D:\\project\\HelpDeskSystem\\helpdesk_api\\Interfaces\\Interfaces.csproj": {
-                "projectPath": "D:\\project\\HelpDeskSystem\\helpdesk_api\\Interfaces\\Interfaces.csproj"
+              "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\Interfaces\\Interfaces.csproj": {
+                "projectPath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\Interfaces\\Interfaces.csproj"
               }
             }
           }
@@ -118,38 +114,34 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\project\\HelpDeskSystem\\helpdesk_api\\Interfaces\\Interfaces.csproj": {
+    "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\Interfaces\\Interfaces.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\project\\HelpDeskSystem\\helpdesk_api\\Interfaces\\Interfaces.csproj",
+        "projectUniqueName": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\Interfaces\\Interfaces.csproj",
         "projectName": "Interfaces",
-        "projectPath": "D:\\project\\HelpDeskSystem\\helpdesk_api\\Interfaces\\Interfaces.csproj",
-        "packagesPath": "C:\\Users\\SV-01\\.nuget\\packages\\",
-        "outputPath": "D:\\project\\HelpDeskSystem\\helpdesk_api\\Interfaces\\obj\\",
+        "projectPath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\Interfaces\\Interfaces.csproj",
+        "packagesPath": "C:\\Users\\quang\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\Interfaces\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\Program\\Program Files (x86)\\DevExpress 21.2\\Components\\Offline Packages",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "C:\\Program Files (x86)\\DevExpress 20.2\\Components\\Offline Packages",
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\SV-01\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 18.2.config",
+          "C:\\Users\\quang\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 19.1.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 21.2.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 20.2.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\DevExpress 19.1\\Components\\System\\Components\\Packages": {},
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "D:\\Program\\DevExpress 18.2\\Components\\System\\Components\\Packages": {},
-          "D:\\Program\\Program Files (x86)\\DevExpress 21.2\\Components\\System\\Components\\Packages": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -183,7 +175,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.201\\RuntimeIdentifierGraph.json"
         }
       }
     }

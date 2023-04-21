@@ -8,4 +8,4 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Interfaces
-build_property.ProjectDir = C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\
+build_property.ProjectDir = D:\project\HelpDeskSystem\helpdesk_api\Interfaces\

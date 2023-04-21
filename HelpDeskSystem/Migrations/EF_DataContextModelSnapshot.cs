@@ -17,7 +17,7 @@ namespace HelpDeskSystem.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.4")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseSerialColumns(modelBuilder);
@@ -165,6 +165,9 @@ namespace HelpDeskSystem.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("from")
+                        .HasColumnType("text");
+
+                    b.Property<string>("fromName")
                         .HasColumnType("text");
 
                     b.Property<int?>("idConfigEmail")

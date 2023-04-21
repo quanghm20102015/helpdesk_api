@@ -1,15 +1,3 @@
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\bin\Debug\net6.0\Interfaces.deps.json
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\bin\Debug\net6.0\Interfaces.dll
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\bin\Debug\net6.0\Interfaces.pdb
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.csproj.AssemblyReference.cache
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.GeneratedMSBuildEditorConfig.editorconfig
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.AssemblyInfoInputs.cache
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.AssemblyInfo.cs
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.csproj.CoreCompileInputs.cache
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.dll
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\refint\Interfaces.dll
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.pdb
-D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\ref\Interfaces.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\bin\Debug\net6.0\Interfaces.deps.json
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\bin\Debug\net6.0\Interfaces.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\bin\Debug\net6.0\Interfaces.pdb
@@ -22,3 +10,15 @@ C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\obj\
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\obj\Debug\net6.0\refint\Interfaces.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\obj\Debug\net6.0\Interfaces.pdb
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\Interfaces\obj\Debug\net6.0\ref\Interfaces.dll
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\bin\Debug\net6.0\Interfaces.deps.json
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\bin\Debug\net6.0\Interfaces.dll
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\bin\Debug\net6.0\Interfaces.pdb
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.csproj.AssemblyReference.cache
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.GeneratedMSBuildEditorConfig.editorconfig
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.AssemblyInfoInputs.cache
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.AssemblyInfo.cs
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.csproj.CoreCompileInputs.cache
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.dll
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\refint\Interfaces.dll
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\Interfaces.pdb
+D:\project\HelpDeskSystem\helpdesk_api\Interfaces\obj\Debug\net6.0\ref\Interfaces.dll

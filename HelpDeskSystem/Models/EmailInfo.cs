@@ -31,6 +31,11 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public string? fromName
+        {
+            get;
+            set;
+        }
         public string? to
         {
             get;

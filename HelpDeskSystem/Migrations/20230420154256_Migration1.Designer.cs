@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     [DbContext(typeof(EF_DataContext))]
-    [Migration("20230410112848_MySecondMigration")]
-    partial class MySecondMigration
+    [Migration("20230420154256_Migration1")]
+    partial class Migration1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,9 +43,6 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("password")
                         .HasColumnType("text");
 
-                    b.Property<string>("test")
-                        .HasColumnType("text");
-
                     b.Property<string>("workemail")
                         .HasColumnType("text");
 
@@ -54,7 +51,7 @@ namespace HelpDeskSystem.Migrations
                     b.ToTable("Accounts");
                 });
 
-            modelBuilder.Entity("HelpDeskSystem.Models.Order", b =>
+            modelBuilder.Entity("HelpDeskSystem.Models.Contact", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -62,33 +59,46 @@ namespace HelpDeskSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
-                    b.Property<string>("address")
+                    b.Property<string>("bio")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("createdon")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("city")
+                        .HasColumnType("text");
 
-                    b.Property<string>("name")
+                    b.Property<string>("company")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("country")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("email")
+                        .HasColumnType("text");
+
+                    b.Property<string>("facebook")
+                        .HasColumnType("text");
+
+                    b.Property<string>("fullname")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("phone")
+                    b.Property<string>("github")
                         .HasColumnType("text");
 
-                    b.Property<int>("product_id")
-                        .HasColumnType("integer");
+                    b.Property<string>("linkedin")
+                        .HasColumnType("text");
 
-                    b.Property<int>("productid")
-                        .HasColumnType("integer");
+                    b.Property<string>("phoneNumber")
+                        .HasColumnType("text");
+
+                    b.Property<string>("twitter")
+                        .HasColumnType("text");
 
                     b.HasKey("id");
 
-                    b.HasIndex("productid");
-
-                    b.ToTable("Orders");
+                    b.ToTable("Contacts");
                 });
 
-            modelBuilder.Entity("HelpDeskSystem.Models.Product", b =>
+            modelBuilder.Entity("HelpDeskSystem.Models.Country", b =>
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -96,33 +106,13 @@ namespace HelpDeskSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
-                    b.Property<string>("brand")
-                        .HasColumnType("text");
-
                     b.Property<string>("name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<decimal>("price")
-                        .HasColumnType("numeric");
-
-                    b.Property<string>("size")
-                        .HasColumnType("text");
-
                     b.HasKey("id");
 
-                    b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("HelpDeskSystem.Models.Order", b =>
-                {
-                    b.HasOne("HelpDeskSystem.Models.Product", "product")
-                        .WithMany()
-                        .HasForeignKey("productid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("product");
+                    b.ToTable("Countrys");
                 });
 #pragma warning restore 612, 618
         }

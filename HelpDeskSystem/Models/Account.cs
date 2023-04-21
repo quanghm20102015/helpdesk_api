@@ -31,10 +31,5 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
-        public string? test
-        {
-            get;
-            set;
-        }
     }
 }

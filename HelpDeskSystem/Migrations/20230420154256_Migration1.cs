@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -7,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class MyFirstMigration : Migration
+    public partial class Migration1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,49 +28,40 @@ namespace HelpDeskSystem.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Products",
+                name: "Contacts",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    brand = table.Column<string>(type: "text", nullable: true),
-                    size = table.Column<string>(type: "text", nullable: true),
-                    price = table.Column<decimal>(type: "numeric", nullable: false)
+                    fullname = table.Column<string>(type: "text", nullable: false),
+                    email = table.Column<string>(type: "text", nullable: true),
+                    bio = table.Column<string>(type: "text", nullable: true),
+                    phoneNumber = table.Column<string>(type: "text", nullable: true),
+                    company = table.Column<string>(type: "text", nullable: true),
+                    country = table.Column<int>(type: "integer", nullable: true),
+                    city = table.Column<string>(type: "text", nullable: true),
+                    facebook = table.Column<string>(type: "text", nullable: true),
+                    twitter = table.Column<string>(type: "text", nullable: true),
+                    linkedin = table.Column<string>(type: "text", nullable: true),
+                    github = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Products", x => x.id);
+                    table.PrimaryKey("PK_Contacts", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Orders",
+                name: "Countrys",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    address = table.Column<string>(type: "text", nullable: true),
-                    phone = table.Column<string>(type: "text", nullable: true),
-                    createdon = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    productid = table.Column<int>(type: "integer", nullable: false)
+                    name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Orders", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_Orders_Products_productid",
-                        column: x => x.productid,
-                        principalTable: "Products",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_Countrys", x => x.id);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_productid",
-                table: "Orders",
-                column: "productid");
         }
 
         /// <inheritdoc />
@@ -81,10 +71,10 @@ namespace HelpDeskSystem.Migrations
                 name: "Accounts");
 
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "Contacts");
 
             migrationBuilder.DropTable(
-                name: "Products");
+                name: "Countrys");
         }
     }
 }

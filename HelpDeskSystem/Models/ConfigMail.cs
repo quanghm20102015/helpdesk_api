@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 namespace HelpDeskSystem.Models
 {
-    public class Product
+    public class ConfigMail
     {
         [Key, Required]
         public int id
@@ -10,30 +11,40 @@ namespace HelpDeskSystem.Models
             set;
         }
         [Required]
-        public string? name
+        public string? yourName
         {
             get;
             set;
         }
-        public string? brand
+        public string? email
         {
             get;
             set;
         }
-        public string? size
+        public string? password
         {
             get;
             set;
         }
-        public decimal price
+        public string? incoming
         {
             get;
             set;
         }
-        //public virtual ICollection<Order> orders
-        //{
-        //    get;
-        //    set;
-        //}
+        public int? incomingPort
+        {
+            get;
+            set;
+        }
+        public string? outgoing
+        {
+            get;
+            set;
+        }
+        public int? outgoingPort
+        {
+            get;
+            set;
+        }
     }
 }

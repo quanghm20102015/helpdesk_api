@@ -9,17 +9,27 @@ namespace HelpDeskSystem.Models
         {
             modelBuilder.UseSerialColumns();
         }
-        public DbSet<Product> Products
-        {
-            get;
-            set;
-        }
-        public DbSet<Order> Orders
-        {
-            get;
-            set;
-        }
         public DbSet<Account> Accounts
+        {
+            get;
+            set;
+        }
+        public DbSet<Country> Countrys
+        {
+            get;
+            set;
+        }
+        public DbSet<Contact> Contacts
+        {
+            get;
+            set;
+        }
+        public DbSet<ConfigMail> ConfigMails
+        {
+            get;
+            set;
+        }
+        public DbSet<EmailInfo> EmailInfos
         {
             get;
             set;

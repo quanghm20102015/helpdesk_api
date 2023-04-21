@@ -2,7 +2,7 @@
 
 namespace HelpDeskSystem.Models
 {
-    public class Order
+    public class EmailInfo
     {
         [Key, Required]
         public int id
@@ -10,33 +10,48 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
-        public int product_id
-        {
-            get;
-            set;
-        }
         [Required]
-        public string? name
+        public int? idConfigEmail
         {
             get;
             set;
         }
-        public string? address
+        public string? messageId
         {
             get;
             set;
         }
-        public string? phone
+        public DateTime? date
         {
             get;
             set;
         }
-        public DateTime createdon
+        public string? from
         {
             get;
             set;
         }
-        public virtual Product product
+        public string? to
+        {
+            get;
+            set;
+        }
+        public string? cc
+        {
+            get;
+            set;
+        }
+        public string? bcc
+        {
+            get;
+            set;
+        }
+        public string? subject
+        {
+            get;
+            set;
+        }
+        public string? textBody
         {
             get;
             set;

@@ -3,6 +3,7 @@ using System;
 using HelpDeskSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     [DbContext(typeof(EF_DataContext))]
-    partial class EF_DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230421072258_Migration3")]
+    partial class Migration3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,17 +164,8 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("cc")
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("date")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("from")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("idConfigEmail")
                         .IsRequired()
-                        .HasColumnType("integer");
-
-                    b.Property<string>("messageId")
                         .HasColumnType("text");
 
                     b.Property<string>("subject")

@@ -11,55 +11,55 @@ namespace HelpDeskSystem.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class EmailInfoesController : ControllerBase
+    public class CompaniesController : ControllerBase
     {
         private readonly EF_DataContext _context;
 
-        public EmailInfoesController(EF_DataContext context)
+        public CompaniesController(EF_DataContext context)
         {
             _context = context;
         }
 
-        // GET: api/EmailInfoes
+        // GET: api/Companies
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<EmailInfo>>> GetEmailInfos()
+        public async Task<ActionResult<IEnumerable<Company>>> GetCompanys()
         {
-          if (_context.EmailInfos == null)
+          if (_context.Companys == null)
           {
               return NotFound();
           }
-            return await _context.EmailInfos.OrderByDescending(x=>x.id).ToListAsync();
+            return await _context.Companys.ToListAsync();
         }
 
-        // GET: api/EmailInfoes/5
+        // GET: api/Companies/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmailInfo>> GetEmailInfo(int id)
+        public async Task<ActionResult<Company>> GetCompany(int id)
         {
-          if (_context.EmailInfos == null)
+          if (_context.Companys == null)
           {
               return NotFound();
           }
-            var emailInfo = await _context.EmailInfos.FindAsync(id);
+            var company = await _context.Companys.FindAsync(id);
 
-            if (emailInfo == null)
+            if (company == null)
             {
                 return NotFound();
             }
 
-            return emailInfo;
+            return company;
         }
 
-        // PUT: api/EmailInfoes/5
+        // PUT: api/Companies/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmailInfo(int id, EmailInfo emailInfo)
+        public async Task<IActionResult> PutCompany(int id, Company company)
         {
-            if (id != emailInfo.id)
+            if (id != company.id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(emailInfo).State = EntityState.Modified;
+            _context.Entry(company).State = EntityState.Modified;
 
             try
             {
@@ -67,7 +67,7 @@ namespace HelpDeskSystem.Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EmailInfoExists(id))
+                if (!CompanyExists(id))
                 {
                     return NotFound();
                 }
@@ -80,44 +80,44 @@ namespace HelpDeskSystem.Controller
             return NoContent();
         }
 
-        // POST: api/EmailInfoes
+        // POST: api/Companies
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<EmailInfo>> PostEmailInfo(EmailInfo emailInfo)
+        public async Task<ActionResult<Company>> PostCompany(Company company)
         {
-          if (_context.EmailInfos == null)
+          if (_context.Companys == null)
           {
-              return Problem("Entity set 'EF_DataContext.EmailInfos'  is null.");
+              return Problem("Entity set 'EF_DataContext.Companys'  is null.");
           }
-            _context.EmailInfos.Add(emailInfo);
+            _context.Companys.Add(company);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEmailInfo", new { id = emailInfo.id }, emailInfo);
+            return CreatedAtAction("GetCompany", new { id = company.id }, company);
         }
 
-        // DELETE: api/EmailInfoes/5
+        // DELETE: api/Companies/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmailInfo(int id)
+        public async Task<IActionResult> DeleteCompany(int id)
         {
-            if (_context.EmailInfos == null)
+            if (_context.Companys == null)
             {
                 return NotFound();
             }
-            var emailInfo = await _context.EmailInfos.FindAsync(id);
-            if (emailInfo == null)
+            var company = await _context.Companys.FindAsync(id);
+            if (company == null)
             {
                 return NotFound();
             }
 
-            _context.EmailInfos.Remove(emailInfo);
+            _context.Companys.Remove(company);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool EmailInfoExists(int id)
+        private bool CompanyExists(int id)
         {
-            return (_context.EmailInfos?.Any(e => e.id == id)).GetValueOrDefault();
+            return (_context.Companys?.Any(e => e.id == id)).GetValueOrDefault();
         }
     }
 }

@@ -51,6 +51,27 @@ namespace HelpDeskSystem.Controller
             return account;
         }
 
+        // GET: api/Accounts/5
+        [HttpGet]
+        [Route("GetByEmail")]
+        public async Task<ActionResult<Account>> GetAccountByEmail(string workemail)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.workemail.Equals(workemail));
+            //var account = await _context.Accounts.FindAsync(workemail);
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return account;
+        }
+
         // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -123,6 +144,12 @@ namespace HelpDeskSystem.Controller
                 }
                 else
                 {
+                    Company cpn = new Company();
+                    cpn.companyName = account.company;
+                    _context.Companys.Add(cpn);
+                    _context.SaveChanges();
+
+                    account.idCompany = cpn.id;
                     _context.Accounts.Add(account);
                     await _context.SaveChangesAsync();
 

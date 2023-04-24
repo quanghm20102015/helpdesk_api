@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using HelpDeskSystem.Models;
 
 namespace HelpDeskSystem.Models
 {
@@ -34,5 +35,6 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<Company> Companys { get; set; }
     }
 }

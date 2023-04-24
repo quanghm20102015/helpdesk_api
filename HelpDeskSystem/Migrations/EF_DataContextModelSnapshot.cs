@@ -37,6 +37,9 @@ namespace HelpDeskSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("idCompany")
+                        .HasColumnType("integer");
+
                     b.Property<string>("password")
                         .HasColumnType("text");
 
@@ -46,6 +49,23 @@ namespace HelpDeskSystem.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Accounts");
+                });
+
+            modelBuilder.Entity("HelpDeskSystem.Models.Company", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+
+                    b.Property<string>("companyName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Companys");
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.ConfigMail", b =>
@@ -58,6 +78,9 @@ namespace HelpDeskSystem.Migrations
 
                     b.Property<string>("email")
                         .HasColumnType("text");
+
+                    b.Property<int>("idCompany")
+                        .HasColumnType("integer");
 
                     b.Property<string>("incoming")
                         .HasColumnType("text");
@@ -115,6 +138,9 @@ namespace HelpDeskSystem.Migrations
 
                     b.Property<string>("github")
                         .HasColumnType("text");
+
+                    b.Property<int>("idCompany")
+                        .HasColumnType("integer");
 
                     b.Property<string>("linkedin")
                         .HasColumnType("text");

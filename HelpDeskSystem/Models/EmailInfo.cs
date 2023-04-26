@@ -61,5 +61,15 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public int? status
+        {
+            get;
+            set;
+        }
+        public int? assign
+        {
+            get;
+            set;
+        }
     }
 }

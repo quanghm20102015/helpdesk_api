@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Model.Account;
+using Interfaces.Constants;
+using MailKit.Net.Smtp;
+using MailKit.Net.Imap;
+using System.Text;
 
 namespace HelpDeskSystem.Controller
 {
@@ -52,13 +57,8 @@ namespace HelpDeskSystem.Controller
         // PUT: api/ConfigMails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutConfigMail(int id, ConfigMail configMail)
+        public async Task<ConfigMailResponse> PutConfigMail(ConfigMail configMail)
         {
-            if (id != configMail.id)
-            {
-                return BadRequest();
-            }
-
             _context.Entry(configMail).State = EntityState.Modified;
 
             try
@@ -67,9 +67,13 @@ namespace HelpDeskSystem.Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ConfigMailExists(id))
+                if (!ConfigMailExists(configMail.id))
                 {
-                    return NotFound();
+                    return new ConfigMailResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
                 }
                 else
                 {
@@ -77,22 +81,67 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            return NoContent();
+            return new ConfigMailResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
         // POST: api/ConfigMails
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ConfigMail>> PostConfigMail(ConfigMail configMail)
+        public async Task<ConfigMailResponse> PostConfigMail(ConfigMail configMail)
         {
-          if (_context.ConfigMails == null)
-          {
-              return Problem("Entity set 'EF_DataContext.ConfigMails'  is null.");
-          }
+            try
+            {
+                using (var client = new SmtpClient())
+                {
+                    client.Connect(configMail.outgoing, configMail.outgoingPort.Value);
+                    client.Authenticate(configMail.email, configMail.password);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ConfigMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Outgoing or OutgoingPort incorrect"
+                };
+            }
+
+            try
+            {
+                using (var client = new ImapClient())
+                {
+                    client.Connect(configMail.incoming, configMail.incomingPort.Value, true);
+                    client.Authenticate(configMail.email, configMail.password);
+                }
+            }
+            catch (Exception ex)
+            {
+                return new ConfigMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Ingoing or IngoingPort incorrect"
+                };
+            }
+
+
+            if (_context.ConfigMails == null)
+            {
+                return new ConfigMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Entity set 'EF_DataContext.Labels'  is null."
+                };
+            }
             _context.ConfigMails.Add(configMail);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetConfigMail", new { id = configMail.id }, configMail);
+            return new ConfigMailResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
         // DELETE: api/ConfigMails/5
@@ -118,6 +167,24 @@ namespace HelpDeskSystem.Controller
         private bool ConfigMailExists(int id)
         {
             return (_context.ConfigMails?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpGet]
+        [Route("GetByIdCompany")]
+        public async Task<ActionResult<List<ConfigMail>>> GetByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<ConfigMail> label = _context.ConfigMails.Where(r => r.idCompany == idCompany).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
         }
     }
 }

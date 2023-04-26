@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Constants;
+using Interfaces.Model.Account;
 
 namespace HelpDeskSystem.Controller
 {
@@ -83,16 +85,34 @@ namespace HelpDeskSystem.Controller
         // POST: api/Contacts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Contact>> PostContact(Contact contact)
+        public async Task<ContactResponse> PostContact(Contact contact)
         {
-          if (_context.Contacts == null)
-          {
-              return Problem("Entity set 'EF_DataContext.Contacts'  is null.");
-          }
-            _context.Contacts.Add(contact);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if (_context.Contacts == null)
+                {
+                    return new ContactResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = ""
+                    };
+                }
+                _context.Contacts.Add(contact);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetContact", new { id = contact.id }, contact);
+                return new ContactResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return new ContactResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = ""
+                };
+            }
         }
 
         // DELETE: api/Contacts/5
@@ -118,6 +138,25 @@ namespace HelpDeskSystem.Controller
         private bool ContactExists(int id)
         {
             return (_context.Contacts?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+
+        [HttpGet]
+        [Route("GetByIdCompany")]
+        public async Task<ActionResult<List<Contact>>> GetByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<Contact> label = _context.Contacts.Where(r => r.idCompany == idCompany).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
         }
     }
 }

@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  helpdesksystem:
+    image: ${DOCKER_REGISTRY-}helpdesksystem
+    build:
+      context: .
+      dockerfile: HelpDeskSystem/Dockerfile

@@ -119,7 +119,7 @@ namespace HelpDeskSystem.Controller
             {
                 message += "Email already exist" + System.Environment.NewLine;
             }
-            if (accountCompany != null)
+            if (accountCompany != null && account.idCompany == 0)
             {
                 message += "Company already exist" + System.Environment.NewLine;
             }
@@ -144,12 +144,16 @@ namespace HelpDeskSystem.Controller
                 }
                 else
                 {
-                    Company cpn = new Company();
-                    cpn.companyName = account.company;
-                    _context.Companys.Add(cpn);
-                    _context.SaveChanges();
+                    if(account.idCompany == 0)
+                    {
+                        Company cpn = new Company();
+                        cpn.companyName = account.company;
+                        _context.Companys.Add(cpn);
+                        _context.SaveChanges();
 
-                    account.idCompany = cpn.id;
+                        account.idCompany = cpn.id;
+                    }
+
                     _context.Accounts.Add(account);
                     await _context.SaveChangesAsync();
 

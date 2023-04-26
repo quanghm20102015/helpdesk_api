@@ -36,5 +36,15 @@ namespace HelpDeskSystem.Models
             set;
         }
         public DbSet<Company> Companys { get; set; }
+        public DbSet<Label> Labels
+        {
+            get;
+            set;
+        }
+        public DbSet<Status> Status
+        {
+            get;
+            set;
+        }
     }
 }

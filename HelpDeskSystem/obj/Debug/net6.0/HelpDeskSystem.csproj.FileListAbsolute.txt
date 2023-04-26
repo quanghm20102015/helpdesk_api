@@ -865,3 +865,8 @@ C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Debug\net6.0\HelpDeskSystem.pdb
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Debug\net6.0\HelpDeskSystem.genruntimeconfig.cache
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Debug\net6.0\ref\HelpDeskSystem.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\bin\Debug\net6.0\BouncyCastle.Cryptography.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\bin\Debug\net6.0\MailKit.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\bin\Debug\net6.0\MimeKit.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\bin\Debug\net6.0\System.Security.Cryptography.Pkcs.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\bin\Debug\net6.0\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll

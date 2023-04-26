@@ -6,6 +6,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Model.Account;
+using Interfaces.Constants;
+using MailKit.Net.Smtp;
+using MailKit.Security;
+using MimeKit;
+using MimeKit.Text;
+//using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
 {
@@ -113,6 +120,44 @@ namespace HelpDeskSystem.Controller
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost]
+        [Route("SendMail")]
+        public async Task<SendMailResponse> SendMail(SendMailResquest request)
+        {
+            try
+            {
+                List<ConfigMail> configMail = _context.ConfigMails.Where(r => r.idCompany == request.idCompany).ToList();
+
+                if (configMail.Count > 0)
+                {
+                    var message = new MimeMessage();
+                    message.From.Add(new MailboxAddress(configMail[0].yourName, configMail[0].email));
+                    message.To.Add(new MailboxAddress("", request.to));
+                    message.Subject = request.subject;
+                    message.Body = new TextPart(TextFormat.Plain) { Text = request.body };
+
+                    var smtp = new SmtpClient();
+                    smtp.Connect(configMail[0].outgoing, configMail[0].outgoingPort.Value);
+                    smtp.Authenticate(configMail[0].email, configMail[0].password);
+                    smtp.Send(message);
+                    smtp.Disconnect(true);
+                }
+
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            catch (Exception ex)
+            {
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = ex.Message
+                };
+            }
         }
 
         private bool EmailInfoExists(int id)

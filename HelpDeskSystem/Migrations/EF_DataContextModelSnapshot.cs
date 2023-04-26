@@ -181,6 +181,9 @@ namespace HelpDeskSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
+                    b.Property<int?>("assign")
+                        .HasColumnType("integer");
+
                     b.Property<string>("bcc")
                         .HasColumnType("text");
 
@@ -203,6 +206,9 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("messageId")
                         .HasColumnType("text");
 
+                    b.Property<int?>("status")
+                        .HasColumnType("integer");
+
                     b.Property<string>("subject")
                         .HasColumnType("text");
 
@@ -215,6 +221,49 @@ namespace HelpDeskSystem.Migrations
                     b.HasKey("id");
 
                     b.ToTable("EmailInfos");
+                });
+
+            modelBuilder.Entity("HelpDeskSystem.Models.Label", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+
+                    b.Property<string>("color")
+                        .HasColumnType("text");
+
+                    b.Property<string>("description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("idCompany")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Labels");
+                });
+
+            modelBuilder.Entity("HelpDeskSystem.Models.Status", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+
+                    b.Property<string>("statusName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Status");
                 });
 #pragma warning restore 612, 618
         }

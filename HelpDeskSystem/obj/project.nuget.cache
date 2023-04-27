@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Jb9vAvci3yV5QVkbJg5tDuVkW2zhX1B/fE6CyFUg6Mu2apKlPt4QChpyGS7C8l+u/rwl0bEjj51WngmIssB4gg==",
+  "dgSpecHash": "8nhGshcPWtTrgwZhnqlWwCtvLhkGhUzlPiREZJLTG3r2UClyk29O3IJhaOgeIpiXkA/ybQSqT3a/jf1ZMC9mvg==",
   "success": true,
   "projectFilePath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\HelpDeskSystem\\HelpDeskSystem.csproj",
   "expectedPackageFiles": [
@@ -65,6 +65,7 @@
     "C:\\Users\\quang\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.1\\microsoft.netcore.platforms.1.1.1.nupkg.sha512",
     "C:\\Users\\quang\\.nuget\\packages\\microsoft.netcore.targets\\1.1.3\\microsoft.netcore.targets.1.1.3.nupkg.sha512",
     "C:\\Users\\quang\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
+    "C:\\Users\\quang\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.17.2\\microsoft.visualstudio.azure.containers.tools.targets.1.17.2.nupkg.sha512",
     "C:\\Users\\quang\\.nuget\\packages\\microsoft.visualstudio.debugger.contracts\\17.2.0\\microsoft.visualstudio.debugger.contracts.17.2.0.nupkg.sha512",
     "C:\\Users\\quang\\.nuget\\packages\\microsoft.visualstudio.web.codegeneration\\6.0.13\\microsoft.visualstudio.web.codegeneration.6.0.13.nupkg.sha512",
     "C:\\Users\\quang\\.nuget\\packages\\microsoft.visualstudio.web.codegeneration.core\\6.0.13\\microsoft.visualstudio.web.codegeneration.core.6.0.13.nupkg.sha512",

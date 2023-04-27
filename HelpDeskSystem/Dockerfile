@@ -12,10 +12,10 @@ COPY ["helpdesk_api/Interfaces/Interfaces.csproj", "Interfaces/"]
 RUN dotnet restore "HelpDeskSystem/HelpDeskSystem.csproj"
 COPY . .
 WORKDIR "/src/HelpDeskSystem"
-RUN dotnet build "HelpDeskSystem/HelpDeskSystem.csproj" -c Release -o /app/build
+RUN dotnet build "helpdesk_api/HelpDeskSystem/HelpDeskSystem.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "HelpDeskSystem/HelpDeskSystem.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "helpdesk_api/HelpDeskSystem/HelpDeskSystem.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

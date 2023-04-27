@@ -1,11 +1,12 @@
-C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\HelpDeskSystem.exe
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\appsettings.Development.json
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\appsettings.json
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\HelpDeskSystem.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\HelpDeskSystem.runtimeconfig.json
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\HelpDeskSystem.pdb
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\BCrypt.Net-Next.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\BouncyCastle.Cryptography.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Humanizer.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\MailKit.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\MessagePack.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\MessagePack.Annotations.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore.dll
@@ -61,6 +62,7 @@ C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Microsoft.Win32.SystemEvents.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\MimeKit.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Newtonsoft.Json.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Npgsql.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\Npgsql.EntityFrameworkCore.PostgreSQL.dll
@@ -86,6 +88,7 @@ C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\System.Reflection.MetadataLoadContext.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\System.Runtime.Caching.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\System.Security.Cryptography.Pkcs.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\System.Security.Cryptography.ProtectedData.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\System.Security.Permissions.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\System.Text.Encodings.Web.dll
@@ -257,6 +260,7 @@ C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Drawing.Common.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
+C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\runtimes\browser\lib\net6.0\System.Text.Encodings.Web.dll
 C:\Users\quang\Documents\Visual Studio 2022\Project\HelpDesk\API\HelpDeskSystem\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\net6.0\System.Windows.Extensions.dll

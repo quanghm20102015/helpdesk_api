@@ -7,8 +7,8 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["HelpDeskSystem/HelpDeskSystem.csproj", "HelpDeskSystem/"]
-COPY ["Interfaces/Interfaces.csproj", "Interfaces/"]
+COPY ["helpdesk_api/HelpDeskSystem/HelpDeskSystem.csproj", "HelpDeskSystem/"]
+COPY ["helpdesk_api/Interfaces/Interfaces.csproj", "Interfaces/"]
 RUN dotnet restore "HelpDeskSystem/HelpDeskSystem.csproj"
 COPY . .
 WORKDIR "/src/HelpDeskSystem"

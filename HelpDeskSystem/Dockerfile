@@ -20,12 +20,12 @@
 #FROM base AS final
 #WORKDIR /app
 #COPY --from=publish /app/publish .
-FROM mcr.microsoft.com/dotnet/aspnet:6.0-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0-buster-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS AS build
 WORKDIR /src
 COPY ["helpdesk_api/HelpDeskSystem/HelpDeskSystem.csproj", "HelpDeskSystem/"]
 RUN dotnet restore "helpdesk_api/HelpDeskSystem/HelpDeskSystem.csproj"

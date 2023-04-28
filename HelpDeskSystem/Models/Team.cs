@@ -21,5 +21,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public string? description
+        {
+            get;
+            set;
+        }
     }
 }

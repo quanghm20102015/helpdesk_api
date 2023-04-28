@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HelpDeskSystem", "HelpDeskS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interfaces", "Interfaces\Interfaces.csproj", "{F74920D3-705B-4545-AD29-D57428C2CD82}"
 EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{223F4B01-A698-47FB-A083-961BC1A8A122}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{F74920D3-705B-4545-AD29-D57428C2CD82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F74920D3-705B-4545-AD29-D57428C2CD82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F74920D3-705B-4545-AD29-D57428C2CD82}.Release|Any CPU.Build.0 = Release|Any CPU
-		{223F4B01-A698-47FB-A083-961BC1A8A122}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{223F4B01-A698-47FB-A083-961BC1A8A122}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{223F4B01-A698-47FB-A083-961BC1A8A122}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{223F4B01-A698-47FB-A083-961BC1A8A122}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

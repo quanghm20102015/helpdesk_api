@@ -46,5 +46,15 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<Team> Teams
+        {
+            get;
+            set;
+        }
+        public DbSet<TeamAgent> TeamAgents
+        {
+            get;
+            set;
+        }
     }
 }

@@ -199,6 +199,9 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("fromName")
                         .HasColumnType("text");
 
+                    b.Property<int?>("idCompany")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("idConfigEmail")
                         .IsRequired()
                         .HasColumnType("integer");
@@ -264,6 +267,42 @@ namespace HelpDeskSystem.Migrations
                     b.HasKey("id");
 
                     b.ToTable("Status");
+                });
+
+            modelBuilder.Entity("HelpDeskSystem.Models.Team", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+
+                    b.Property<int>("idCompany")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("id");
+
+                    b.ToTable("Teams");
+                });
+
+            modelBuilder.Entity("HelpDeskSystem.Models.TeamAgent", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
+
+                    b.Property<int>("idAgent")
+                        .HasColumnType("integer");
+
+                    b.HasKey("id");
+
+                    b.ToTable("TeamAgents");
                 });
 #pragma warning restore 612, 618
         }

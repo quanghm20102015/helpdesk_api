@@ -71,5 +71,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public int? idCompany
+        {
+            get;
+            set;
+        }
     }
 }

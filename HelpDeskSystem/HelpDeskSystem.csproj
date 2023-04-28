@@ -4,9 +4,10 @@
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>e9335266-b250-4c5a-bf66-e62ce2482190</UserSecretsId>
+    <UserSecretsId>4a15494e-4884-48ee-8e72-c84228736756</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <OutputType>Exe</OutputType>
+    <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <OutputType>Library</OutputType>
   </PropertyGroup>
 
   <ItemGroup>

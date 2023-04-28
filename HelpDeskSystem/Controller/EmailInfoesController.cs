@@ -164,5 +164,24 @@ namespace HelpDeskSystem.Controller
         {
             return (_context.EmailInfos?.Any(e => e.id == id)).GetValueOrDefault();
         }
+
+
+        [HttpGet]
+        [Route("GetByIdCompany")]
+        public async Task<ActionResult<List<EmailInfo>>> GetByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == idCompany).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
+        }
     }
 }

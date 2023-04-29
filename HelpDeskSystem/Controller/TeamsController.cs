@@ -9,7 +9,6 @@ using HelpDeskSystem.Models;
 using Interfaces.Constants;
 using Interfaces.Model.Account;
 using Interfaces.Base;
-using Interfaces.Model.Team;
 
 namespace HelpDeskSystem.Controller
 {

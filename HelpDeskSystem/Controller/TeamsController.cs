@@ -49,25 +49,36 @@ namespace HelpDeskSystem.Controller
             return team;
         }
 
+        [HttpGet]
+        [Route("GetByIdCompany")]
+        public async Task<ActionResult<List<Team>>> GetByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<Team> teams = _context.Teams.Where(r => r.idCompany == idCompany).ToList();
+
+            if (teams == null)
+            {
+                return NotFound();
+            }
+
+            return teams;
+        }
+
         // PUT: api/Teams/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTeam(int id, Team team)
+        public async Task<IActionResult> PutTeam(Team team)
         {
-            if (id != team.id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(team).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TeamExists(id))
+                if (!TeamExists(team.id))
                 {
                     return NotFound();
                 }

@@ -36,5 +36,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public bool confirm
+        {
+            get;
+            set;
+        }
     }
 }

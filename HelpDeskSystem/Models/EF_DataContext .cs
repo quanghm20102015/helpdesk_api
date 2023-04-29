@@ -56,5 +56,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<ContactLabel> ContactLabels
+        {
+            get;
+            set;
+        }        
     }
 }

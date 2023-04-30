@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
 using Interfaces.Model.Account;
 using Interfaces.Constants;
+using Interfaces.Base;
 
 namespace HelpDeskSystem.Controller
 {
@@ -74,14 +75,9 @@ namespace HelpDeskSystem.Controller
 
         // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAccount(int id, Account account)
+        [HttpPut]
+        public async Task<BaseResponse<ResponseStatus>> PutAccount(Account account)
         {
-            if (id != account.id)
-            {
-                return BadRequest();
-            }
-
             _context.Entry(account).State = EntityState.Modified;
 
             try
@@ -90,9 +86,13 @@ namespace HelpDeskSystem.Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AccountExists(id))
+                if (!AccountExists(account.id))
                 {
-                    return NotFound();
+                    return new BaseResponse<ResponseStatus>
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
                 }
                 else
                 {
@@ -100,7 +100,10 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            return NoContent();
+            return new BaseResponse<ResponseStatus>
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
         // POST: api/Accounts

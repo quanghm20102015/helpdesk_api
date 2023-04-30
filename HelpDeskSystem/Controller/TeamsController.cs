@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Constants;
+using Interfaces.Model.Account;
+using Interfaces.Base;
 
 namespace HelpDeskSystem.Controller
 {
@@ -69,9 +72,11 @@ namespace HelpDeskSystem.Controller
 
         // PUT: api/Teams/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutTeam(Team team)
+        [HttpPut]
+        public async Task<BaseResponse<ResponseStatus>> PutTeam(Team team)
         {
+            _context.Entry(team).State = EntityState.Modified;
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -80,7 +85,11 @@ namespace HelpDeskSystem.Controller
             {
                 if (!TeamExists(team.id))
                 {
-                    return NotFound();
+                    return new BaseResponse<ResponseStatus>
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
                 }
                 else
                 {
@@ -88,7 +97,10 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            return NoContent();
+            return new BaseResponse<ResponseStatus>
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
         // POST: api/Teams

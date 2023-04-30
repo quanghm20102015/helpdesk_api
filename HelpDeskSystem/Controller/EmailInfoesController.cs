@@ -183,5 +183,58 @@ namespace HelpDeskSystem.Controller
 
             return label;
         }
+
+        [HttpGet]
+        [Route("GetByStatus")]
+        public async Task<ActionResult<List<EmailInfo>>> GetByStatus([FromQuery] EmailInfoSearchRequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && (r.status == request.status || request.status == 5)).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
+        }
+
+        [HttpPut]
+        [Route("UpdateStatus")]
+        public async Task<EmailInfoResponse> UpdateStatus(EmailInfoRequest emailInfo)
+        {
+            var EmailInfo = await _context.EmailInfos.FindAsync(emailInfo.id);
+            EmailInfo.status = emailInfo.status;
+
+            _context.Entry(EmailInfo).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmailInfoExists(emailInfo.id))
+                {
+                    return new EmailInfoResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new EmailInfoResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
     }
 }

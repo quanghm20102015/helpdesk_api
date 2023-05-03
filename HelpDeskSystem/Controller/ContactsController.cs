@@ -53,14 +53,9 @@ namespace HelpDeskSystem.Controller
 
         // PUT: api/Contacts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutContact(int id, Contact contact)
+        [HttpPut]
+        public async Task<ContactResponse> PutContact(Contact contact)
         {
-            if (id != contact.id)
-            {
-                return BadRequest();
-            }
-
             _context.Entry(contact).State = EntityState.Modified;
 
             try
@@ -69,9 +64,13 @@ namespace HelpDeskSystem.Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ContactExists(id))
+                if (!ContactExists(contact.id))
                 {
-                    return NotFound();
+                    return new ContactResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
                 }
                 else
                 {
@@ -79,7 +78,10 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            return NoContent();
+            return new ContactResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
         // POST: api/Contacts

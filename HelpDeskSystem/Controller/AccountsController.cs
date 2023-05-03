@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
 using Interfaces.Model.Account;
 using Interfaces.Constants;
+using Interfaces.Base;
 
 namespace HelpDeskSystem.Controller
 {
@@ -74,14 +75,9 @@ namespace HelpDeskSystem.Controller
 
         // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAccount(int id, Account account)
+        [HttpPut]
+        public async Task<BaseResponse<ResponseStatus>> PutAccount(Account account)
         {
-            if (id != account.id)
-            {
-                return BadRequest();
-            }
-
             _context.Entry(account).State = EntityState.Modified;
 
             try
@@ -90,9 +86,13 @@ namespace HelpDeskSystem.Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AccountExists(id))
+                if (!AccountExists(account.id))
                 {
-                    return NotFound();
+                    return new BaseResponse<ResponseStatus>
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
                 }
                 else
                 {
@@ -100,7 +100,10 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            return NoContent();
+            return new BaseResponse<ResponseStatus>
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
         // POST: api/Accounts
@@ -205,6 +208,133 @@ namespace HelpDeskSystem.Controller
                     Status = ResponseStatus.Fail,
                     Message = "Invalid login credentials. Please try again."
                 };
+            }
+
+            return new LoginResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
+        [HttpPost]
+        [Route("PostLogin")]
+        public async Task<LoginResponse> PostLogin([FromBody] LoginLogoutRequest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.id == request.idUser);
+
+            account.login = true;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new LoginResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new LoginResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
+        [HttpPost]
+        [Route("PostLogout")]
+        public async Task<LoginResponse> PostLogout([FromBody] LoginLogoutRequest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.id == request.idUser);
+
+            account.login = false;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new LoginResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new LoginResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
+
+        [HttpGet]
+        [Route("GetByIdCompany")]
+        public async Task<ActionResult<List<Account>>> GetByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<Account> account = _context.Accounts.Where(r => r.idCompany == idCompany).ToList();
+
+            if (account == null)
+            {
+                return NotFound();
+            }
+
+            return account;
+        }
+
+        [HttpPost]
+        [Route("ChangeStatus")]
+        public async Task<LoginResponse> ChangeStatus([FromBody] LoginLogoutRequest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.id == request.idUser);
+
+            account.status = request.status;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new LoginResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return new LoginResponse

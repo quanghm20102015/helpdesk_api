@@ -2,7 +2,7 @@
 
 namespace HelpDeskSystem.Models
 {
-    public class Team
+    public class ContactLabel
     {
         [Key, Required]
         public int id
@@ -11,17 +11,12 @@ namespace HelpDeskSystem.Models
             set;
         }
         [Required]
-        public string? name
+        public int? idContact
         {
             get;
             set;
         }
-        public int idCompany
-        {
-            get;
-            set;
-        }
-        public string? description
+        public int? idLabel
         {
             get;
             set;

@@ -170,7 +170,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<Contact> contact = _context.Contacts.Where(r => r.idLabel == request.idLable && r.idCompany == request.idCompany).ToList();
+            List<Contact> contact = _context.Contacts.Where(r => r.idLabel == request.idLabel && r.idCompany == request.idCompany).ToList();
 
             if (contact == null)
             {

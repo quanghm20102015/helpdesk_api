@@ -3,6 +3,7 @@ using System;
 using HelpDeskSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     [DbContext(typeof(EF_DataContext))]
-    partial class EF_DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230430142718_My3Mirgration")]
+    partial class My3Mirgration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,8 +52,8 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("password")
                         .HasColumnType("text");
 
-                    b.Property<int>("status")
-                        .HasColumnType("integer");
+                    b.Property<bool>("status")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("workemail")
                         .HasColumnType("text");

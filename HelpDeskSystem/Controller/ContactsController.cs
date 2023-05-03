@@ -160,5 +160,24 @@ namespace HelpDeskSystem.Controller
 
             return label;
         }
+
+
+        [HttpGet]
+        [Route("GetByIdLabel")]
+        public async Task<ActionResult<List<Contact>>> GetByIdLabel(int idLabel)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<Contact> contact = _context.Contacts.Where(r => r.idLabel == idLabel).ToList();
+
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return contact;
+        }
     }
 }

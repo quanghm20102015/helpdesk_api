@@ -236,5 +236,23 @@ namespace HelpDeskSystem.Controller
             };
         }
 
+        [HttpGet]
+        [Route("GetByIdLabel")]
+        public async Task<ActionResult<List<EmailInfo>>> GetByIdLabel(int idLabel)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idLabel == idLabel).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
+        }
+
     }
 }

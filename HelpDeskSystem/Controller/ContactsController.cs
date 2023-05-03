@@ -164,13 +164,13 @@ namespace HelpDeskSystem.Controller
 
         [HttpGet]
         [Route("GetByIdLabel")]
-        public async Task<ActionResult<List<Contact>>> GetByIdLabel(int idLabel)
+        public async Task<ActionResult<List<Contact>>> GetByIdLabel([FromQuery] ContactGetByLabelRequest request)
         {
             if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            List<Contact> contact = _context.Contacts.Where(r => r.idLabel == idLabel).ToList();
+            List<Contact> contact = _context.Contacts.Where(r => r.idLabel == request.idLable && r.idCompany == request.idCompany).ToList();
 
             if (contact == null)
             {

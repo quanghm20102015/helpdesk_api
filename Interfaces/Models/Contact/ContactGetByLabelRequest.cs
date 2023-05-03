@@ -2,9 +2,8 @@
 
 namespace Interfaces.Model.Account
 {
-    public class EmailInfoSearchRequest
+    public class ContactGetByLabelRequest
     {
-        public int status { get; set; }
         public int idLable { get; set; }
         public int idCompany { get; set; }
     }

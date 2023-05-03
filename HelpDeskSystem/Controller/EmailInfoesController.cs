@@ -238,13 +238,13 @@ namespace HelpDeskSystem.Controller
 
         [HttpGet]
         [Route("GetByIdLabel")]
-        public async Task<ActionResult<List<EmailInfo>>> GetByIdLabel(int idLabel)
+        public async Task<ActionResult<List<EmailInfo>>> GetByIdLabel([FromQuery] EmailInfoGetByLabelRequest request)
         {
             if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idLabel == idLabel).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idLabel == request.idLable && r.idCompany == request.idCompany).ToList();
 
             if (label == null)
             {
@@ -253,6 +253,5 @@ namespace HelpDeskSystem.Controller
 
             return label;
         }
-
     }
 }

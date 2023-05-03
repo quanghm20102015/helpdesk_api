@@ -4,8 +4,9 @@ using System.Collections.Generic;
 
 namespace Interfaces.Model.Account
 {
-    public class SignupResponse : BaseResponse<ResponseStatus>
+    public class SendMailConfirmResquest
     {
-        public int Id { get; set; }
+        public string linkConfirm { get; set; }
+        public string to { get; set; }
     }
 }

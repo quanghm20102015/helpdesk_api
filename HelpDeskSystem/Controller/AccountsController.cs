@@ -9,6 +9,11 @@ using HelpDeskSystem.Models;
 using Interfaces.Model.Account;
 using Interfaces.Constants;
 using Interfaces.Base;
+using MimeKit.Text;
+using MimeKit;
+using MailKit.Net.Smtp;
+using System.Text;
+using System.Security.Principal;
 
 namespace HelpDeskSystem.Controller
 {
@@ -162,7 +167,9 @@ namespace HelpDeskSystem.Controller
 
                     return new SignupResponse
                     {
-                        Status = ResponseStatus.Susscess
+                        Status = ResponseStatus.Susscess,
+                        Message = "Signup account susscess",
+                        Id = account.id
                     };
                 }
             }
@@ -208,6 +215,17 @@ namespace HelpDeskSystem.Controller
                     Status = ResponseStatus.Fail,
                     Message = "Invalid login credentials. Please try again."
                 };
+            }
+            else
+            {
+                if (!account.confirm)
+                {
+                    return new LoginResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "Account is not activated\r\n"
+                    };
+                }
             }
 
             return new LoginResponse
@@ -342,5 +360,99 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess
             };
         }
+
+        [HttpPost]
+        [Route("SendMailConfirm")]
+        public async Task<SendMailResponse> SendMailConfirm(SendMailConfirmResquest request)
+        {
+            try
+            {
+                string Email = "";
+                string YourName = "";
+                string Password = "";
+                string Incoming = "";
+                int IncomingPort = 0;
+                string Outgoing = "";
+                int OutgoingPort = 0;
+                int IdConfigEmail = 0;
+
+                var configuration = new ConfigurationBuilder().AddJsonFile($"appsettings.json");
+                var config = configuration.Build();
+                Email = config["MailSettings:Mail"];
+                YourName = config["MailSettings:DisplayName"];
+                Password = config["MailSettings:Password"];
+                Incoming = config["MailSettings:Incoming"];
+                IncomingPort = int.Parse(config["MailSettings:IncomingPort"]);
+                Outgoing = config["MailSettings:Outgoing"];
+                OutgoingPort = int.Parse(config["MailSettings:OutgoingPort"]);
+
+
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(YourName, Email));
+                message.To.Add(new MailboxAddress("", request.to));
+                message.Subject = "Confirmation Instructions";
+                message.Body = new TextPart(TextFormat.Plain) { Text = "Welcome, hoang minh quang,\r\n"
+                    + "You can confirm your account email through the link below:\r\n"
+                    + request.linkConfirm
+                };
+
+                var smtp = new SmtpClient();
+                smtp.Connect(Outgoing, OutgoingPort);
+                smtp.Authenticate(Email, Password);
+                smtp.Send(message);
+                smtp.Disconnect(true);
+
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            catch (Exception ex)
+            {
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = ex.Message
+                };
+            }
+        }
+
+
+        [HttpPost]
+        [Route("ConfirmSigup")]
+        public async Task<LoginResponse> ConfirmSigup([FromBody] LoginLogoutRequest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.id == request.idUser);
+
+            account.confirm = true;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new LoginResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new LoginResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
     }
 }

@@ -218,20 +218,33 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("PostLogin")]
-        public async Task<LoginResponse> PostLogin()
+        public async Task<LoginResponse> PostLogin([FromBody] LoginLogoutRequest request)
         {
-            //var account = await _context.Accounts.FirstOrDefaultAsync
-            //    (u => u.workemail.Equals(user.workemail) && u.password.Equals(user.password));
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.id == request.idUser);
 
+            account.login = true;
 
-            //if (account == null)
-            //{
-            //    return new LoginResponse
-            //    {
-            //        Status = ResponseStatus.Fail,
-            //        Message = "Invalid login credentials. Please try again."
-            //    };
-            //}
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new LoginResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
             return new LoginResponse
             {
@@ -292,6 +305,42 @@ namespace HelpDeskSystem.Controller
             }
 
             return account;
+        }
+
+        [HttpPost]
+        [Route("ChangeStatus")]
+        public async Task<LoginResponse> ChangeStatus([FromBody] LoginLogoutRequest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.id == request.idUser);
+
+            account.status = request.status;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new LoginResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new LoginResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
     }
 }

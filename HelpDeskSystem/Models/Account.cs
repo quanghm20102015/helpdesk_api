@@ -51,5 +51,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public string? idGuId
+        {
+            get;
+            set;
+        }
     }
 }

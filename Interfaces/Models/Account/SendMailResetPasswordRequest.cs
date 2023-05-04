@@ -8,5 +8,6 @@ namespace Interfaces.Model.Account
     {
         public string linkConfirm { get; set; }
         public string to { get; set; }
+        public string idUser { get; set; }
     }
 }

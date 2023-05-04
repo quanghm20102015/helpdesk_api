@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Model.Account;
+using Interfaces.Constants;
 
 namespace HelpDeskSystem.Controller
 {
@@ -83,16 +85,24 @@ namespace HelpDeskSystem.Controller
         // POST: api/Csats
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Csat>> PostCsat(Csat csat)
+        public async Task<CsatResponse> PostCsat(Csat csat)
         {
-          if (_context.Csats == null)
-          {
-              return Problem("Entity set 'EF_DataContext.Csats'  is null.");
-          }
+            if (_context.Csats == null)
+            {
+                return new CsatResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Entity set 'EF_DataContext.Csats'  is null."
+                };
+            }
             _context.Csats.Add(csat);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCsat", new { id = csat.id }, csat);
+            return new CsatResponse
+            {
+                Status = ResponseStatus.Susscess,
+                Message = ""
+            };
         }
 
         // DELETE: api/Csats/5

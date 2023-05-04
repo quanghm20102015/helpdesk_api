@@ -192,7 +192,27 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && (r.status == request.status || request.status == 5)).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && (r.status == request.status || request.status == 0)).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
+        }
+
+        [HttpGet]
+        [Route("GetByAgent")]
+        public async Task<ActionResult<List<EmailInfo>>> GetByAgent([FromQuery] EmailInfoGetByAgentRequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            && (r.assign == request.assign || request.assign == 0)
+            && (r.status == request.status || request.status == 0)).ToList();
 
             if (label == null)
             {

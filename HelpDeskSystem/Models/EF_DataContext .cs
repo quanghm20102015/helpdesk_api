@@ -60,6 +60,11 @@ namespace HelpDeskSystem.Models
         {
             get;
             set;
-        }        
+        }
+        public DbSet<Csat> Csats
+        {
+            get;
+            set;
+        }
     }
 }

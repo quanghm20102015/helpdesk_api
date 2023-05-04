@@ -14,6 +14,8 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using System.Text;
 using System.Security.Principal;
+using Org.BouncyCastle.Asn1.Ocsp;
+using System.Reflection.Metadata;
 
 namespace HelpDeskSystem.Controller
 {
@@ -391,7 +393,7 @@ namespace HelpDeskSystem.Controller
                 message.From.Add(new MailboxAddress(YourName, Email));
                 message.To.Add(new MailboxAddress("", request.to));
                 message.Subject = "Confirmation Instructions";
-                message.Body = new TextPart(TextFormat.Plain) { Text = "Welcome, hoang minh quang,\r\n"
+                message.Body = new TextPart(TextFormat.Plain) { Text = "Welcome, " + request.fullName + ",\r\n"
                     + "You can confirm your account email through the link below:\r\n"
                     + request.linkConfirm
                 };
@@ -454,5 +456,67 @@ namespace HelpDeskSystem.Controller
             };
         }
 
+        [HttpPost]
+        [Route("SendMailResetPassword")]
+        public async Task<LoginResponse> SendMailResetPassword(SendMailResetPasswordRequest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.workemail == request.to);
+             
+            if (account != null)
+            {
+                string Email = "";
+                string YourName = "";
+                string Password = "";
+                string Incoming = "";
+                int IncomingPort = 0;
+                string Outgoing = "";
+                int OutgoingPort = 0;
+                int IdConfigEmail = 0;
+
+                var configuration = new ConfigurationBuilder().AddJsonFile($"appsettings.json");
+                var config = configuration.Build();
+                Email = config["MailSettings:Mail"];
+                YourName = config["MailSettings:DisplayName"];
+                Password = config["MailSettings:Password"];
+                Incoming = config["MailSettings:Incoming"];
+                IncomingPort = int.Parse(config["MailSettings:IncomingPort"]);
+                Outgoing = config["MailSettings:Outgoing"];
+                OutgoingPort = int.Parse(config["MailSettings:OutgoingPort"]);
+
+
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(YourName, Email));
+                message.To.Add(new MailboxAddress("", request.to));
+                message.Subject = "Confirmation Instructions";
+                message.Body = new TextPart(TextFormat.Plain)
+                {
+                    Text = "Hello, " + request.to + ",\r\n"
+                    + "Someone has requested a link to change your password.You can do this through the link below.\r\n"
+                    + request.linkConfirm + account.id + "\r\n"
+                    + "If you didn't request this, please ignore this email.\r\n"
+                    + "Your password won't change until you access the link above and create a new one.\r\n"
+                };
+
+                var smtp = new SmtpClient();
+                smtp.Connect(Outgoing, OutgoingPort);
+                smtp.Authenticate(Email, Password);
+                smtp.Send(message);
+                smtp.Disconnect(true);
+
+                return new LoginResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            else
+            {
+                return new LoginResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Email does not exist"
+                };
+            }
+        }
     }
 }

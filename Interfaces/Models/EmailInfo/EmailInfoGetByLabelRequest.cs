@@ -6,5 +6,6 @@ namespace Interfaces.Model.Account
     {
         public int idLable { get; set; }
         public int idCompany { get; set; }
+        public int status { get; set; }
     }
 }

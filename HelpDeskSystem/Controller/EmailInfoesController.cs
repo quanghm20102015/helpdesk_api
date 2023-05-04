@@ -244,7 +244,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idLabel == request.idLable && r.idCompany == request.idCompany).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idLabel == request.idLable && r.idCompany == request.idCompany && (r.status == 0 || request.status == r.status)).ToList();
 
             if (label == null)
             {

@@ -276,5 +276,25 @@ namespace HelpDeskSystem.Controller
 
             return label;
         }
+
+
+        [HttpGet]
+        [Route("GetByIdConfigEmail")]
+        public async Task<ActionResult<List<EmailInfo>>> GetByIdConfigEmail(int idConfigEmail)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idConfigEmail == idConfigEmail).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
+        }
+
     }
 }

@@ -66,5 +66,11 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<EmailInfoLabel> EmailInfoLabels
+        {
+            get;
+            set;
+        }
+        
     }
 }

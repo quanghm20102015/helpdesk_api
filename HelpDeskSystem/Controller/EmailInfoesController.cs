@@ -291,5 +291,29 @@ namespace HelpDeskSystem.Controller
             return label;
         }
 
+        [HttpGet]
+        [Route("GetCountByCompanyAgent")]
+        public async Task<EmailInfoCountByCAResponse> GetCountByCompanyAgent([FromQuery] EmailInfoCountByCARequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return new EmailInfoCountByCAResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany).ToList().Count;
+            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            && (r.assign == request.assign || request.assign == 0)).ToList().Count;
+
+
+            return new EmailInfoCountByCAResponse
+            {
+                Status = ResponseStatus.Susscess,
+                All = listAll,
+                ByAgent = listByAgent
+            };
+        }
+
     }
 }

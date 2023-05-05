@@ -56,16 +56,11 @@ namespace HelpDeskSystem.Controller
             return emailInfo;
         }
 
-        // PUT: api/EmailInfoes/5
+        // PUT: api/EmailInfoes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmailInfo(int id, EmailInfo emailInfo)
+        [HttpPut]
+        public async Task<IActionResult> PutEmailInfo(EmailInfo emailInfo)
         {
-            if (id != emailInfo.id)
-            {
-                return BadRequest();
-            }
-
             _context.Entry(emailInfo).State = EntityState.Modified;
 
             try
@@ -74,7 +69,7 @@ namespace HelpDeskSystem.Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EmailInfoExists(id))
+                if (!EmailInfoExists(emailInfo.id))
                 {
                     return NotFound();
                 }

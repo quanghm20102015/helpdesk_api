@@ -10,3 +10,7 @@ services:
       dockerfile: HelpDeskSystem/Dockerfile
     ports:
       - 5216:5216
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw

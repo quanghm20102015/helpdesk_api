@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 namespace Interfaces.Model.Account
 {
-    public class SignupResponse : BaseResponse<ResponseStatus>
+    public class ResetPasswordResquest
     {
-        public int Id { get; set; }
         public string idGuId { get; set; }
+        public string password { get; set; }
     }
 }

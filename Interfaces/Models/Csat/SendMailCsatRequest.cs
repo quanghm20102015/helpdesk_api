@@ -4,10 +4,9 @@ using System.Collections.Generic;
 
 namespace Interfaces.Model.Account
 {
-    public class SendMailResetPasswordRequest
+    public class SendMailCsatRequest
     {
-        public string linkConfirm { get; set; }
+        public string link { get; set; }
         public string to { get; set; }
-        public string idUser { get; set; }
     }
 }

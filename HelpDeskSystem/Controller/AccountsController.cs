@@ -164,6 +164,7 @@ namespace HelpDeskSystem.Controller
                         account.idCompany = cpn.id;
                     }
 
+                    account.idGuId = Guid.NewGuid().ToString();
                     _context.Accounts.Add(account);
                     await _context.SaveChangesAsync();
 
@@ -171,7 +172,8 @@ namespace HelpDeskSystem.Controller
                     {
                         Status = ResponseStatus.Susscess,
                         Message = "Signup account susscess",
-                        Id = account.id
+                        Id = account.id,
+                        idGuId = account.idGuId
                     };
                 }
             }
@@ -422,10 +424,10 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("ConfirmSigup")]
-        public async Task<LoginResponse> ConfirmSigup([FromBody] LoginLogoutRequest request)
+        public async Task<ConfirmSignupResponse> ConfirmSigup([FromBody] ConfirmSignupRequest request)
         {
             var account = await _context.Accounts.FirstOrDefaultAsync
-                (u => u.id == request.idUser);
+                (u => u.idGuId == request.idGuId);
 
             account.confirm = true;
 
@@ -439,7 +441,7 @@ namespace HelpDeskSystem.Controller
             {
                 if (!AccountExists(account.id))
                 {
-                    return new LoginResponse
+                    return new ConfirmSignupResponse
                     {
                         Status = ResponseStatus.Fail
                     };
@@ -450,7 +452,7 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            return new LoginResponse
+            return new ConfirmSignupResponse
             {
                 Status = ResponseStatus.Susscess
             };
@@ -493,7 +495,7 @@ namespace HelpDeskSystem.Controller
                 {
                     Text = "Hello, " + request.to + ",\r\n"
                     + "Someone has requested a link to change your password.You can do this through the link below.\r\n"
-                    + request.linkConfirm + account.id + "\r\n"
+                    + request.linkConfirm + request.idUser + "\r\n"
                     + "If you didn't request this, please ignore this email.\r\n"
                     + "Your password won't change until you access the link above and create a new one.\r\n"
                 };
@@ -515,6 +517,52 @@ namespace HelpDeskSystem.Controller
                 {
                     Status = ResponseStatus.Fail,
                     Message = "Email does not exist"
+                };
+            }
+        }
+
+        [HttpPost]
+        [Route("ResetPassword")]
+        public async Task<ResetPasswordResponse> ResetPassword([FromBody] ResetPasswordResquest request)
+        {
+            var account = await _context.Accounts.FirstOrDefaultAsync
+                (u => u.idGuId == request.idGuId);
+
+            if(account != null)
+            {
+                account.password = request.password;
+
+                _context.Entry(account).State = EntityState.Modified;
+
+                try
+                {
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!AccountExists(account.id))
+                    {
+                        return new ResetPasswordResponse
+                        {
+                            Status = ResponseStatus.Fail
+                        };
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+
+                return new ResetPasswordResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            else
+            {
+                return new ResetPasswordResponse
+                {
+                    Status = ResponseStatus.Fail
                 };
             }
         }

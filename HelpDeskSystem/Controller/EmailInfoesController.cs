@@ -12,6 +12,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using MimeKit.Text;
+using System.Security.Principal;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -87,10 +88,12 @@ namespace HelpDeskSystem.Controller
         [HttpPost]
         public async Task<ActionResult<EmailInfo>> PostEmailInfo(EmailInfo emailInfo)
         {
-          if (_context.EmailInfos == null)
-          {
-              return Problem("Entity set 'EF_DataContext.EmailInfos'  is null.");
-          }
+            if (_context.EmailInfos == null)
+            {
+                return Problem("Entity set 'EF_DataContext.EmailInfos'  is null.");
+            }
+
+            emailInfo.idGuId = Guid.NewGuid().ToString();
             _context.EmailInfos.Add(emailInfo);
             await _context.SaveChangesAsync();
 
@@ -268,5 +271,25 @@ namespace HelpDeskSystem.Controller
 
             return label;
         }
+
+
+        [HttpGet]
+        [Route("GetByIdConfigEmail")]
+        public async Task<ActionResult<List<EmailInfo>>> GetByIdConfigEmail(int idConfigEmail)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idConfigEmail == idConfigEmail).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
+        }
+
     }
 }

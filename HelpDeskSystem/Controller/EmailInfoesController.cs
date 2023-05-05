@@ -302,8 +302,12 @@ namespace HelpDeskSystem.Controller
                     Status = ResponseStatus.Fail
                 };
             }
-            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany).ToList().Count;
+            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            && (r.status == request.status || request.status == 0)
+            && (r.idLabel == request.idLabel || request.idLabel == 0)).ToList().Count;
             int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+             && (r.idLabel == request.idLabel || request.idLabel == 0)
+            && (r.status == request.status || request.status == 0)
             && (r.assign == request.assign || request.assign == 0)).ToList().Count;
 
 

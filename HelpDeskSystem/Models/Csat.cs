@@ -11,7 +11,7 @@ namespace HelpDeskSystem.Models
             set;
         }
         [Required]
-        public int idEmailInfo
+        public string idGuIdEmailInfo
         {
             get;
             set;

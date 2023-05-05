@@ -12,6 +12,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using MimeKit.Text;
+using System.Security.Principal;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -92,10 +93,12 @@ namespace HelpDeskSystem.Controller
         [HttpPost]
         public async Task<ActionResult<EmailInfo>> PostEmailInfo(EmailInfo emailInfo)
         {
-          if (_context.EmailInfos == null)
-          {
-              return Problem("Entity set 'EF_DataContext.EmailInfos'  is null.");
-          }
+            if (_context.EmailInfos == null)
+            {
+                return Problem("Entity set 'EF_DataContext.EmailInfos'  is null.");
+            }
+
+            emailInfo.idGuId = Guid.NewGuid().ToString();
             _context.EmailInfos.Add(emailInfo);
             await _context.SaveChangesAsync();
 

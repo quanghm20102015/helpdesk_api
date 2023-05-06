@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Model.Account;
+using Interfaces.Constants;
 
 namespace HelpDeskSystem.Controller
 {
@@ -82,19 +84,47 @@ namespace HelpDeskSystem.Controller
 
         // POST: api/EmailInfoLabels
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        //[HttpPost]
+        //public async Task<ActionResult<EmailInfoLabel>> PostEmailInfoLabel(EmailInfoLabel emailInfoLabel)
+        //{
+        //  if (_context.EmailInfoLabels == null)
+        //  {
+        //      return Problem("Entity set 'EF_DataContext.EmailInfoLabels'  is null.");
+        //  }
+        //    _context.EmailInfoLabels.Add(emailInfoLabel);
+        //    await _context.SaveChangesAsync();
+
+        //    return CreatedAtAction("GetEmailInfoLabel", new { id = emailInfoLabel.id }, emailInfoLabel);
+        //}
         [HttpPost]
-        public async Task<ActionResult<EmailInfoLabel>> PostEmailInfoLabel(EmailInfoLabel emailInfoLabel)
+        public async Task<EmailInfoLabelResponse> PostEmailInfoLabel(EmailInfoLabelRequest request)
         {
-          if (_context.EmailInfoLabels == null)
-          {
-              return Problem("Entity set 'EF_DataContext.EmailInfoLabels'  is null.");
-          }
-            _context.EmailInfoLabels.Add(emailInfoLabel);
-            await _context.SaveChangesAsync();
+            if (_context.EmailInfoLabels == null)
+            {
+                return new EmailInfoLabelResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
 
-            return CreatedAtAction("GetEmailInfoLabel", new { id = emailInfoLabel.id }, emailInfoLabel);
+            _context.EmailInfoLabels.RemoveRange(_context.EmailInfoLabels.Where(x => x.idEmailInfo == request.idEmailInfo));
+            _context.SaveChanges();
+
+            foreach (int idLabel in request.listLabel)
+            {
+                EmailInfoLabel obj = new EmailInfoLabel();
+                obj.idEmailInfo = request.idEmailInfo;
+                obj.idLabel = idLabel;
+
+                _context.EmailInfoLabels.Add(obj);
+                await _context.SaveChangesAsync();
+            }
+
+            return new EmailInfoLabelResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
-
         // DELETE: api/EmailInfoLabels/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmailInfoLabel(int id)

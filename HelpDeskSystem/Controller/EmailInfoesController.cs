@@ -81,7 +81,7 @@ namespace HelpDeskSystem.Controller
 
             return new EmailInfoResponse
             {
-                Status = ResponseStatus.Fail,
+                Status = ResponseStatus.Susscess,
                 emailInfo = emailInfo,
                 listLabel = listLabelDetail
             };

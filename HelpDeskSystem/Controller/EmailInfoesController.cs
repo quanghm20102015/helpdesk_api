@@ -292,14 +292,26 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idLabel == request.idLable && r.idCompany == request.idCompany && (r.status == 0 || request.status == r.status)).ToList();
+            List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLable).ToList();
+            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany 
+            && (request.status == 0 || request.status == r.status)).ToList();
 
-            if (label == null)
+            List<int> numbers = new List<int>();
+            foreach(EmailInfoLabel obj in listEmailInfoLabel)
+            {
+                numbers.Add(obj.idEmailInfo.Value);
+            }
+
+            var filteredOrders = from order in listEmailInfo
+                                 where numbers.Contains(order.id)
+                                 select order;
+
+            if (filteredOrders == null)
             {
                 return NotFound();
             }
 
-            return label;
+            return filteredOrders.ToList();
         }
 
 

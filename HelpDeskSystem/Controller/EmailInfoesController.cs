@@ -13,6 +13,9 @@ using MailKit.Security;
 using MimeKit;
 using MimeKit.Text;
 using System.Security.Principal;
+using Org.BouncyCastle.Asn1.Ocsp;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Dynamic;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -41,20 +44,47 @@ namespace HelpDeskSystem.Controller
 
         // GET: api/EmailInfoes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<EmailInfo>> GetEmailInfo(int id)
+        public async Task<EmailInfoResponse> GetEmailInfo(int id)
         {
-          if (_context.EmailInfos == null)
-          {
-              return NotFound();
-          }
-            var emailInfo = await _context.EmailInfos.FindAsync(id);
-
-            if (emailInfo == null)
+            if (_context.EmailInfos == null)
             {
-                return NotFound();
+                return new EmailInfoResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+            var emailInfo = await _context.EmailInfos.FindAsync(id);
+            List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
+            List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
+
+            List<LabelDetail> listLabelDetail = new List<LabelDetail>();
+            foreach (Label obj in listLabel)
+            {
+                LabelDetail obj1 = new LabelDetail();
+                obj1.id = obj.id;
+                obj1.name = obj.name;
+                obj1.description = obj.description;
+                obj1.color = obj.color;
+                obj1.check = false;
+
+                foreach (EmailInfoLabel objEmailInfoLabel in listEmailInfoLabel)
+                {
+                    if(obj.id == objEmailInfoLabel.idLabel)
+                    {
+                        obj1.check = true;
+                        break;
+                    }
+                }
+                listLabelDetail.Add(obj1);
             }
 
-            return emailInfo;
+
+            return new EmailInfoResponse
+            {
+                Status = ResponseStatus.Fail,
+                emailInfo = emailInfo,
+                listLabel = listLabelDetail
+            };
         }
 
         // PUT: api/EmailInfoes

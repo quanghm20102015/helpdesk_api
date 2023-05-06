@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
+using AutoMapper;
 
 namespace HelpDeskSystem
 {

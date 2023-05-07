@@ -16,6 +16,7 @@ using System.Security.Principal;
 using Org.BouncyCastle.Asn1.Ocsp;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Dynamic;
+using Interfaces.Model.EmailInfo;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -399,5 +400,27 @@ namespace HelpDeskSystem.Controller
             };
         }
 
+
+        [HttpGet]
+        [Route("GetFillter")]
+        public async Task<ActionResult<List<EmailInfo>>> GetFillter([FromQuery] EmailInfoGetFillterRequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            && (r.assign == request.assign || request.assign == 0)
+            && (r.status == request.status || request.status == 0)
+            && (r.idLabel == request.idLabel || request.idLabel == 0)
+            && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)).OrderByDescending(x => x.date).ToList();
+
+            if (label == null)
+            {
+                return NotFound();
+            }
+
+            return label;
+        }
     }
 }

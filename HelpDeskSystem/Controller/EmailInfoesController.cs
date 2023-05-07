@@ -56,6 +56,7 @@ namespace HelpDeskSystem.Controller
             var emailInfo = await _context.EmailInfos.FindAsync(id);
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
+            List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
 
             List<LabelDetail> listLabelDetail = new List<LabelDetail>();
             foreach (Label obj in listLabel)
@@ -83,7 +84,8 @@ namespace HelpDeskSystem.Controller
             {
                 Status = ResponseStatus.Susscess,
                 emailInfo = emailInfo,
-                listLabel = listLabelDetail
+                listLabel = listLabelDetail,
+                listAccount = listAccount.ToList<Object>()
             };
         }
 
@@ -202,7 +204,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == idCompany).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == idCompany).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {
@@ -220,7 +222,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && (r.status == request.status || request.status == 0)).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && (r.status == request.status || request.status == 0)).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {
@@ -240,7 +242,7 @@ namespace HelpDeskSystem.Controller
             }
             List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
             && (r.assign == request.assign || request.assign == 0)
-            && (r.status == request.status || request.status == 0)).ToList();
+            && (r.status == request.status || request.status == 0)).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {
@@ -284,6 +286,40 @@ namespace HelpDeskSystem.Controller
             };
         }
 
+        [HttpPut]
+        [Route("UpdateAssign")]
+        public async Task<EmailInfoResponse> UpdateAssign(EmailInfoRequest emailInfo)
+        {
+            var EmailInfo = await _context.EmailInfos.FindAsync(emailInfo.id);
+            EmailInfo.assign = emailInfo.assign;
+
+            _context.Entry(EmailInfo).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmailInfoExists(emailInfo.id))
+                {
+                    return new EmailInfoResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new EmailInfoResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
         [HttpGet]
         [Route("GetByIdLabel")]
         public async Task<ActionResult<List<EmailInfo>>> GetByIdLabel([FromQuery] EmailInfoGetByLabelRequest request)
@@ -294,7 +330,7 @@ namespace HelpDeskSystem.Controller
             }
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLable).ToList();
             List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany 
-            && (request.status == 0 || request.status == r.status)).ToList();
+            && (request.status == 0 || request.status == r.status)).OrderByDescending(x => x.date).ToList();
 
             List<int> numbers = new List<int>();
             foreach(EmailInfoLabel obj in listEmailInfoLabel)
@@ -323,7 +359,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idConfigEmail == idConfigEmail).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idConfigEmail == idConfigEmail).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {

@@ -9,7 +9,8 @@ namespace Interfaces.Model.Account
     {
         public Object emailInfo { get; set; }
         public List<LabelDetail> listLabel { get; set; }
-        
+        public List<Object> listAccount { get; set; }
+
     }
     public class EmailInfoDetail
     {

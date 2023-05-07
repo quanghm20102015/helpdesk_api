@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
 using Interfaces.Constants;
 using Interfaces.Model.Account;
+using Interfaces.Model.Contact;
 
 namespace HelpDeskSystem.Controller
 {
@@ -35,20 +36,54 @@ namespace HelpDeskSystem.Controller
 
         // GET: api/Contacts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Contact>> GetContact(int id)
+        public async Task<ContactResponse> GetContact(int id)
         {
-          if (_context.Contacts == null)
-          {
-              return NotFound();
-          }
+            if (_context.Contacts == null)
+            {
+                return new ContactResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
             var contact = await _context.Contacts.FindAsync(id);
+            List<ContactLabel> listContactLabel = _context.ContactLabels.Where(x => x.idContact == id).ToList();
+            List<Label> listLabel = _context.Labels.Where(r => r.idCompany == contact.idCompany).ToList();
+
+            List<LabelDetail> listLabelDetail = new List<LabelDetail>();
+            foreach (Label obj in listLabel)
+            {
+                LabelDetail obj1 = new LabelDetail();
+                obj1.id = obj.id;
+                obj1.name = obj.name;
+                obj1.description = obj.description;
+                obj1.color = obj.color;
+                obj1.check = false;
+
+                foreach (ContactLabel objContactLabel in listContactLabel)
+                {
+                    if (obj.id == objContactLabel.idLabel)
+                    {
+                        obj1.check = true;
+                        break;
+                    }
+                }
+                listLabelDetail.Add(obj1);
+            }
 
             if (contact == null)
             {
-                return NotFound();
+                return new ContactResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
             }
 
-            return contact;
+            return new ContactResponse
+            {
+                Status = ResponseStatus.Susscess,
+                contact = contact,
+                listLabel = listLabelDetail,
+            };
         }
 
         // PUT: api/Contacts/5

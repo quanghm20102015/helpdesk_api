@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Constants;
+using Interfaces.Model.Account;
+using Interfaces.Model.ContactLabel;
 
 namespace HelpDeskSystem.Controller
 {
@@ -82,18 +85,18 @@ namespace HelpDeskSystem.Controller
 
         // POST: api/ContactLabels
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<ContactLabel>> PostContactLabel(ContactLabel contactLabel)
-        {
-          if (_context.ContactLabels == null)
-          {
-              return Problem("Entity set 'EF_DataContext.ContactLabels'  is null.");
-          }
-            _context.ContactLabels.Add(contactLabel);
-            await _context.SaveChangesAsync();
+        //[HttpPost]
+        //public async Task<ActionResult<ContactLabel>> PostContactLabel(ContactLabel contactLabel)
+        //{
+        //  if (_context.ContactLabels == null)
+        //  {
+        //      return Problem("Entity set 'EF_DataContext.ContactLabels'  is null.");
+        //  }
+        //    _context.ContactLabels.Add(contactLabel);
+        //    await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetContactLabel", new { id = contactLabel.id }, contactLabel);
-        }
+        //    return CreatedAtAction("GetContactLabel", new { id = contactLabel.id }, contactLabel);
+        //}
 
         // DELETE: api/ContactLabels/5
         [HttpDelete("{id}")]
@@ -118,6 +121,36 @@ namespace HelpDeskSystem.Controller
         private bool ContactLabelExists(int id)
         {
             return (_context.ContactLabels?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpPost]
+        public async Task<ContactLabelResponse> PostContactLabel(ContactLabelRequest request)
+        {
+            if (_context.ContactLabels == null)
+            {
+                return new ContactLabelResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+
+            _context.ContactLabels.RemoveRange(_context.ContactLabels.Where(x => x.idContact == request.idContact));
+            _context.SaveChanges();
+
+            foreach (int idLabel in request.listLabel)
+            {
+                ContactLabel obj = new ContactLabel();
+                obj.idContact = request.idContact;
+                obj.idLabel = idLabel;
+
+                _context.ContactLabels.Add(obj);
+                await _context.SaveChangesAsync();
+            }
+
+            return new ContactLabelResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
 using Interfaces.Model.Account;
 using Interfaces.Constants;
+using Interfaces.Model.EmailInfoLabel;
 
 namespace HelpDeskSystem.Controller
 {

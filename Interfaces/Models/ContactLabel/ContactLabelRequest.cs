@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 
-namespace Interfaces.Model.EmailInfoLabel
+namespace Interfaces.Model.ContactLabel
 {
-    public class EmailInfoLabelRequest
+    public class ContactLabelRequest
     {
         public int id { get; set; }
-        public int idEmailInfo { get; set; }
+        public int idContact { get; set; }
         public List<int> listLabel { get; set; }
     }
 }

@@ -9,5 +9,6 @@ namespace Interfaces.Model.EmailInfo
         public int idConfigEmail { get; set; }
         public int idLabel { get; set; }
         public int idCompany { get; set; }
+        public string textSearch { get; set; }
     }
 }

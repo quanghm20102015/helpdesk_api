@@ -405,6 +405,10 @@ namespace HelpDeskSystem.Controller
         [Route("GetFillter")]
         public async Task<ActionResult<List<EmailInfo>>> GetFillter([FromQuery] EmailInfoGetFillterRequest request)
         {
+            if(request.textSearch == "")
+            {
+
+            }
             if (_context.Accounts == null)
             {
                 return NotFound();
@@ -413,6 +417,7 @@ namespace HelpDeskSystem.Controller
             && (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
             && (r.idLabel == request.idLabel || request.idLabel == 0)
+            && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
@@ -421,6 +426,37 @@ namespace HelpDeskSystem.Controller
             }
 
             return label;
+        }
+
+        [HttpGet]
+        [Route("GetFillterCount")]
+        public async Task<EmailInfoGetFillteResponse> GetFillterCount([FromQuery] EmailInfoGetFillterRequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return new EmailInfoGetFillteResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            && (r.status == request.status || request.status == 0)
+            && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
+            && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
+            && (r.idLabel == request.idLabel || request.idLabel == 0)).ToList().Count;
+            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+             && (r.idLabel == request.idLabel || request.idLabel == 0)
+            && (r.status == request.status || request.status == 0)
+            && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
+            && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
+            && (r.assign == request.assign || request.assign == 0)).ToList().Count;
+
+            return new EmailInfoGetFillteResponse
+            {
+                Status = ResponseStatus.Susscess,
+                All = listAll,
+                ByAgent = listByAgent
+            };
         }
     }
 }

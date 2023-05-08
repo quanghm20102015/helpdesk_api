@@ -58,6 +58,7 @@ namespace HelpDeskSystem.Controller
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
+            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).ToList();
 
             List<LabelDetail> listLabelDetail = new List<LabelDetail>();
             foreach (Label obj in listLabel)
@@ -86,7 +87,8 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 emailInfo = emailInfo,
                 listLabel = listLabelDetail,
-                listAccount = listAccount.ToList<Object>()
+                listAccount = listAccount.ToList<Object>(),
+                listEmailInfo = listEmailInfo.ToList<Object>()
             };
         }
 
@@ -159,7 +161,8 @@ namespace HelpDeskSystem.Controller
         {
             try
             {
-                List<ConfigMail> configMail = _context.ConfigMails.Where(r => r.idCompany == request.idCompany).ToList();
+                //List<ConfigMail> configMail = _context.ConfigMails.Where(r => r.idCompany == request.idCompany).ToList();
+                List<ConfigMail> configMail = _context.ConfigMails.Where(r => r.id == request.idConfigEmail).ToList();
 
                 if (configMail.Count > 0)
                 {
@@ -172,9 +175,28 @@ namespace HelpDeskSystem.Controller
                     var smtp = new SmtpClient();
                     smtp.Connect(configMail[0].outgoing, configMail[0].outgoingPort.Value);
                     smtp.Authenticate(configMail[0].email, configMail[0].password);
-                    smtp.Send(message);
+                    //smtp.Send(message);
                     smtp.Disconnect(true);
                 }
+
+                EmailInfo emailInfo = new EmailInfo();
+
+                emailInfo.idConfigEmail = request.idConfigEmail;
+                emailInfo.messageId = request.messageId;
+                emailInfo.date = DateTime.Now.ToUniversalTime();
+                emailInfo.from = configMail[0].email;
+                emailInfo.fromName = configMail[0].yourName;
+                emailInfo.to = request.to;
+                emailInfo.cc = request.cc;
+                emailInfo.bcc = request.bcc;
+                emailInfo.subject = request.subject;
+                emailInfo.textBody = request.body;
+                emailInfo.idCompany = request.idCompany;
+                emailInfo.status = 0;
+                emailInfo.assign = request.assign;
+                emailInfo.idGuId = Guid.NewGuid().ToString();
+                _context.EmailInfos.Add(emailInfo);
+                await _context.SaveChangesAsync();
 
                 return new SendMailResponse
                 {
@@ -413,10 +435,18 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
+
+            List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
+            List<int> listIdEmailLabel = new List<int>();
+            foreach(EmailInfoLabel emailInfoLabel in listEmailInfoLabel) 
+            {
+                listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
+            }
+
             List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
             && (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
-            && (r.idLabel == request.idLabel || request.idLabel == 0)
+            && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)).OrderByDescending(x => x.date).ToList();
 
@@ -439,13 +469,20 @@ namespace HelpDeskSystem.Controller
                     Status = ResponseStatus.Fail
                 };
             }
+            List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
+            List<int> listIdEmailLabel = new List<int>();
+            foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel)
+            {
+                listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
+            }
+
             int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
-            && (r.idLabel == request.idLabel || request.idLabel == 0)).ToList().Count;
+            && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)).ToList().Count;
             int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
-             && (r.idLabel == request.idLabel || request.idLabel == 0)
+             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))

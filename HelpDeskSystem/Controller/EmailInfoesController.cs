@@ -401,7 +401,7 @@ namespace HelpDeskSystem.Controller
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetFillter")]
         public async Task<ActionResult<List<EmailInfo>>> GetFillter([FromBody] EmailInfoGetFillterRequest request)
         {
@@ -428,7 +428,7 @@ namespace HelpDeskSystem.Controller
             return label;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("GetFillterCount")]
         public async Task<EmailInfoGetFillteResponse> GetFillterCount([FromBody] EmailInfoGetFillterRequest request)
         {

@@ -51,11 +51,5 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
-        //1: in; 2: out
-        public int type
-        {
-            get;
-            set;
-        }
     }
 }

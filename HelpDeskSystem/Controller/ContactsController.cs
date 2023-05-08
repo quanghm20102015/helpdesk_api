@@ -48,6 +48,7 @@ namespace HelpDeskSystem.Controller
             var contact = await _context.Contacts.FindAsync(id);
             List<ContactLabel> listContactLabel = _context.ContactLabels.Where(x => x.idContact == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == contact.idCompany).ToList();
+            List<ContactNote> listContactNote = _context.ContactNotes.Where(r => r.idContact == id).ToList();
 
             List<LabelDetail> listLabelDetail = new List<LabelDetail>();
             foreach (Label obj in listLabel)
@@ -83,6 +84,7 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 contact = contact,
                 listLabel = listLabelDetail,
+                listNote = listContactNote.ToList<Object>()
             };
         }
 
@@ -206,6 +208,42 @@ namespace HelpDeskSystem.Controller
                 return NotFound();
             }
             List<Contact> contact = _context.Contacts.Where(r => r.idLabel == request.idLabel && r.idCompany == request.idCompany).ToList();
+
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return contact;
+        }
+
+        [HttpPost]
+        [Route("GetFillter")]
+        public async Task<ActionResult<List<Contact>>> GetFillter(ContactGetByLabelRequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<ContactLabel> listContactLabel = _context.ContactLabels.Where(x => x.idLabel == request.idLabel).ToList();
+            List<int> listIdContactLabel = new List<int>();
+            foreach (ContactLabel contactLabel in listContactLabel)
+            {
+                listIdContactLabel.Add(contactLabel.idContact.Value);
+            }
+
+            List<Contact> contact = _context.Contacts.Where(r => r.idCompany == request.idCompany
+            && (listIdContactLabel.Contains(r.id) || request.idLabel == 0)
+            && (r.fullname.Contains(request.textSearch)
+            || r.email.Contains(request.textSearch)
+            || r.bio.Contains(request.textSearch)
+            || r.phoneNumber.Contains(request.textSearch)
+            || r.company.Contains(request.textSearch)
+            || r.city.Contains(request.textSearch)
+            || r.facebook.Contains(request.textSearch)
+            || r.twitter.Contains(request.textSearch)
+            || r.linkedin.Contains(request.textSearch)
+            || r.github.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "")).ToList();
 
             if (contact == null)
             {

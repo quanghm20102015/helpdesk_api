@@ -58,7 +58,7 @@ namespace HelpDeskSystem.Controller
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
-            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).ToList();
+            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).OrderByDescending(y => y.date).ToList();
 
             List<LabelDetail> listLabelDetail = new List<LabelDetail>();
             foreach (Label obj in listLabel)
@@ -195,6 +195,7 @@ namespace HelpDeskSystem.Controller
                 emailInfo.status = 0;
                 emailInfo.assign = request.assign;
                 emailInfo.idGuId = Guid.NewGuid().ToString();
+                emailInfo.type = 2;
                 _context.EmailInfos.Add(emailInfo);
                 await _context.SaveChangesAsync();
 
@@ -443,7 +444,7 @@ namespace HelpDeskSystem.Controller
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
 
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
             && (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
@@ -476,12 +477,12 @@ namespace HelpDeskSystem.Controller
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
 
-            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)).ToList().Count;
-            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
              && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)

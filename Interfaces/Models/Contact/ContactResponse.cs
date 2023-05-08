@@ -9,5 +9,6 @@ namespace Interfaces.Model.Contact
     {
         public Object contact { get; set; }
         public List<LabelDetail> listLabel { get; set; }
+        public List<Object> listNote { get; set; }
     }
 }

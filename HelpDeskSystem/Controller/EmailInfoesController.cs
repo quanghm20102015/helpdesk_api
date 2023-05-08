@@ -195,6 +195,7 @@ namespace HelpDeskSystem.Controller
                 emailInfo.status = 0;
                 emailInfo.assign = request.assign;
                 emailInfo.idGuId = Guid.NewGuid().ToString();
+                emailInfo.type = 2;
                 _context.EmailInfos.Add(emailInfo);
                 await _context.SaveChangesAsync();
 
@@ -425,7 +426,7 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("GetFillter")]
-        public async Task<ActionResult<List<EmailInfo>>> GetFillter([FromBody] EmailInfoGetFillterRequest request)
+        public async Task<ActionResult<List<EmailInfo>>> GetFillter(EmailInfoGetFillterRequest request)
         {
             if(request.textSearch == "")
             {
@@ -443,7 +444,7 @@ namespace HelpDeskSystem.Controller
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
 
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
             && (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
@@ -460,7 +461,7 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("GetFillterCount")]
-        public async Task<EmailInfoGetFillteResponse> GetFillterCount([FromBody] EmailInfoGetFillterRequest request)
+        public async Task<EmailInfoGetFillteResponse> GetFillterCount(EmailInfoGetFillterRequest request)
         {
             if (_context.Accounts == null)
             {
@@ -476,12 +477,12 @@ namespace HelpDeskSystem.Controller
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
 
-            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)).ToList().Count;
-            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
              && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)

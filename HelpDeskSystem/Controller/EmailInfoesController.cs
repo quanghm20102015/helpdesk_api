@@ -403,7 +403,7 @@ namespace HelpDeskSystem.Controller
 
         [HttpGet]
         [Route("GetFillter")]
-        public async Task<ActionResult<List<EmailInfo>>> GetFillter([FromQuery] EmailInfoGetFillterRequest request)
+        public async Task<ActionResult<List<EmailInfo>>> GetFillter([FromBody] EmailInfoGetFillterRequest request)
         {
             if(request.textSearch == "")
             {
@@ -430,7 +430,7 @@ namespace HelpDeskSystem.Controller
 
         [HttpGet]
         [Route("GetFillterCount")]
-        public async Task<EmailInfoGetFillteResponse> GetFillterCount([FromQuery] EmailInfoGetFillterRequest request)
+        public async Task<EmailInfoGetFillteResponse> GetFillterCount([FromBody] EmailInfoGetFillterRequest request)
         {
             if (_context.Accounts == null)
             {

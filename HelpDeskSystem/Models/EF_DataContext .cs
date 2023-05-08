@@ -71,6 +71,11 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<ContactNote> ContactNotes
+        {
+            get;
+            set;
+        }
         
     }
 }

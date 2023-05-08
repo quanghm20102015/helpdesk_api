@@ -48,6 +48,7 @@ namespace HelpDeskSystem.Controller
             var contact = await _context.Contacts.FindAsync(id);
             List<ContactLabel> listContactLabel = _context.ContactLabels.Where(x => x.idContact == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == contact.idCompany).ToList();
+            List<ContactNote> listContactNote = _context.ContactNotes.Where(r => r.idContact == id).ToList();
 
             List<LabelDetail> listLabelDetail = new List<LabelDetail>();
             foreach (Label obj in listLabel)
@@ -83,6 +84,7 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 contact = contact,
                 listLabel = listLabelDetail,
+                listNote = listContactNote.ToList<Object>()
             };
         }
 

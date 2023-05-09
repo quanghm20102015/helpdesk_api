@@ -170,12 +170,13 @@ namespace HelpDeskSystem.Controller
                     message.From.Add(new MailboxAddress(configMail[0].yourName, configMail[0].email));
                     message.To.Add(new MailboxAddress("", request.to));
                     message.Subject = request.subject;
-                    message.Body = new TextPart(TextFormat.Plain) { Text = request.body };
+                    //message.Body = new TextPart(TextFormat.Plain) { Text = request.body };
+                    message.Body = new TextPart("html") { Text = request.body };
 
                     var smtp = new SmtpClient();
                     smtp.Connect(configMail[0].outgoing, configMail[0].outgoingPort.Value);
                     smtp.Authenticate(configMail[0].email, configMail[0].password);
-                    //smtp.Send(message);
+                    smtp.Send(message);
                     smtp.Disconnect(true);
                 }
 

@@ -56,11 +56,37 @@ namespace HelpDeskSystem.Controller
             }
             var emailInfo = await _context.EmailInfos.FindAsync(id);
 
-            dynamic objEmailInfo = emailInfo;
+            dynamic objEmailInfo = new System.Dynamic.ExpandoObject();
 
             ConfigMail configMail = _context.ConfigMails.Where(x => x.id == emailInfo.idConfigEmail).FirstOrDefault();
+            try
+            {
+                objEmailInfo.id = emailInfo.id;
+                objEmailInfo.idConfigEmail = emailInfo.idConfigEmail;
+                objEmailInfo.messageId = emailInfo.messageId;
+                objEmailInfo.date = emailInfo.date;
+                objEmailInfo.from = emailInfo.from;
+                objEmailInfo.fromName = emailInfo.fromName;
+                objEmailInfo.to = emailInfo.to;
+                objEmailInfo.cc = emailInfo.cc;
+                objEmailInfo.bcc = emailInfo.bcc;
+                objEmailInfo.subject = emailInfo.subject;
+                objEmailInfo.textBody = emailInfo.textBody;
+                objEmailInfo.status = emailInfo.status;
+                objEmailInfo.assign = emailInfo.assign;
+                objEmailInfo.idCompany = emailInfo.idCompany;
+                objEmailInfo.idLabel = emailInfo.idLabel;
+                objEmailInfo.idGuId = emailInfo.idGuId;
+                objEmailInfo.type = emailInfo.type;
+                objEmailInfo.channelName = configMail.yourName;
+            }
+            catch (Exception ex)
+            {
+                objEmailInfo = emailInfo;
+            }
 
-            List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
+
+            List <EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).OrderByDescending(y => y.date).ToList();

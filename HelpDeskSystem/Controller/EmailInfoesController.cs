@@ -55,10 +55,18 @@ namespace HelpDeskSystem.Controller
                 };
             }
             var emailInfo = await _context.EmailInfos.FindAsync(id);
+
+            dynamic objEmailInfo = emailInfo;
+
+            ConfigMail configMail = _context.ConfigMails.Where(x => x.id == emailInfo.idConfigEmail).FirstOrDefault();
+
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).OrderByDescending(y => y.date).ToList();
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idEmailInfo == id).ToList();
+            List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idEmailInfo == id).ToList();
+            List<History> listHistory = _context.Historys.Where(x => x.type == 1 && x.idDetail == id).ToList();
 
             List<LabelDetail> listLabelDetail = new List<LabelDetail>();
             foreach (Label obj in listLabel)
@@ -81,14 +89,58 @@ namespace HelpDeskSystem.Controller
                 listLabelDetail.Add(obj1);
             }
 
+            List<AccountDetail> listAssignDetail = new List<AccountDetail>();
+            foreach (Account obj in listAccount)
+            {
+                AccountDetail obj1 = new AccountDetail();
+                obj1.id = obj.id;
+                obj1.fullname = obj.fullname;
+                obj1.workemail = obj.workemail;
+                obj1.idGuId = obj.idGuId;
+                obj1.check = false;
+
+                foreach (EmailInfoAssign objEmailInfoAssign in listEmailInfoAssign)
+                {
+                    if (obj.id == objEmailInfoAssign.idUser)
+                    {
+                        obj1.check = true;
+                        break;
+                    }
+                }
+                listAssignDetail.Add(obj1);
+            }
+
+            List<AccountDetail> listFollowDetail = new List<AccountDetail>();
+            foreach (Account obj in listAccount)
+            {
+                AccountDetail obj1 = new AccountDetail();
+                obj1.id = obj.id;
+                obj1.fullname = obj.fullname;
+                obj1.workemail = obj.workemail;
+                obj1.idGuId = obj.idGuId;
+                obj1.check = false;
+
+                foreach (EmailInfoFollow objEmailInfoFollow in listEmailInfoFollow)
+                {
+                    if (obj.id == objEmailInfoFollow.idUser)
+                    {
+                        obj1.check = true;
+                        break;
+                    }
+                }
+                listFollowDetail.Add(obj1);
+            }
 
             return new EmailInfoResponse
             {
                 Status = ResponseStatus.Susscess,
-                emailInfo = emailInfo,
+                emailInfo = objEmailInfo,
                 listLabel = listLabelDetail,
                 listAccount = listAccount.ToList<Object>(),
-                listEmailInfo = listEmailInfo.ToList<Object>()
+                listEmailInfo = listEmailInfo.ToList<Object>(),
+                listAssign = listAssignDetail.ToList<Object>(),
+                listFollow = listFollowDetail.ToList<Object>(),
+                listHistory = listHistory.ToList<Object>()
             };
         }
 

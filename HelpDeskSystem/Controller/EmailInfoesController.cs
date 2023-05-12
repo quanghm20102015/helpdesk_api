@@ -542,16 +542,30 @@ namespace HelpDeskSystem.Controller
             }
 
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.assign).ToList();
+            List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idUser == request.idUserFollow).ToList();
             List<int> listIdEmailLabel = new List<int>();
-            foreach(EmailInfoLabel emailInfoLabel in listEmailInfoLabel) 
+            List<int> listIdEmailAssign = new List<int>();
+            List<int> listIdEmailFollow = new List<int>();
+            foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel) 
             {
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
+            foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+            {
+                listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+            }
+            foreach (EmailInfoFollow emailInfoFollow in listEmailInfoFollow)
+            {
+                listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
+            }
 
             List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
-            && (r.assign == request.assign || request.assign == 0)
+            //&& (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
+            && (listIdEmailAssign.Contains(r.id) || request.assign == 0)
+            && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)).OrderByDescending(x => x.date).ToList();
 

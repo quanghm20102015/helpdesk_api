@@ -59,6 +59,7 @@ namespace HelpDeskSystem.Controller
             dynamic objEmailInfo = new System.Dynamic.ExpandoObject();
 
             ConfigMail configMail = _context.ConfigMails.Where(x => x.id == emailInfo.idConfigEmail).FirstOrDefault();
+            Contact contact = _context.Contacts.Where(x => x.email == emailInfo.from).FirstOrDefault();
             try
             {
                 objEmailInfo.id = emailInfo.id;
@@ -66,7 +67,7 @@ namespace HelpDeskSystem.Controller
                 objEmailInfo.messageId = emailInfo.messageId;
                 objEmailInfo.date = emailInfo.date;
                 objEmailInfo.from = emailInfo.from;
-                objEmailInfo.fromName = emailInfo.fromName;
+                objEmailInfo.fromName = emailInfo.fromName.Replace("\"", "");
                 objEmailInfo.to = emailInfo.to;
                 objEmailInfo.cc = emailInfo.cc;
                 objEmailInfo.bcc = emailInfo.bcc;
@@ -79,6 +80,11 @@ namespace HelpDeskSystem.Controller
                 objEmailInfo.idGuId = emailInfo.idGuId;
                 objEmailInfo.type = emailInfo.type;
                 objEmailInfo.channelName = configMail.yourName;
+                if (contact != null)
+                {
+                    objEmailInfo.idContact = contact.id;
+                    objEmailInfo.contactName = contact.fullname.Replace("\"", "");
+                }
             }
             catch (Exception ex)
             {

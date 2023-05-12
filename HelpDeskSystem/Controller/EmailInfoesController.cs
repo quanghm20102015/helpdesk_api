@@ -17,6 +17,7 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Dynamic;
 using Interfaces.Model.EmailInfo;
+using static Interfaces.Model.EmailInfo.EmailInfoGetMenuCountResponse;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -612,6 +613,57 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 All = listAll,
                 ByAgent = listByAgent
+            };
+        }
+
+        [HttpPost]
+        [Route("GetMenuCount")]
+        public async Task<EmailInfoGetMenuCountResponse> GetMenuCount(EmailInfoGetMenuCountRequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return new EmailInfoGetMenuCountResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+
+            int all = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1).Count();
+
+
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.idUser).ToList();
+            List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idUser == request.idUser).ToList();
+            List<int> listIdEmailAssign = new List<int>();
+            List<int> listIdEmailFollow = new List<int>();
+            EmailInfoCount emailInfoCount = new EmailInfoCount();
+
+            foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+            {
+                listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+            }
+            foreach (EmailInfoFollow emailInfoFollow in listEmailInfoFollow)
+            {
+                listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
+            }
+            int mine = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            && listIdEmailAssign.Contains(r.id)).Count();
+            int follow = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            && listIdEmailFollow.Contains(r.id)).Count();
+
+            int resolved = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            && r.status == 2).Count();
+
+            emailInfoCount.All = all;
+            emailInfoCount.Mine = mine;
+            emailInfoCount.Following = follow;
+            emailInfoCount.Resolved = resolved;
+            emailInfoCount.Trash = 0;
+            emailInfoCount.Unassigned = 0;
+
+            return new EmailInfoGetMenuCountResponse
+            {
+                Status = ResponseStatus.Susscess,
+                emailInfoCount = emailInfoCount
             };
         }
     }

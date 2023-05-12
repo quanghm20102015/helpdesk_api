@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
+using Interfaces.Model.Account;
+using Interfaces.Constants;
+using Interfaces.Model.ConfigMail;
 
 namespace HelpDeskSystem.Controller
 {
@@ -83,16 +86,24 @@ namespace HelpDeskSystem.Controller
         // POST: api/Histories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<History>> PostHistory(History history)
+        public async Task<HistoryResponse> PostHistory(History history)
         {
-          if (_context.Historys == null)
-          {
-              return Problem("Entity set 'EF_DataContext.Historys'  is null.");
-          }
+            if (_context.Historys == null)
+            {
+                return new HistoryResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+
+            history.time = DateTime.Now.ToUniversalTime();
             _context.Historys.Add(history);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetHistory", new { id = history.id }, history);
+            return new HistoryResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
         // DELETE: api/Histories/5
@@ -119,5 +130,25 @@ namespace HelpDeskSystem.Controller
         {
             return (_context.Historys?.Any(e => e.id == id)).GetValueOrDefault();
         }
+
+
+        [HttpGet]
+        [Route("GetByIdCompany")]
+        public async Task<ActionResult<List<History>>> GetByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<History> history = _context.Historys.Where(r => r.idCompany == idCompany).ToList();
+
+            if (history == null)
+            {
+                return NotFound();
+            }
+
+            return history;
+        }
+
     }
 }

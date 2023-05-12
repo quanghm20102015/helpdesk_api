@@ -360,12 +360,31 @@ namespace HelpDeskSystem.Controller
         public async Task<EmailInfoResponse> UpdateStatus(EmailInfoRequest emailInfo)
         {
             var EmailInfo = await _context.EmailInfos.FindAsync(emailInfo.id);
+            var Status = await _context.Status.FindAsync(emailInfo.status);
             EmailInfo.status = emailInfo.status;
+            var EmailInfoInsert = EmailInfo;
 
             _context.Entry(EmailInfo).State = EntityState.Modified;
 
             try
             {
+                await _context.SaveChangesAsync();
+                EmailInfoInsert.id = 0;
+                EmailInfoInsert.date = DateTime.Now.ToUniversalTime();
+                EmailInfoInsert.from = "";
+                EmailInfoInsert.fromName = "";
+                EmailInfoInsert.to = "";
+                EmailInfoInsert.cc = "";
+                EmailInfoInsert.bcc = "";
+                EmailInfoInsert.subject = "";
+                EmailInfoInsert.textBody = emailInfo.fullName + " change status to " + Status.statusName;
+                EmailInfoInsert.assign = 0;
+                EmailInfoInsert.status = 0;
+                EmailInfoInsert.idLabel = 0;
+                EmailInfoInsert.idGuId = Guid.NewGuid().ToString();
+                EmailInfoInsert.type = 3;
+
+                _context.EmailInfos.Add(EmailInfoInsert);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)

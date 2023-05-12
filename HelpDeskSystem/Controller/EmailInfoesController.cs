@@ -96,7 +96,7 @@ namespace HelpDeskSystem.Controller
             List <EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
-            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).OrderByDescending(y => y.date).ToList();
+            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).OrderBy(y => y.date).ToList();
             List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idEmailInfo == id).ToList();
             List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idEmailInfo == id).ToList();
             List<History> listHistory = _context.Historys.Where(x => x.type == 1 && x.idDetail == id).ToList();

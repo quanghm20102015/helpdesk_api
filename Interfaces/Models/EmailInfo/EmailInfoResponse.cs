@@ -10,7 +10,10 @@ namespace Interfaces.Model.Account
         public Object emailInfo { get; set; }
         public List<LabelDetail> listLabel { get; set; }
         public List<Object> listAccount { get; set; }
-        public List<Object> listEmailInfo { get; set; }        
+        public List<Object> listEmailInfo { get; set; }
+        public List<Object> listAssign { get; set; }
+        public List<Object> listFollow { get; set; }
+        public List<Object> listHistory { get; set; }
 
     }
     public class EmailInfoDetail
@@ -121,6 +124,34 @@ namespace Interfaces.Model.Account
             set;
         }
         public int idCompany
+        {
+            get;
+            set;
+        }
+        public bool check
+        {
+            get;
+            set;
+        }
+    }
+    public class AccountDetail
+    {
+        public int id
+        {
+            get;
+            set;
+        }
+        public string? fullname
+        {
+            get;
+            set;
+        }
+        public string? workemail
+        {
+            get;
+            set;
+        }
+        public string? idGuId
         {
             get;
             set;

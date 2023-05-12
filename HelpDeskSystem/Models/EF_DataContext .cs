@@ -76,6 +76,20 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
-        
+        public DbSet<EmailInfoAssign> EmailInfoAssigns
+        {
+            get;
+            set;
+        }
+        public DbSet<EmailInfoFollow> EmailInfoFollows
+        {
+            get;
+            set;
+        }
+        public DbSet<History> Historys
+        {
+            get;
+            set;
+        }
     }
 }

@@ -8,6 +8,11 @@ namespace Interfaces.Model.EmailInfo
     public class EmailInfoGetFillteResponse : BaseResponse<ResponseStatus>
     {
         public int All { get; set; }
+        public int Mine { get; set; }
+        public int Following { get; set; }
+        public int Unassigned { get; set; }
+        public int Resolved { get; set; }
+        public int Trash { get; set; }
         public int ByAgent { get; set; }
     }
 }

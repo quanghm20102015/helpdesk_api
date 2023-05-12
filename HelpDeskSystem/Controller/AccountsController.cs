@@ -16,6 +16,7 @@ using System.Text;
 using System.Security.Principal;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Reflection.Metadata;
+using MailKit.Security;
 
 namespace HelpDeskSystem.Controller
 {
@@ -401,7 +402,7 @@ namespace HelpDeskSystem.Controller
                 };
 
                 var smtp = new SmtpClient();
-                smtp.Connect(Outgoing, OutgoingPort);
+                smtp.Connect(Outgoing, OutgoingPort, SecureSocketOptions.StartTls);
                 smtp.Authenticate(Email, Password);
                 smtp.Send(message);
                 smtp.Disconnect(true);

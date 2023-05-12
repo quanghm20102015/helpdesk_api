@@ -17,6 +17,7 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.Dynamic;
 using Interfaces.Model.EmailInfo;
+using static Interfaces.Model.EmailInfo.EmailInfoGetMenuCountResponse;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -55,10 +56,50 @@ namespace HelpDeskSystem.Controller
                 };
             }
             var emailInfo = await _context.EmailInfos.FindAsync(id);
-            List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
+
+            dynamic objEmailInfo = new System.Dynamic.ExpandoObject();
+
+            ConfigMail configMail = _context.ConfigMails.Where(x => x.id == emailInfo.idConfigEmail).FirstOrDefault();
+            Contact contact = _context.Contacts.Where(x => x.email == emailInfo.from).FirstOrDefault();
+            try
+            {
+                objEmailInfo.id = emailInfo.id;
+                objEmailInfo.idConfigEmail = emailInfo.idConfigEmail;
+                objEmailInfo.messageId = emailInfo.messageId;
+                objEmailInfo.date = emailInfo.date;
+                objEmailInfo.from = emailInfo.from;
+                objEmailInfo.fromName = emailInfo.fromName.Replace("\"", "");
+                objEmailInfo.to = emailInfo.to;
+                objEmailInfo.cc = emailInfo.cc;
+                objEmailInfo.bcc = emailInfo.bcc;
+                objEmailInfo.subject = emailInfo.subject;
+                objEmailInfo.textBody = emailInfo.textBody;
+                objEmailInfo.status = emailInfo.status;
+                objEmailInfo.assign = emailInfo.assign;
+                objEmailInfo.idCompany = emailInfo.idCompany;
+                objEmailInfo.idLabel = emailInfo.idLabel;
+                objEmailInfo.idGuId = emailInfo.idGuId;
+                objEmailInfo.type = emailInfo.type;
+                objEmailInfo.channelName = configMail.yourName;
+                if (contact != null)
+                {
+                    objEmailInfo.idContact = contact.id;
+                    objEmailInfo.contactName = contact.fullname.Replace("\"", "");
+                }
+            }
+            catch (Exception ex)
+            {
+                objEmailInfo = emailInfo;
+            }
+
+
+            List <EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.messageId == emailInfo.messageId).OrderByDescending(y => y.date).ToList();
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idEmailInfo == id).ToList();
+            List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idEmailInfo == id).ToList();
+            List<History> listHistory = _context.Historys.Where(x => x.type == 1 && x.idDetail == id).ToList();
 
             List<LabelDetail> listLabelDetail = new List<LabelDetail>();
             foreach (Label obj in listLabel)
@@ -81,14 +122,58 @@ namespace HelpDeskSystem.Controller
                 listLabelDetail.Add(obj1);
             }
 
+            List<AccountDetail> listAssignDetail = new List<AccountDetail>();
+            foreach (Account obj in listAccount)
+            {
+                AccountDetail obj1 = new AccountDetail();
+                obj1.id = obj.id;
+                obj1.fullname = obj.fullname;
+                obj1.workemail = obj.workemail;
+                obj1.idGuId = obj.idGuId;
+                obj1.check = false;
+
+                foreach (EmailInfoAssign objEmailInfoAssign in listEmailInfoAssign)
+                {
+                    if (obj.id == objEmailInfoAssign.idUser)
+                    {
+                        obj1.check = true;
+                        break;
+                    }
+                }
+                listAssignDetail.Add(obj1);
+            }
+
+            List<AccountDetail> listFollowDetail = new List<AccountDetail>();
+            foreach (Account obj in listAccount)
+            {
+                AccountDetail obj1 = new AccountDetail();
+                obj1.id = obj.id;
+                obj1.fullname = obj.fullname;
+                obj1.workemail = obj.workemail;
+                obj1.idGuId = obj.idGuId;
+                obj1.check = false;
+
+                foreach (EmailInfoFollow objEmailInfoFollow in listEmailInfoFollow)
+                {
+                    if (obj.id == objEmailInfoFollow.idUser)
+                    {
+                        obj1.check = true;
+                        break;
+                    }
+                }
+                listFollowDetail.Add(obj1);
+            }
 
             return new EmailInfoResponse
             {
                 Status = ResponseStatus.Susscess,
-                emailInfo = emailInfo,
+                emailInfo = objEmailInfo,
                 listLabel = listLabelDetail,
                 listAccount = listAccount.ToList<Object>(),
-                listEmailInfo = listEmailInfo.ToList<Object>()
+                listEmailInfo = listEmailInfo.ToList<Object>(),
+                listAssign = listAssignDetail.ToList<Object>(),
+                listFollow = listFollowDetail.ToList<Object>(),
+                listHistory = listHistory.ToList<Object>()
             };
         }
 
@@ -282,12 +367,31 @@ namespace HelpDeskSystem.Controller
         public async Task<EmailInfoResponse> UpdateStatus(EmailInfoRequest emailInfo)
         {
             var EmailInfo = await _context.EmailInfos.FindAsync(emailInfo.id);
+            var Status = await _context.Status.FindAsync(emailInfo.status);
             EmailInfo.status = emailInfo.status;
+            var EmailInfoInsert = EmailInfo;
 
             _context.Entry(EmailInfo).State = EntityState.Modified;
 
             try
             {
+                await _context.SaveChangesAsync();
+                EmailInfoInsert.id = 0;
+                EmailInfoInsert.date = DateTime.Now.ToUniversalTime();
+                EmailInfoInsert.from = "";
+                EmailInfoInsert.fromName = "";
+                EmailInfoInsert.to = "";
+                EmailInfoInsert.cc = "";
+                EmailInfoInsert.bcc = "";
+                EmailInfoInsert.subject = "";
+                EmailInfoInsert.textBody = emailInfo.fullName + " change status to " + Status.statusName;
+                EmailInfoInsert.assign = 0;
+                EmailInfoInsert.status = 0;
+                EmailInfoInsert.idLabel = 0;
+                EmailInfoInsert.idGuId = Guid.NewGuid().ToString();
+                EmailInfoInsert.type = 3;
+
+                _context.EmailInfos.Add(EmailInfoInsert);
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
@@ -439,16 +543,30 @@ namespace HelpDeskSystem.Controller
             }
 
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.assign).ToList();
+            List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idUser == request.idUserFollow).ToList();
             List<int> listIdEmailLabel = new List<int>();
-            foreach(EmailInfoLabel emailInfoLabel in listEmailInfoLabel) 
+            List<int> listIdEmailAssign = new List<int>();
+            List<int> listIdEmailFollow = new List<int>();
+            foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel) 
             {
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
+            foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+            {
+                listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+            }
+            foreach (EmailInfoFollow emailInfoFollow in listEmailInfoFollow)
+            {
+                listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
+            }
 
             List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
-            && (r.assign == request.assign || request.assign == 0)
+            //&& (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
+            && (listIdEmailAssign.Contains(r.id) || request.assign == 0)
+            && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)).OrderByDescending(x => x.date).ToList();
 
@@ -495,6 +613,57 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 All = listAll,
                 ByAgent = listByAgent
+            };
+        }
+
+        [HttpPost]
+        [Route("GetMenuCount")]
+        public async Task<EmailInfoGetMenuCountResponse> GetMenuCount(EmailInfoGetMenuCountRequest request)
+        {
+            if (_context.Accounts == null)
+            {
+                return new EmailInfoGetMenuCountResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+
+            int all = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1).Count();
+
+
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.idUser).ToList();
+            List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idUser == request.idUser).ToList();
+            List<int> listIdEmailAssign = new List<int>();
+            List<int> listIdEmailFollow = new List<int>();
+            EmailInfoCount emailInfoCount = new EmailInfoCount();
+
+            foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+            {
+                listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+            }
+            foreach (EmailInfoFollow emailInfoFollow in listEmailInfoFollow)
+            {
+                listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
+            }
+            int mine = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            && listIdEmailAssign.Contains(r.id)).Count();
+            int follow = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            && listIdEmailFollow.Contains(r.id)).Count();
+
+            int resolved = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            && r.status == 2).Count();
+
+            emailInfoCount.All = all;
+            emailInfoCount.Mine = mine;
+            emailInfoCount.Following = follow;
+            emailInfoCount.Resolved = resolved;
+            emailInfoCount.Trash = 0;
+            emailInfoCount.Unassigned = 0;
+
+            return new EmailInfoGetMenuCountResponse
+            {
+                Status = ResponseStatus.Susscess,
+                emailInfoCount = emailInfoCount
             };
         }
     }

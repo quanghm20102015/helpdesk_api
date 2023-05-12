@@ -11,6 +11,7 @@ using Interfaces.Constants;
 using MailKit.Net.Smtp;
 using MailKit.Net.Imap;
 using System.Text;
+using Interfaces.Model.ConfigMail;
 
 namespace HelpDeskSystem.Controller
 {
@@ -171,20 +172,33 @@ namespace HelpDeskSystem.Controller
 
         [HttpGet]
         [Route("GetByIdCompany")]
-        public async Task<ActionResult<List<ConfigMail>>> GetByIdCompany(int idCompany)
+        public async Task<ConfigMailByCompanyResponse> GetByIdCompany(int idCompany)
         {
             if (_context.Accounts == null)
             {
-                return NotFound();
+                return new ConfigMailByCompanyResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
             }
-            List<ConfigMail> label = _context.ConfigMails.Where(r => r.idCompany == idCompany).ToList();
-
-            if (label == null)
+            List<ConfigMail> listConfigMail = _context.ConfigMails.Where(r => r.idCompany == idCompany).ToList();
+            List<ConfigMailDetail> listConfigMailDetail = new List<ConfigMailDetail>();
+            foreach (ConfigMail obj in listConfigMail)
             {
-                return NotFound();
+                ConfigMailDetail obj1 = new ConfigMailDetail();
+                obj1.id = obj.id;
+                obj1.email = obj.email;
+                obj1.yourName = obj.yourName;
+                obj1.idCompany = obj.idCompany;
+                obj1.countEmail = 10;
+                listConfigMailDetail.Add(obj1);
             }
 
-            return label;
+            return new ConfigMailByCompanyResponse
+            {
+                Status = ResponseStatus.Susscess,
+                listConfigMail = listConfigMailDetail
+            };
         }
     }
 }

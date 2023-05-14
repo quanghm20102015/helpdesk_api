@@ -594,14 +594,15 @@ namespace HelpDeskSystem.Controller
                 listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
             }
 
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 1
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && ((r.isDelete == false && request.idUserTrash == 0) || request.idUserTrash != 0) && r.type == 1
             //&& (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (listIdEmailAssign.Contains(r.id) || request.assign == 0)
             && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
-            && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)).OrderByDescending(x => x.date).ToList();
+            && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
+            && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {
@@ -686,11 +687,13 @@ namespace HelpDeskSystem.Controller
             int resolved = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
             && r.status == 2).Count();
 
+            int trash = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == true && r.idUserDelete == request.idUser).Count();
+
             emailInfoCount.All = all;
             emailInfoCount.Mine = mine;
             emailInfoCount.Following = follow;
             emailInfoCount.Resolved = resolved;
-            emailInfoCount.Trash = 0;
+            emailInfoCount.Trash = trash;
             emailInfoCount.Unassigned = 0;
 
             return new EmailInfoGetMenuCountResponse

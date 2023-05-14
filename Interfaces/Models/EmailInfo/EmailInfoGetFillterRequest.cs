@@ -11,6 +11,7 @@ namespace Interfaces.Model.EmailInfo
         public int idCompany { get; set; }
         public string textSearch { get; set; }
         public int idUserFollow { get; set; }
+        public int idUserTrash { get; set; }
 
     }
 }

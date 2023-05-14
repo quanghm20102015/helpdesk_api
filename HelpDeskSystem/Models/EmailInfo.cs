@@ -92,5 +92,20 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public bool isDelete
+        {
+            get;
+            set;
+        }
+        public int idUserDelete
+        {
+            get;
+            set;
+        }
+        public DateTime? dateDelete
+        {
+            get;
+            set;
+        }
     }
 }

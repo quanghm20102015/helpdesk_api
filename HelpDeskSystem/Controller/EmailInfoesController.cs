@@ -214,6 +214,7 @@ namespace HelpDeskSystem.Controller
             }
 
             emailInfo.idGuId = Guid.NewGuid().ToString();
+            emailInfo.isDelete = false;
             _context.EmailInfos.Add(emailInfo);
             await _context.SaveChangesAsync();
 
@@ -221,24 +222,56 @@ namespace HelpDeskSystem.Controller
         }
 
         // DELETE: api/EmailInfoes/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmailInfo(int id)
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteEmailInfo(int id)
+        //{
+        //    if (_context.EmailInfos == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var emailInfo = await _context.EmailInfos.FindAsync(id);
+        //    if (emailInfo == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    _context.EmailInfos.Remove(emailInfo);
+        //    await _context.SaveChangesAsync();
+
+        //    return NoContent();
+        //}
+
+        [HttpDelete]
+        public async Task<EmailInfoDeleteResponse> DeleteEmailInfo(EmailInfoDeleteRequest request)
         {
             if (_context.EmailInfos == null)
             {
-                return NotFound();
+                return new EmailInfoDeleteResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
             }
-            var emailInfo = await _context.EmailInfos.FindAsync(id);
+            var emailInfo = await _context.EmailInfos.FindAsync(request.idEmailInfo);
             if (emailInfo == null)
             {
-                return NotFound();
+                return new EmailInfoDeleteResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
             }
+            emailInfo.isDelete = true;
+            emailInfo.idUserDelete = request.idUserDelete;
+            emailInfo.dateDelete = DateTime.Now.ToUniversalTime();
 
-            _context.EmailInfos.Remove(emailInfo);
+            _context.Entry(emailInfo).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return new EmailInfoDeleteResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
+
 
         [HttpPost]
         [Route("SendMail")]
@@ -314,7 +347,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == idCompany).OrderByDescending(x => x.date).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.isDelete == false).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {
@@ -332,7 +365,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && (r.status == request.status || request.status == 0)).OrderByDescending(x => x.date).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && (r.status == request.status || request.status == 0)).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {
@@ -350,7 +383,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false
             && (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)).OrderByDescending(x => x.date).ToList();
 
@@ -458,7 +491,7 @@ namespace HelpDeskSystem.Controller
                 return NotFound();
             }
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLable).ToList();
-            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany 
+            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false
             && (request.status == 0 || request.status == r.status)).OrderByDescending(x => x.date).ToList();
 
             List<int> numbers = new List<int>();
@@ -488,7 +521,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idConfigEmail == idConfigEmail).OrderByDescending(x => x.date).ToList();
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idConfigEmail == idConfigEmail && r.isDelete == false).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
             {
@@ -509,11 +542,11 @@ namespace HelpDeskSystem.Controller
                     Status = ResponseStatus.Fail
                 };
             }
-            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && (r.idLabel == request.idLabel || request.idLabel == 0)).ToList().Count;
-            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany
+            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false
              && (r.idLabel == request.idLabel || request.idLabel == 0)
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
@@ -561,7 +594,7 @@ namespace HelpDeskSystem.Controller
                 listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
             }
 
-            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 1
             //&& (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
@@ -596,12 +629,12 @@ namespace HelpDeskSystem.Controller
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
 
-            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)).ToList().Count;
-            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
              && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (r.status == request.status || request.status == 0)
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
@@ -628,7 +661,7 @@ namespace HelpDeskSystem.Controller
                 };
             }
 
-            int all = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1).Count();
+            int all = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false).Count();
 
 
             List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.idUser).ToList();
@@ -645,12 +678,12 @@ namespace HelpDeskSystem.Controller
             {
                 listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
             }
-            int mine = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            int mine = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
             && listIdEmailAssign.Contains(r.id)).Count();
-            int follow = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            int follow = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
             && listIdEmailFollow.Contains(r.id)).Count();
 
-            int resolved = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1
+            int resolved = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
             && r.status == 2).Count();
 
             emailInfoCount.All = all;

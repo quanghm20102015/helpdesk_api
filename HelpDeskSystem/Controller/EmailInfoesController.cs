@@ -602,6 +602,7 @@ namespace HelpDeskSystem.Controller
             && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
+            && ((request.unAssign == true && r.isAssign == false) || request.unAssign == false)
             && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)).OrderByDescending(x => x.date).ToList();
 
             if (label == null)
@@ -663,6 +664,7 @@ namespace HelpDeskSystem.Controller
             }
 
             int all = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false).Count();
+            int unAssign = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isAssign == false && r.isDelete == false && r.type == 1).Count();
 
 
             List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.idUser).ToList();
@@ -694,7 +696,7 @@ namespace HelpDeskSystem.Controller
             emailInfoCount.Following = follow;
             emailInfoCount.Resolved = resolved;
             emailInfoCount.Trash = trash;
-            emailInfoCount.Unassigned = 0;
+            emailInfoCount.Unassigned = unAssign;
 
             return new EmailInfoGetMenuCountResponse
             {

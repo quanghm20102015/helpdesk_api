@@ -107,5 +107,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public bool isAssign
+        {
+            get;
+            set;
+        }
     }
 }

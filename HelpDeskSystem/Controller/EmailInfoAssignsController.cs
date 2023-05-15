@@ -109,6 +109,12 @@ namespace HelpDeskSystem.Controller
                 await _context.SaveChangesAsync();
             }
 
+            var EmailInfo = await _context.EmailInfos.FindAsync(request.idEmailInfo); 
+            EmailInfo.isAssign = true;
+            _context.Entry(EmailInfo).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+
             return new EmailInfoAssignResponse
             {
                 Status = ResponseStatus.Susscess

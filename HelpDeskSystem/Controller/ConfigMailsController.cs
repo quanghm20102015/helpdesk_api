@@ -12,6 +12,7 @@ using MailKit.Net.Smtp;
 using MailKit.Net.Imap;
 using System.Text;
 using Interfaces.Model.ConfigMail;
+using Interfaces.Base;
 
 namespace HelpDeskSystem.Controller
 {
@@ -199,6 +200,41 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 listConfigMail = listConfigMailDetail
             };
+        }
+
+        [HttpGet]
+        [Route("GetMenuByIdCompany")]
+        public async Task<ActionResult<List<dynamic>>> GetMenuByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<ConfigMail> listConfigMail = _context.ConfigMails.Where(r => r.idCompany == idCompany).ToList();
+
+            List<dynamic> result = new List<dynamic>();
+            foreach (ConfigMail obj in listConfigMail)
+            {
+                dynamic objChannel = new System.Dynamic.ExpandoObject();
+
+                int countEmailInfo = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.type == 1 && r.isDelete == false
+                && r.idConfigEmail == obj.id).Count();
+
+
+                objChannel.id = obj.id;
+                objChannel.name = obj.yourName;
+                objChannel.idCompany = obj.idCompany;
+                objChannel.emailInfoCount = countEmailInfo;
+                objChannel.typeChannel = Common.Email;
+                result.Add(objChannel);
+            }
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return result;
         }
     }
 }

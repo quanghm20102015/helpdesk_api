@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore.Internal;
 using System.Dynamic;
 using Interfaces.Model.EmailInfo;
 using static Interfaces.Model.EmailInfo.EmailInfoGetMenuCountResponse;
+using Interfaces.Base;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -80,6 +81,7 @@ namespace HelpDeskSystem.Controller
                 objEmailInfo.idLabel = emailInfo.idLabel;
                 objEmailInfo.idGuId = emailInfo.idGuId;
                 objEmailInfo.type = emailInfo.type;
+                objEmailInfo.typeChannel = Common.Email;
                 objEmailInfo.channelName = configMail.yourName;
                 if (contact != null)
                 {
@@ -338,7 +340,6 @@ namespace HelpDeskSystem.Controller
             return (_context.EmailInfos?.Any(e => e.id == id)).GetValueOrDefault();
         }
 
-
         [HttpGet]
         [Route("GetByIdCompany")]
         public async Task<ActionResult<List<EmailInfo>>> GetByIdCompany(int idCompany)
@@ -564,7 +565,7 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("GetFillter")]
-        public async Task<ActionResult<List<EmailInfo>>> GetFillter(EmailInfoGetFillterRequest request)
+        public async Task<ActionResult<List<dynamic>>> GetFillter(EmailInfoGetFillterRequest request)
         {
             if(request.textSearch == "")
             {
@@ -605,9 +606,39 @@ namespace HelpDeskSystem.Controller
             && ((request.unAssign == true && r.isAssign == false) || request.unAssign == false)
             && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)).OrderByDescending(x => x.date).ToList();
 
-            foreach(EmailInfo obj in label)
+            List<dynamic> listDynamic = new List<dynamic>();
+
+            foreach (EmailInfo obj in label)
             {
-                obj.fromName = obj.fromName.Replace("\"", "");
+                dynamic objEmailInfo = new System.Dynamic.ExpandoObject();
+                try
+                {
+                    objEmailInfo.id = obj.id;
+                    objEmailInfo.idConfigEmail = obj.idConfigEmail;
+                    objEmailInfo.messageId = obj.messageId;
+                    objEmailInfo.date = obj.date;
+                    objEmailInfo.from = obj.from;
+                    objEmailInfo.fromName = obj.fromName.Replace("\"", "");
+                    objEmailInfo.to = obj.to;
+                    objEmailInfo.cc = obj.cc;
+                    objEmailInfo.bcc = obj.bcc;
+                    objEmailInfo.subject = obj.subject;
+                    objEmailInfo.textBody = obj.textBody;
+                    objEmailInfo.status = obj.status;
+                    objEmailInfo.assign = obj.assign;
+                    objEmailInfo.idCompany = obj.idCompany;
+                    objEmailInfo.idLabel = obj.idLabel;
+                    objEmailInfo.idGuId = obj.idGuId;
+                    objEmailInfo.type = obj.type;
+                    objEmailInfo.typeChannel = Common.Email;
+                    objEmailInfo.countUnread = 0;
+                }
+                catch (Exception ex)
+                {
+                    objEmailInfo = obj;
+                }
+
+                listDynamic.Add(objEmailInfo);
             }
 
             if (label == null)
@@ -615,7 +646,7 @@ namespace HelpDeskSystem.Controller
                 return NotFound();
             }
 
-            return label;
+            return listDynamic;
         }
 
         [HttpPost]
@@ -708,6 +739,58 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 emailInfoCount = emailInfoCount
             };
+        }
+
+        [HttpDelete]
+        [Route("Trash")]
+        public async Task<EmailInfoTrashResponse> Trash(EmailInfoTrashRequest request)
+        {
+            try
+            {
+                List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(r => r.isDelete == true && request.listIdEmailInfo.Contains(r.id)).ToList();
+                foreach (EmailInfo obj in listEmailInfo)
+                {
+                    _context.EmailInfos.Remove(obj);
+                }
+                await _context.SaveChangesAsync();
+                return new EmailInfoTrashResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            catch (Exception ex)
+            {
+                return new EmailInfoTrashResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+        }
+
+
+        [HttpDelete]
+        [Route("TrashAll")]
+        public async Task<EmailInfoTrashResponse> TrashAll(int idUserTrash)
+        {
+            try
+            {
+                List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(r => r.isDelete == true && r.idUserDelete == idUserTrash).ToList();
+                foreach (EmailInfo obj in listEmailInfo)
+                {
+                    _context.EmailInfos.Remove(obj);
+                }
+                return new EmailInfoTrashResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            catch (Exception ex)
+            {
+                return new EmailInfoTrashResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
         }
     }
 }

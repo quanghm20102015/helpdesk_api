@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
 using Interfaces.Model.Account;
 using Interfaces.Constants;
+using Org.BouncyCastle.Asn1.Ocsp;
+using static Interfaces.Model.EmailInfo.EmailInfoGetMenuCountResponse;
 
 namespace HelpDeskSystem.Controller
 {
@@ -148,6 +150,48 @@ namespace HelpDeskSystem.Controller
         private bool LabelExists(int id)
         {
             return (_context.Labels?.Any(e => e.id == id)).GetValueOrDefault();
+        }
+
+        [HttpGet]
+        [Route("GetMenuByIdCompany")]
+        public async Task<ActionResult<List<dynamic>>> GetMenuByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<Label> label = _context.Labels.Where(r => r.idCompany == idCompany).ToList();
+
+            List<dynamic> result = new List<dynamic>();
+            foreach(Label obj in label)
+            {
+                dynamic objLabel = new System.Dynamic.ExpandoObject();
+
+                List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == obj.id).ToList(); 
+                List<int> listIdEmailInfoLabel = new List<int>();
+
+                foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel)
+                {
+                    listIdEmailInfoLabel.Add(emailInfoLabel.idEmailInfo.Value);
+                }
+                int countEmailInfo = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.type == 1 && r.isDelete == false
+                && listIdEmailInfoLabel.Contains(r.id)).Count();
+
+
+                objLabel.id = obj.id;
+                objLabel.name = obj.name;
+                objLabel.description = obj.description;
+                objLabel.idCompany = obj.idCompany;
+                objLabel.emailInfoCount = countEmailInfo;
+                result.Add(objLabel);
+            }
+
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return result;
         }
     }
 }

@@ -16,5 +16,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public int sort
+        {
+            get;
+            set;
+        }
     }
 }

@@ -565,17 +565,8 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("GetFillter")]
-        public async Task<ActionResult<List<dynamic>>> GetFillter(EmailInfoGetFillterRequest request)
+        public async Task<EmailInfoGetFillteResponse> GetFillter(EmailInfoGetFillterRequest request)
         {
-            if(request.textSearch == "")
-            {
-
-            }
-            if (_context.Accounts == null)
-            {
-                return NotFound();
-            }
-
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
             List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.assign).ToList();
             List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idUser == request.idUserFollow).ToList();
@@ -601,7 +592,10 @@ namespace HelpDeskSystem.Controller
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (listIdEmailAssign.Contains(r.id) || request.assign == 0)
             && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
-            && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
+            && (r.from.ToUpper().Contains(request.textSearch.ToUpper()) || request.textSearch == "\"\"" || request.textSearch == ""
+            || r.subject.ToUpper().Contains(request.textSearch.ToUpper())
+            || r.textBody.ToUpper().Contains(request.textSearch.ToUpper())
+            || r.fromName.ToUpper().Contains(request.textSearch.ToUpper()))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((request.unAssign == true && r.isAssign == false) || request.unAssign == false)
             && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)).OrderByDescending(x => x.date).ToList();
@@ -641,51 +635,59 @@ namespace HelpDeskSystem.Controller
                 listDynamic.Add(objEmailInfo);
             }
 
-            if (label == null)
-            {
-                return NotFound();
-            }
-
-            return listDynamic;
-        }
-
-        [HttpPost]
-        [Route("GetFillterCount")]
-        public async Task<EmailInfoGetFillteResponse> GetFillterCount(EmailInfoGetFillterRequest request)
-        {
-            if (_context.Accounts == null)
+            if (listDynamic == null)
             {
                 return new EmailInfoGetFillteResponse
                 {
                     Status = ResponseStatus.Fail
                 };
             }
-            List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
-            List<int> listIdEmailLabel = new List<int>();
-            foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel)
-            {
-                listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
-            }
-
-            int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
-            && (r.status == request.status || request.status == 0)
-            && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
-            && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
-            && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)).ToList().Count;
-            int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
-             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
-            && (r.status == request.status || request.status == 0)
-            && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
-            && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
-            && (r.assign == request.assign || request.assign == 0)).ToList().Count;
 
             return new EmailInfoGetFillteResponse
             {
                 Status = ResponseStatus.Susscess,
-                All = listAll,
-                ByAgent = listByAgent
+                listEmailInfo = listDynamic,
+                total = listDynamic.Count
             };
         }
+
+        //[HttpPost]
+        //[Route("GetFillterCount")]
+        //public async Task<EmailInfoGetFillteResponse> GetFillterCount(EmailInfoGetFillterRequest request)
+        //{
+        //    if (_context.Accounts == null)
+        //    {
+        //        return new EmailInfoGetFillteResponse
+        //        {
+        //            Status = ResponseStatus.Fail
+        //        };
+        //    }
+        //    List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
+        //    List<int> listIdEmailLabel = new List<int>();
+        //    foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel)
+        //    {
+        //        listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
+        //    }
+
+        //    int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
+        //    && (r.status == request.status || request.status == 0)
+        //    && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
+        //    && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
+        //    && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)).ToList().Count;
+        //    int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
+        //     && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
+        //    && (r.status == request.status || request.status == 0)
+        //    && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
+        //    && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
+        //    && (r.assign == request.assign || request.assign == 0)).ToList().Count;
+
+        //    return new EmailInfoGetFillteResponse
+        //    {
+        //        Status = ResponseStatus.Susscess,
+        //        All = listAll,
+        //        ByAgent = listByAgent
+        //    };
+        //}
 
         [HttpPost]
         [Route("GetMenuCount")]

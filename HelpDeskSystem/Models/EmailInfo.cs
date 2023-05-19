@@ -112,5 +112,15 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public bool mainConversation
+        {
+            get;
+            set;
+        }
+        public bool read
+        {
+            get;
+            set;
+        }
     }
 }

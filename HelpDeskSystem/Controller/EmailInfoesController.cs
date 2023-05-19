@@ -603,7 +603,12 @@ namespace HelpDeskSystem.Controller
             && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((request.unAssign == true && r.isAssign == false) || request.unAssign == false)
-            && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)).OrderByDescending(x => x.date).ToList();
+            && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)).OrderBy(x => x.date).ToList();
+
+            foreach(EmailInfo obj in label)
+            {
+                obj.fromName = obj.fromName.Replace("\"", "");
+            }
 
             if (label == null)
             {

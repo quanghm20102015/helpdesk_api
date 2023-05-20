@@ -122,5 +122,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public string idReference
+        {
+            get;
+            set;
+        }
     }
 }

@@ -281,7 +281,6 @@ namespace HelpDeskSystem.Controller
         {
             try
             {
-                //List<ConfigMail> configMail = _context.ConfigMails.Where(r => r.idCompany == request.idCompany).ToList();
                 List<ConfigMail> configMail = _context.ConfigMails.Where(r => r.id == request.idConfigEmail).ToList();
 
                 if (configMail.Count > 0)
@@ -289,9 +288,32 @@ namespace HelpDeskSystem.Controller
                     var message = new MimeMessage();
                     message.From.Add(new MailboxAddress(configMail[0].yourName, configMail[0].email));
                     message.To.Add(new MailboxAddress("", request.to));
-                    message.Subject = request.subject;
-                    //message.Body = new TextPart(TextFormat.Plain) { Text = request.body };
+                    message.Subject = "Re: " + request.subject;
                     message.Body = new TextPart("html") { Text = request.body };
+                    message.InReplyTo = request.messageId;
+                    message.References.Add(request.messageId);
+
+                    //using (var quoted = new StringWriter())
+                    //{
+                    //    var sender = message.Sender ?? message.From.Mailboxes.FirstOrDefault();
+
+                    //    quoted.WriteLine("On {0}, {1} wrote:", message.Date.ToString("f"), !string.IsNullOrEmpty(sender.Name) ? sender.Name : sender.Address);
+                    //    using (var reader = new StringReader(request.body))
+                    //    {
+                    //        string line;
+
+                    //        while ((line = reader.ReadLine()) != null)
+                    //        {
+                    //            quoted.Write("> ");
+                    //            quoted.WriteLine(line);
+                    //        }
+                    //    }
+
+                    //    message.Body = new TextPart("plain")
+                    //    {
+                    //        Text = quoted.ToString()
+                    //    };
+                    //}
 
                     var smtp = new SmtpClient();
                     smtp.Connect(configMail[0].outgoing, configMail[0].outgoingPort.Value);
@@ -310,13 +332,15 @@ namespace HelpDeskSystem.Controller
                 emailInfo.to = request.to;
                 emailInfo.cc = request.cc;
                 emailInfo.bcc = request.bcc;
-                emailInfo.subject = request.subject;
+                emailInfo.subject = "Re: " + request.subject;
                 emailInfo.textBody = request.body;
                 emailInfo.idCompany = request.idCompany;
                 emailInfo.status = 0;
                 emailInfo.assign = request.assign;
                 emailInfo.idGuId = Guid.NewGuid().ToString();
                 emailInfo.type = 2;
+                emailInfo.read = true;
+                emailInfo.idReference = request.messageId;
                 _context.EmailInfos.Add(emailInfo);
                 await _context.SaveChangesAsync();
 
@@ -333,6 +357,75 @@ namespace HelpDeskSystem.Controller
                     Message = ex.Message
                 };
             }
+        }
+
+
+        public static MimeMessage Reply(MimeMessage message, MailboxAddress from, bool replyToAll)
+        {
+            var reply = new MimeMessage();
+
+            reply.From.Add(from);
+
+            // reply to the sender of the message
+            if (message.ReplyTo.Count > 0)
+            {
+                reply.To.AddRange(message.ReplyTo);
+            }
+            else if (message.From.Count > 0)
+            {
+                reply.To.AddRange(message.From);
+            }
+            else if (message.Sender != null)
+            {
+                reply.To.Add(message.Sender);
+            }
+
+            if (replyToAll)
+            {
+                // include all of the other original recipients - TODO: remove ourselves from these lists
+                reply.To.AddRange(message.To);
+                reply.Cc.AddRange(message.Cc);
+            }
+
+            // set the reply subject
+            if (!message.Subject.StartsWith("Re:", StringComparison.OrdinalIgnoreCase))
+                reply.Subject = "Re: " + message.Subject;
+            else
+                reply.Subject = message.Subject;
+
+            // construct the In-Reply-To and References headers
+            if (!string.IsNullOrEmpty(message.MessageId))
+            {
+                reply.InReplyTo = message.MessageId;
+                foreach (var id in message.References)
+                    reply.References.Add(id);
+                reply.References.Add(message.MessageId);
+            }
+
+            // quote the original message text
+            using (var quoted = new StringWriter())
+            {
+                var sender = message.Sender ?? message.From.Mailboxes.FirstOrDefault();
+
+                quoted.WriteLine("On {0}, {1} wrote:", message.Date.ToString("f"), !string.IsNullOrEmpty(sender.Name) ? sender.Name : sender.Address);
+                using (var reader = new StringReader(message.TextBody))
+                {
+                    string line;
+
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        quoted.Write("> ");
+                        quoted.WriteLine(line);
+                    }
+                }
+
+                reply.Body = new TextPart("plain")
+                {
+                    Text = quoted.ToString()
+                };
+            }
+
+            return reply;
         }
 
         private bool EmailInfoExists(int id)

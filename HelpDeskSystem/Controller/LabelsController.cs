@@ -174,7 +174,7 @@ namespace HelpDeskSystem.Controller
                 {
                     listIdEmailInfoLabel.Add(emailInfoLabel.idEmailInfo.Value);
                 }
-                int countEmailInfo = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.type == 1 && r.isDelete == false
+                int countEmailInfo = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.mainConversation == true && r.isDelete == false
                 && listIdEmailInfoLabel.Contains(r.id)).Count();
 
 

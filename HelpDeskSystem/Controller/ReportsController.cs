@@ -33,7 +33,7 @@ namespace HelpDeskSystem.Controller
         public async Task<ReportOverviewResponse> Overview([FromQuery] ReportRequest request)
         {
             ReportOverview reportOverview = new ReportOverview();
-            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList();
+            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList();
 
             reportOverview.Opened = listEmailInfo.Where(r => r.status == 1).Count();
             reportOverview.Resolved = listEmailInfo.Where(r => r.status == 2).Count();

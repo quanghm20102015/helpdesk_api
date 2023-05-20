@@ -217,7 +217,7 @@ namespace HelpDeskSystem.Controller
             {
                 dynamic objChannel = new System.Dynamic.ExpandoObject();
 
-                int countEmailInfo = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.type == 1 && r.isDelete == false
+                int countEmailInfo = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.mainConversation == true && r.isDelete == false
                 && r.idConfigEmail == obj.id).Count();
 
 

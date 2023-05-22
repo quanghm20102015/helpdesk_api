@@ -510,12 +510,12 @@ namespace HelpDeskSystem.Controller
                 EmailInfoInsert.id = 0;
                 EmailInfoInsert.date = DateTime.Now.ToUniversalTime();
                 EmailInfoInsert.from = "";
-                EmailInfoInsert.fromName = "";
+                EmailInfoInsert.fromName = emailInfo.fullName;
                 EmailInfoInsert.to = "";
                 EmailInfoInsert.cc = "";
                 EmailInfoInsert.bcc = "";
                 EmailInfoInsert.subject = "";
-                EmailInfoInsert.textBody = emailInfo.fullName + " change status to " + Status.statusName;
+                EmailInfoInsert.textBody =  "[Conversation " + Status.statusName + "]";
                 EmailInfoInsert.assign = 0;
                 EmailInfoInsert.status = 0;
                 EmailInfoInsert.idLabel = 0;

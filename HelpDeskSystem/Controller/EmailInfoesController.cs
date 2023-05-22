@@ -696,8 +696,7 @@ namespace HelpDeskSystem.Controller
             || r.fromName.ToUpper().Contains(request.textSearch.ToUpper()))
             && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
             && ((request.unAssign == true && r.isAssign == false) || request.unAssign == false)
-            && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)
-            && (r.date.Value.ToString("yyyyMMdd") == (request.dateTime == null ? "" : request.dateTime.Value.ToString("yyyyMMdd")) || request.dateTime == null)).OrderByDescending(x => x.date).ToList();
+            && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)).OrderByDescending(x => x.date).ToList();
 
             List<dynamic> listDynamic = new List<dynamic>();
 

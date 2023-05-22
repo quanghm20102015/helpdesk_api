@@ -521,6 +521,7 @@ namespace HelpDeskSystem.Controller
                 EmailInfoInsert.idLabel = 0;
                 EmailInfoInsert.idGuId = Guid.NewGuid().ToString();
                 EmailInfoInsert.type = 3;
+                EmailInfoInsert.mainConversation = false;
 
                 _context.EmailInfos.Add(EmailInfoInsert);
                 await _context.SaveChangesAsync();

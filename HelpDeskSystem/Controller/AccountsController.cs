@@ -17,6 +17,7 @@ using System.Security.Principal;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System.Reflection.Metadata;
 using MailKit.Security;
+using System.IO.Compression;
 
 namespace HelpDeskSystem.Controller
 {
@@ -567,5 +568,25 @@ namespace HelpDeskSystem.Controller
                 };
             }
         }
+
+        //[HttpPost]
+        //[Route("ResetPassword")]
+        //public async Task<ActionResult> OnPostUploadAsync()
+        //{
+        //    bool Results = false;
+        //    try
+        //    {
+        //        var _uploadedFiles = Request.Form.Files;
+        //        foreach(IFormFile sou in _uploadedFiles) 
+        //        {
+        //            string FileNam = sou.FileName;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+
+        //        throw;
+        //    }
+        //}
     }
 }

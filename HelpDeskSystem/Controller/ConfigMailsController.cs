@@ -236,5 +236,27 @@ namespace HelpDeskSystem.Controller
 
             return result;
         }
+
+        [HttpPost]
+        [Route("AddChannel")]
+        public async Task<ConfigMailResponse> AddChannel(ConfigMail configMail)
+        {
+            if (_context.ConfigMails == null)
+            {
+                return new ConfigMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Entity set 'EF_DataContext.Labels'  is null."
+                };
+            }
+            _context.ConfigMails.Add(configMail);
+            await _context.SaveChangesAsync();
+
+            return new ConfigMailResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
     }
 }

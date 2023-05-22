@@ -520,7 +520,7 @@ namespace HelpDeskSystem.Controller
                 EmailInfoInsert.status = 0;
                 EmailInfoInsert.idLabel = 0;
                 EmailInfoInsert.idGuId = Guid.NewGuid().ToString();
-                EmailInfoInsert.type = 3;
+                EmailInfoInsert.type = Common.ChangeStatus;
                 EmailInfoInsert.mainConversation = false;
 
                 _context.EmailInfos.Add(EmailInfoInsert);
@@ -893,6 +893,56 @@ namespace HelpDeskSystem.Controller
                     Status = ResponseStatus.Fail
                 };
             }
+        }
+
+        [HttpPost]
+        [Route("PrivateNote")]
+        public async Task<EmailInfoPrivateNoteResponse> PrivateNote(EmailInfoPrivateNoteRequest request)
+        {
+            var EmailInfo = await _context.EmailInfos.FindAsync(request.idEmailInfo);
+            var EmailInfoInsert = EmailInfo;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                EmailInfoInsert.id = 0;
+                EmailInfoInsert.date = DateTime.Now.ToUniversalTime();
+                EmailInfoInsert.from = "";
+                EmailInfoInsert.fromName = request.fullName;
+                EmailInfoInsert.to = "";
+                EmailInfoInsert.cc = "";
+                EmailInfoInsert.bcc = "";
+                EmailInfoInsert.subject = "";
+                EmailInfoInsert.textBody = request.privateNote;
+                EmailInfoInsert.assign = 0;
+                EmailInfoInsert.status = 0;
+                EmailInfoInsert.idLabel = 0;
+                EmailInfoInsert.idGuId = Guid.NewGuid().ToString();
+                EmailInfoInsert.type = Common.PrivateNote;
+                EmailInfoInsert.mainConversation = false;
+
+                _context.EmailInfos.Add(EmailInfoInsert);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EmailInfoExists(request.idEmailInfo))
+                {
+                    return new EmailInfoPrivateNoteResponse
+                    {
+                        Status = ResponseStatus.Fail
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new EmailInfoPrivateNoteResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
     }
 }

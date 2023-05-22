@@ -13,7 +13,8 @@ namespace Interfaces.Model.EmailInfo
         public int idUserFollow { get; set; }
         public int idUserTrash { get; set; }
         public bool unAssign { get; set; }
-        //public DateTime? dateTime { get; set; }
+        public DateTime? fromDate { get; set; }
+        public DateTime? toDate { get; set; }
 
     }
 }

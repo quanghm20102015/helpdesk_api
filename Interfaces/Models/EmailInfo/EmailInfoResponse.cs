@@ -11,8 +11,8 @@ namespace Interfaces.Model.Account
         public List<LabelDetail> listLabel { get; set; }
         public List<Object> listAccount { get; set; }
         public List<Object> listEmailInfo { get; set; }
-        public List<Object> listAssign { get; set; }
-        public List<Object> listFollow { get; set; }
+        public List<dynamic> listAssign { get; set; }
+        public List<dynamic> listFollow { get; set; }
         public List<Object> listHistory { get; set; }
 
     }

@@ -9,11 +9,11 @@ namespace Interfaces.Model.Account
         public string to { get; set; }
         public string cc { get; set; }
         public string bcc { get; set; }
-        public string subject { get; set; }
-        public string body { get; set; }
+        public string? subject { get; set; }
+        public string? body { get; set; }
         public int idCompany { get; set; }
         public int idConfigEmail { get; set; }
         public string messageId { get; set; }
-        public int assign { get; set; }
+        public int? assign { get; set; }
     }
 }

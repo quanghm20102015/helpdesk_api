@@ -83,6 +83,7 @@ namespace HelpDeskSystem.Controller
                 objEmailInfo.type = emailInfo.type;
                 objEmailInfo.typeChannel = Common.Email;
                 objEmailInfo.channelName = configMail.yourName;
+                objEmailInfo.newConversation = (emailInfo.type == 2 && emailInfo.from == null) ? true : false;
                 if (contact != null)
                 {
                     objEmailInfo.idContact = contact.id;
@@ -690,7 +691,7 @@ namespace HelpDeskSystem.Controller
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (listIdEmailAssign.Contains(r.id) || request.assign == 0)
             && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
-            && (r.from.ToUpper().Contains(request.textSearch.ToUpper()) || request.textSearch == "\"\"" || request.textSearch == ""
+            && ((r.from == null ? "" : r.from).ToUpper().Contains(request.textSearch.ToUpper()) || request.textSearch == "\"\"" || request.textSearch == ""
             || r.subject.ToUpper().Contains(request.textSearch.ToUpper())
             || r.textBody.ToUpper().Contains(request.textSearch.ToUpper())
             || r.fromName.ToUpper().Contains(request.textSearch.ToUpper()))
@@ -944,5 +945,101 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess
             };
         }
+
+        [HttpPost]
+        [Route("NewConversation")]
+        public async Task<ActionResult<EmailInfo>> NewConversation(NewConversationRequest request)
+        {
+            if (_context.EmailInfos == null)
+            {
+                return Problem("Entity set 'EF_DataContext.EmailInfos'  is null.");
+            }
+
+            EmailInfo obj = new EmailInfo();
+            obj.messageId = Guid.NewGuid().ToString();
+            obj.idConfigEmail = request.idConfigEmail;
+            obj.date = DateTime.Now.ToUniversalTime();
+            obj.fromName = request.email;
+            obj.fromName = request.userName;
+            obj.to = request.email;
+            obj.status = 1;
+            obj.idCompany = request.idCompany;
+            obj.idGuId = obj.messageId;
+            obj.type = 2;
+            obj.isDelete = false;
+            obj.mainConversation = true;
+            obj.read = true;
+            obj.idReference = obj.messageId;
+            _context.EmailInfos.Add(obj);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetEmailInfo", new { id = obj.id }, obj);
+        }
+
+
+        [HttpPost]
+        [Route("SendMailNewConversation")]
+        public async Task<SendMailResponse> SendMailNewConversation(SendMailResquest request)
+        {
+            try
+            {
+                List<ConfigMail> configMail = _context.ConfigMails.Where(r => r.id == request.idConfigEmail).ToList();
+
+                if (configMail.Count > 0)
+                {
+                    var message = new MimeMessage();
+                    message.From.Add(new MailboxAddress(configMail[0].yourName, configMail[0].email));
+                    message.To.Add(new MailboxAddress("", request.to));
+                    message.Subject = "Re: " + request.subject;
+                    message.Body = new TextPart("html") { Text = request.body };
+                    //message.InReplyTo = message.MessageId;
+
+                    var smtp = new SmtpClient();
+                    smtp.Connect(configMail[0].outgoing, configMail[0].outgoingPort.Value);
+                    smtp.Authenticate(configMail[0].email, configMail[0].password);
+                    smtp.Send(message);
+                    smtp.Disconnect(true);
+
+
+                    EmailInfo emailInfo = new EmailInfo();
+                    emailInfo = _context.EmailInfos.Where(r => r.messageId == request.messageId).FirstOrDefault();
+
+                    emailInfo.messageId = message.MessageId;
+                    emailInfo.idConfigEmail = request.idConfigEmail;
+                    emailInfo.date = DateTime.Now.ToUniversalTime();
+                    emailInfo.from = configMail[0].email;
+                    emailInfo.fromName = configMail[0].yourName;
+                    emailInfo.to = request.to;
+                    emailInfo.cc = request.cc;
+                    emailInfo.bcc = request.bcc;
+                    emailInfo.subject = request.subject;
+                    emailInfo.textBody = request.body;
+                    emailInfo.idCompany = request.idCompany;
+                    emailInfo.status = 1;
+                    emailInfo.assign = request.assign;
+                    emailInfo.idGuId = Guid.NewGuid().ToString();
+                    emailInfo.type = 2;
+                    emailInfo.read = true;
+                    emailInfo.idReference = emailInfo.messageId;
+                    _context.Entry(emailInfo).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
+
+
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            catch (Exception ex)
+            {
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = ex.Message
+                };
+            }
+        }
+
     }
 }

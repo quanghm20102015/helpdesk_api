@@ -56,5 +56,15 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public string? avatar
+        {
+            get;
+            set;
+        }
+        public string? fileName
+        {
+            get;
+            set;
+        }
     }
 }

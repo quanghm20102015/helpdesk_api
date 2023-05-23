@@ -570,16 +570,17 @@ namespace HelpDeskSystem.Controller
         }
 
         //[HttpPost]
-        //[Route("ResetPassword")]
+        //[Route("UploadImage")]
         //public async Task<ActionResult> OnPostUploadAsync()
         //{
         //    bool Results = false;
         //    try
         //    {
         //        var _uploadedFiles = Request.Form.Files;
-        //        foreach(IFormFile sou in _uploadedFiles) 
+        //        foreach (IFormFile sou in _uploadedFiles)
         //        {
         //            string FileNam = sou.FileName;
+        //            sou.CopyToAsync
         //        }
         //    }
         //    catch (Exception)
@@ -587,6 +588,8 @@ namespace HelpDeskSystem.Controller
 
         //        throw;
         //    }
+
+        //    return Ok(Results);
         //}
     }
 }

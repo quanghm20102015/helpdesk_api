@@ -103,7 +103,7 @@ namespace HelpDeskSystem.Controller
             List <EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idEmailInfo == id).ToList();
             List<Label> listLabel = _context.Labels.Where(r => r.idCompany == emailInfo.idCompany).ToList();
             List<Account> listAccount = _context.Accounts.Where(r => r.idCompany == emailInfo.idCompany).ToList();
-            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.idReference == emailInfo.messageId).OrderBy(y => y.date).ToList();
+            List<EmailInfo> listEmailInfo = _context.EmailInfos.Where(x => x.idReference == emailInfo.messageId && x.textBody != null && x.textBody != "").OrderBy(y => y.date).ToList();
             List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idEmailInfo == id).ToList();
             List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idEmailInfo == id).ToList();
             List<History> listHistory = _context.Historys.Where(x => x.type == 1 && x.idDetail == id).ToList();
@@ -948,32 +948,126 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("NewConversation")]
-        public async Task<ActionResult<EmailInfo>> NewConversation(NewConversationRequest request)
+        public async Task<NewConversationResponse> NewConversation(NewConversationRequest request)
         {
             if (_context.EmailInfos == null)
             {
-                return Problem("Entity set 'EF_DataContext.EmailInfos'  is null.");
+                return new NewConversationResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
+            if (request.listAgent.Count != 0)
+            {
+                foreach(int idAgent in request.listAgent)
+                {
+                    Account account = _context.Accounts.Where(x => x.id == idAgent).FirstOrDefault();
+
+                    EmailInfo obj = new EmailInfo();
+                    obj.messageId = Guid.NewGuid().ToString();
+                    obj.idConfigEmail = request.idConfigEmail;
+                    obj.date = DateTime.Now.ToUniversalTime();
+                    obj.fromName = account.workemail;
+                    obj.fromName = account.fullname;
+                    obj.to = request.email;
+                    obj.status = 1;
+                    obj.idCompany = request.idCompany;
+                    obj.idGuId = obj.messageId;
+                    obj.type = 2;
+                    obj.isDelete = false;
+                    obj.mainConversation = true;
+                    obj.read = true;
+                    obj.idReference = obj.messageId;
+                    _context.EmailInfos.Add(obj);
+                    await _context.SaveChangesAsync();
+
+                    foreach (int i in request.listAssign)
+                    {
+                        EmailInfoAssign objEmailInfoAssign = new EmailInfoAssign();
+                        objEmailInfoAssign.idEmailInfo = obj.id;
+                        objEmailInfoAssign.idUser = i;
+
+                        _context.EmailInfoAssigns.Add(objEmailInfoAssign);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    foreach (int i in request.listLabel)
+                    {
+                        EmailInfoLabel objEmailInfoLabel = new EmailInfoLabel();
+                        objEmailInfoLabel.idEmailInfo = obj.id;
+                        objEmailInfoLabel.idLabel = i;
+
+                        _context.EmailInfoLabels.Add(objEmailInfoLabel);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    foreach (int i in request.listFollow)
+                    {
+                        EmailInfoFollow objEmailInfoFollow = new EmailInfoFollow();
+                        objEmailInfoFollow.idEmailInfo = obj.id;
+                        objEmailInfoFollow.idUser = i;
+
+                        _context.EmailInfoFollows.Add(objEmailInfoFollow);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+            else
+            {
+                EmailInfo obj = new EmailInfo();
+                obj.messageId = Guid.NewGuid().ToString();
+                obj.idConfigEmail = request.idConfigEmail;
+                obj.date = DateTime.Now.ToUniversalTime();
+                obj.fromName = request.email;
+                obj.fromName = request.userName;
+                obj.to = request.email;
+                obj.status = 1;
+                obj.idCompany = request.idCompany;
+                obj.idGuId = obj.messageId;
+                obj.type = 2;
+                obj.isDelete = false;
+                obj.mainConversation = true;
+                obj.read = true;
+                obj.idReference = obj.messageId;
+                _context.EmailInfos.Add(obj);
+                await _context.SaveChangesAsync();
+
+                foreach (int i in request.listAssign)
+                {
+                    EmailInfoAssign objEmailInfoAssign = new EmailInfoAssign();
+                    objEmailInfoAssign.idEmailInfo = obj.id;
+                    objEmailInfoAssign.idUser = i;
+
+                    _context.EmailInfoAssigns.Add(objEmailInfoAssign);
+                    await _context.SaveChangesAsync();
+                }
+
+                foreach (int i in request.listLabel)
+                {
+                    EmailInfoLabel objEmailInfoLabel = new EmailInfoLabel();
+                    objEmailInfoLabel.idEmailInfo = obj.id;
+                    objEmailInfoLabel.idLabel = i;
+
+                    _context.EmailInfoLabels.Add(objEmailInfoLabel);
+                    await _context.SaveChangesAsync();
+                }
+
+                foreach (int i in request.listFollow)
+                {
+                    EmailInfoFollow objEmailInfoFollow = new EmailInfoFollow();
+                    objEmailInfoFollow.idEmailInfo = obj.id;
+                    objEmailInfoFollow.idUser = i;
+
+                    _context.EmailInfoFollows.Add(objEmailInfoFollow);
+                    await _context.SaveChangesAsync();
+                }
             }
 
-            EmailInfo obj = new EmailInfo();
-            obj.messageId = Guid.NewGuid().ToString();
-            obj.idConfigEmail = request.idConfigEmail;
-            obj.date = DateTime.Now.ToUniversalTime();
-            obj.fromName = request.email;
-            obj.fromName = request.userName;
-            obj.to = request.email;
-            obj.status = 1;
-            obj.idCompany = request.idCompany;
-            obj.idGuId = obj.messageId;
-            obj.type = 2;
-            obj.isDelete = false;
-            obj.mainConversation = true;
-            obj.read = true;
-            obj.idReference = obj.messageId;
-            _context.EmailInfos.Add(obj);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetEmailInfo", new { id = obj.id }, obj);
+            return new NewConversationResponse
+            {
+                Status = ResponseStatus.Susscess
+            };
         }
 
 
@@ -1008,7 +1102,7 @@ namespace HelpDeskSystem.Controller
                     emailInfo.idConfigEmail = request.idConfigEmail;
                     emailInfo.date = DateTime.Now.ToUniversalTime();
                     emailInfo.from = configMail[0].email;
-                    emailInfo.fromName = configMail[0].yourName;
+                    //emailInfo.fromName = configMail[0].yourName;
                     emailInfo.to = request.to;
                     emailInfo.cc = request.cc;
                     emailInfo.bcc = request.bcc;

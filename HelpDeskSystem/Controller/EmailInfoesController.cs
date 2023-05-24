@@ -19,6 +19,7 @@ using System.Dynamic;
 using Interfaces.Model.EmailInfo;
 using static Interfaces.Model.EmailInfo.EmailInfoGetMenuCountResponse;
 using Interfaces.Base;
+using Org.BouncyCastle.Utilities;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -282,7 +283,7 @@ namespace HelpDeskSystem.Controller
 
         [HttpPost]
         [Route("SendMail")]
-        public async Task<SendMailResponse> SendMail(SendMailResquest request)
+        public async Task<SendMailResponse> SendMail([FromForm] SendMailResquest request)
         {
             try
             {
@@ -294,31 +295,38 @@ namespace HelpDeskSystem.Controller
                     message.From.Add(new MailboxAddress(configMail[0].yourName, configMail[0].email));
                     message.To.Add(new MailboxAddress("", request.to));
                     message.Subject = "Re: " + request.subject;
-                    message.Body = new TextPart("html") { Text = request.body };
+                    //message.Body = new TextPart("html") { Text = request.body };
                     message.InReplyTo = request.messageId;
                     message.References.Add(request.messageId);
 
-                    //using (var quoted = new StringWriter())
-                    //{
-                    //    var sender = message.Sender ?? message.From.Mailboxes.FirstOrDefault();
 
-                    //    quoted.WriteLine("On {0}, {1} wrote:", message.Date.ToString("f"), !string.IsNullOrEmpty(sender.Name) ? sender.Name : sender.Address);
-                    //    using (var reader = new StringReader(request.body))
-                    //    {
-                    //        string line;
+                    var emailBody = new MimeKit.BodyBuilder
+                    {
+                        HtmlBody = request.body
+                    };
+                    var _uploadedFiles = Request.Form.Files;
+                    foreach (IFormFile sou in _uploadedFiles)
+                    {
+                        string FileName = sou.FileName;
 
-                    //        while ((line = reader.ReadLine()) != null)
-                    //        {
-                    //            quoted.Write("> ");
-                    //            quoted.WriteLine(line);
-                    //        }
-                    //    }
+                        //sou.CopyToAsync()
+                        if (sou.Length > 0)
+                        {
+                            using (var ms = new MemoryStream())
+                            {
+                                sou.CopyTo(ms);
+                                var fileBytes = ms.ToArray();
+                                emailBody.Attachments.Add(FileName, fileBytes);
+                            }
+                        }
+                    }
 
-                    //    message.Body = new TextPart("plain")
-                    //    {
-                    //        Text = quoted.ToString()
-                    //    };
-                    //}
+                    // If you find that MimeKit does not properly auto-detect the mime-type based on the
+                    // filename, you can specify a mime-type like this:
+                    //emailBody.Attachments.Add ("Receipt.pdf", bytes, ContentType.Parse (MediaTypeNames.Application.Pdf));
+
+                    message.Body = emailBody.ToMessageBody();
+
 
                     var smtp = new SmtpClient();
                     smtp.Connect(configMail[0].outgoing, configMail[0].outgoingPort.Value);

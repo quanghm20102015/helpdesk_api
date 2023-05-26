@@ -11,6 +11,6 @@ namespace Interfaces.Base
 
         //EmailInfo type
         public static int PrivateNote = 4;
-        public static int ChangeStatus = 4;
+        public static int ChangeStatus = 3;
     }
 }

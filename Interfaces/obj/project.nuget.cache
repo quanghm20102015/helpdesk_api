@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tQPA5u3ABSqpTv/q6Dr5jOgnad2oEgI8/P770gbOLwmvEz+7Et+sZXyZznQuBLVEXnVDaasEzLnUOSfr99Kg4A==",
+  "dgSpecHash": "8TFHhMcvs1i2huepsHecS3KeTgVP9FgvUnxUuI5kBHJxYSeD8+YP7ePlTwlr1FxkgpuRn0MGg+sR1IKxdkYPjQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\quang\\Documents\\Visual Studio 2022\\Project\\HelpDesk\\API\\Interfaces\\Interfaces.csproj",
+  "projectFilePath": "D:\\project\\HelpDeskSystem\\helpdesk_api\\Interfaces\\Interfaces.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

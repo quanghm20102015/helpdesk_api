@@ -2,11 +2,11 @@
 
 namespace Interfaces.Model.EmailInfoLabel
 {
-    public class ReportRequest
+    public class LabelDistributionRequest
     {
         public DateTime fromDate { get; set; }
         public DateTime toDate { get; set; }
         public int idCompany { get; set; }
-        public int type { get; set; }
+        public int idLabel { get; set; }
     }
 }

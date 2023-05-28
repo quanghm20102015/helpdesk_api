@@ -6,16 +6,33 @@ namespace Interfaces.Model.EmailInfoLabel
 {
     public class ReportOverviewResponse : BaseResponse<ResponseStatus>
     {
-        public ReportOverview reportOverview { get; set; }
-        public ListPerformentMonitor reportData { get; set; }
+        public ReportOverview result { get; set; }
+        //public ListPerformentMonitor reportData { get; set; }
         
         public class ReportOverview
         {
-            public int Opened { get; set; }
-            public int Unattended { get; set; }
-            public int Unassigned { get; set; }
-            public int Resolved { get; set; }
+            public ReportOverviewObject Opened { get; set; }
+            public ReportOverviewObject Unattended { get; set; }
+            public ReportOverviewObject Unassigned { get; set; }
+            public ReportOverviewObject Resolved { get; set; }
+
+            public ReportOverview()
+            {
+                this.Opened = new ReportOverviewObject();
+                this.Unattended = new ReportOverviewObject();
+                this.Unassigned = new ReportOverviewObject();
+                this.Resolved = new ReportOverviewObject();
+            }
         }
+
+        public class ReportOverviewObject
+        {
+            public int Total { get; set; }
+            public int UpDown { get; set; }
+        }
+
+
+
         public class ListPerformentMonitor
         {
             public ObjectPerformance Total { get; set; }

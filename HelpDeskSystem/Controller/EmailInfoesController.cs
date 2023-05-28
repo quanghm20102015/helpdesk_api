@@ -130,10 +130,11 @@ namespace HelpDeskSystem.Controller
                 listLabelDetail.Add(obj1);
             }
 
-            List<AccountDetail> listAssignDetail = new List<AccountDetail>();
+            List<dynamic> listAssignDetail = new List<dynamic>();
             foreach (Account obj in listAccount)
             {
-                AccountDetail obj1 = new AccountDetail();
+                dynamic obj1 = new System.Dynamic.ExpandoObject();
+                //AccountDetail obj1 = new AccountDetail();
                 obj1.id = obj.id;
                 obj1.fullname = obj.fullname;
                 obj1.workemail = obj.workemail;
@@ -148,13 +149,26 @@ namespace HelpDeskSystem.Controller
                         break;
                     }
                 }
+
+                if (obj.avatar != null)
+                {
+                    byte[] imageByteArray = Convert.FromBase64String(obj.avatar);
+
+                    System.IO.File.WriteAllBytes(obj.fileName, imageByteArray);
+                    obj1.avatar = imageByteArray;
+                }
+                else
+                {
+                    obj1.avatar = null;
+                }
+
                 listAssignDetail.Add(obj1);
             }
 
-            List<AccountDetail> listFollowDetail = new List<AccountDetail>();
+            List<dynamic> listFollowDetail = new List<dynamic>();
             foreach (Account obj in listAccount)
             {
-                AccountDetail obj1 = new AccountDetail();
+                dynamic obj1 = new System.Dynamic.ExpandoObject();
                 obj1.id = obj.id;
                 obj1.fullname = obj.fullname;
                 obj1.workemail = obj.workemail;
@@ -169,6 +183,19 @@ namespace HelpDeskSystem.Controller
                         break;
                     }
                 }
+
+                if (obj.avatar != null)
+                {
+                    byte[] imageByteArray = Convert.FromBase64String(obj.avatar);
+
+                    System.IO.File.WriteAllBytes(obj.fileName, imageByteArray);
+                    obj1.avatar = imageByteArray;
+                }
+                else
+                {
+                    obj1.avatar = null;
+                }
+
                 listFollowDetail.Add(obj1);
             }
 

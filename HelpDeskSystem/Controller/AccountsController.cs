@@ -45,20 +45,43 @@ namespace HelpDeskSystem.Controller
 
         // GET: api/Accounts/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Account>> GetAccount(int id)
+        public async Task<ActionResult<dynamic>> GetAccount(int id)
         {
             if (_context.Accounts == null)
             {
                 return NotFound();
             }
             var account = await _context.Accounts.FindAsync(id);
+            dynamic objAccount = new System.Dynamic.ExpandoObject();
 
-            if (account == null)
+            objAccount.id = account.id;
+            objAccount.fullname = account.fullname;
+            objAccount.company = account.company;
+            objAccount.workemail = account.workemail;
+            objAccount.password = account.password;
+            objAccount.idCompany = account.idCompany;
+            objAccount.confirm = account.confirm;
+            objAccount.login = account.login;
+            objAccount.status = account.status;
+            objAccount.idGuId = account.idGuId;
+            if (account.avatar != null)
+            {
+                byte[] imageByteArray = Convert.FromBase64String(account.avatar);
+
+                System.IO.File.WriteAllBytes(account.fileName, imageByteArray);
+                objAccount.avatar = imageByteArray;
+            }
+            else
+            {
+                objAccount.avatar = null;
+            }
+
+            if (objAccount == null)
             {
                 return NotFound();
             }
 
-            return account;
+            return objAccount;
         }
 
         // GET: api/Accounts/5
@@ -85,8 +108,33 @@ namespace HelpDeskSystem.Controller
         // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<BaseResponse<ResponseStatus>> PutAccount(Account account)
+        public async Task<BaseResponse<ResponseStatus>> PutAccount([FromForm] Account account)
         {
+            try
+            {
+                var _uploadedFiles = Request.Form.Files;
+                foreach (IFormFile sou in _uploadedFiles)
+                {
+                    string FileName = sou.FileName;
+                    //sou.CopyToAsync()
+                    if (sou.Length > 0)
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            sou.CopyTo(ms);
+                            var fileBytes = ms.ToArray();
+                            string s = Convert.ToBase64String(fileBytes);
+                            account.avatar = s;
+                            account.fileName = FileName;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+
             _context.Entry(account).State = EntityState.Modified;
 
             try
@@ -160,6 +208,7 @@ namespace HelpDeskSystem.Controller
                     {
                         Company cpn = new Company();
                         cpn.companyName = account.company;
+
                         _context.Companys.Add(cpn);
                         _context.SaveChanges();
 
@@ -167,6 +216,8 @@ namespace HelpDeskSystem.Controller
                     }
 
                     account.idGuId = Guid.NewGuid().ToString();
+
+
                     _context.Accounts.Add(account);
                     await _context.SaveChangesAsync();
 
@@ -315,7 +366,7 @@ namespace HelpDeskSystem.Controller
 
         [HttpGet]
         [Route("GetByIdCompany")]
-        public async Task<ActionResult<List<Account>>> GetByIdCompany(int idCompany)
+        public async Task<ActionResult<List<dynamic>>> GetByIdCompany(int idCompany)
         {
             if (_context.Accounts == null)
             {
@@ -323,12 +374,43 @@ namespace HelpDeskSystem.Controller
             }
             List<Account> account = _context.Accounts.Where(r => r.idCompany == idCompany).ToList();
 
-            if (account == null)
+            List<dynamic> result = new List<dynamic>();
+            foreach (Account acc in account)
+            {
+                dynamic objAccount = new System.Dynamic.ExpandoObject();
+
+                objAccount.id = acc.id;
+                objAccount.fullname = acc.fullname;
+                objAccount.company = acc.company;
+                objAccount.workemail = acc.workemail;
+                objAccount.password = acc.password;
+                objAccount.idCompany = acc.idCompany;
+                objAccount.confirm = acc.confirm;
+                objAccount.login = acc.login;
+                objAccount.status = acc.status;
+                objAccount.idGuId = acc.idGuId;
+
+                if(acc.avatar!= null)
+                {
+                    byte[] imageByteArray = Convert.FromBase64String(acc.avatar);
+
+                    System.IO.File.WriteAllBytes(acc.fileName, imageByteArray);
+                    objAccount.avatar = imageByteArray;
+                }
+                else
+                {
+                    objAccount.avatar = null;
+                }
+                result.Add(objAccount);
+            }
+
+
+            if (result == null)
             {
                 return NotFound();
             }
 
-            return account;
+            return result;
         }
 
         [HttpPost]
@@ -569,27 +651,37 @@ namespace HelpDeskSystem.Controller
             }
         }
 
-        //[HttpPost]
-        //[Route("UploadImage")]
-        //public async Task<ActionResult> OnPostUploadAsync()
-        //{
-        //    bool Results = false;
-        //    try
-        //    {
-        //        var _uploadedFiles = Request.Form.Files;
-        //        foreach (IFormFile sou in _uploadedFiles)
-        //        {
-        //            string FileNam = sou.FileName;
-        //            sou.CopyToAsync
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
+        [HttpPost]
+        [Route("UploadImage")]
+        public async Task<ActionResult> OnPostUploadAsync()
+        {
+            bool Results = false;
+            try
+            {
+                var _uploadedFiles = Request.Form.Files;
+                foreach (IFormFile sou in _uploadedFiles)
+                {
+                    string FileNam = sou.FileName;
+                    //sou.CopyToAsync()
+                    if (sou.Length > 0)
+                    {
+                        using (var ms = new MemoryStream())
+                        {
+                            sou.CopyTo(ms);
+                            var fileBytes = ms.ToArray();
+                            string s = Convert.ToBase64String(fileBytes);
+                            // act on the Base64 data
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
 
-        //        throw;
-        //    }
+                throw;
+            }
 
-        //    return Ok(Results);
-        //}
+            return Ok(Results);
+        }
     }
 }

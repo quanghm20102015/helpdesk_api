@@ -28,7 +28,7 @@ namespace HelpDeskSystem.Controller
           {
               return NotFound();
           }
-            return await _context.Status.ToListAsync();
+            return await _context.Status.Where(r => r.id != 0).OrderBy(r=> r.sort).ToListAsync();
         }
 
         // GET: api/Status/5

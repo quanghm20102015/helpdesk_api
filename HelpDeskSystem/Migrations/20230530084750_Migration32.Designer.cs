@@ -3,6 +3,7 @@ using System;
 using HelpDeskSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     [DbContext(typeof(EF_DataContext))]
-    partial class EF_DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230530084750_Migration32")]
+    partial class Migration32
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -293,14 +296,14 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("fromName")
                         .HasColumnType("text");
 
+                    b.Property<int>("idAccount")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("idCompany")
                         .HasColumnType("integer");
 
                     b.Property<int?>("idConfigEmail")
                         .IsRequired()
-                        .HasColumnType("integer");
-
-                    b.Property<int>("idContact")
                         .HasColumnType("integer");
 
                     b.Property<string>("idGuId")
@@ -379,8 +382,8 @@ namespace HelpDeskSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
-                    b.Property<string>("fileName")
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("fileName")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("idEmailInfo")
                         .IsRequired()

@@ -2,7 +2,7 @@
 
 namespace HelpDeskSystem.Models
 {
-    public class Csat
+    public class EmailInfoAttach
     {
         [Key, Required]
         public int id
@@ -11,30 +11,20 @@ namespace HelpDeskSystem.Models
             set;
         }
         [Required]
-        public string idGuIdEmailInfo
+        public int? idEmailInfo
         {
             get;
             set;
         }
-        public int idFeedBack
+        public string? pathFile
         {
             get;
             set;
         }
-        public string? descriptionFeedBack
+        public string? fileName
         {
             get;
             set;
         }
-        public int idCompany
-        {
-            get;
-            set;
-        }
-        public DateTime dateTime
-        {
-            get;
-            set;
-        } = DateTime.Now.ToUniversalTime();
     }
 }

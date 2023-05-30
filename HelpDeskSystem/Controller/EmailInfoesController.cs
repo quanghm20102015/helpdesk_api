@@ -199,13 +199,26 @@ namespace HelpDeskSystem.Controller
                 listFollowDetail.Add(obj1);
             }
 
+            List<dynamic> listEmailInfoDynamic = new List<dynamic>();
+            foreach (EmailInfo obj in listEmailInfo)
+            {
+                List<EmailInfoAttach> listEmailInfoAttach = _context.EmailInfoAttachs.Where(r => r.idEmailInfo == obj.id).ToList();
+
+                dynamic obj1 = new System.Dynamic.ExpandoObject();
+
+                obj1.EmailInfo = obj;
+                obj1.ListAttach = listEmailInfoAttach;
+
+                listEmailInfoDynamic.Add(obj1);
+            }
+
             return new EmailInfoResponse
             {
                 Status = ResponseStatus.Susscess,
                 emailInfo = objEmailInfo,
                 listLabel = listLabelDetail,
                 listAccount = listAccount.ToList<Object>(),
-                listEmailInfo = listEmailInfo.ToList<Object>(),
+                listEmailInfo = listEmailInfoDynamic,
                 listAssign = listAssignDetail.ToList<Object>(),
                 listFollow = listFollowDetail.ToList<Object>(),
                 listHistory = listHistory.ToList<Object>()
@@ -332,6 +345,8 @@ namespace HelpDeskSystem.Controller
                         HtmlBody = request.body
                     };
                     var _uploadedFiles = Request.Form.Files;
+
+
                     foreach (IFormFile sou in _uploadedFiles)
                     {
                         string FileName = sou.FileName;
@@ -345,6 +360,14 @@ namespace HelpDeskSystem.Controller
                                 var fileBytes = ms.ToArray();
                                 emailBody.Attachments.Add(FileName, fileBytes);
                             }
+
+                            //string fullPath = Path.Combine(newPath, FileName);
+                            //string SavedPath = folderPath + "/" + FileName;
+                            //string fileType = Path.GetExtension(FileName).Replace(".", "");
+                            //using (var stream = new FileStream(fullPath, FileMode.Create))
+                            //{
+                            //    sou.CopyTo(stream);
+                            //}
                         }
                     }
 
@@ -381,8 +404,50 @@ namespace HelpDeskSystem.Controller
                 emailInfo.type = 2;
                 emailInfo.read = true;
                 emailInfo.idReference = request.messageId;
+
+                emailInfo.idContact = _context.Accounts.Where(x => x.workemail == emailInfo.to).FirstOrDefault().id;
+
                 _context.EmailInfos.Add(emailInfo);
                 await _context.SaveChangesAsync();
+
+
+                try
+                {
+                    string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+                    string folderPath = "Upload/EmailInfo/" + emailInfo.id;
+                    string newPath = Path.Combine(webRootPath, folderPath);
+                    if (!Directory.Exists(newPath))
+                    {
+                        Directory.CreateDirectory(newPath);
+                    }
+                    var _uploadedFiles = Request.Form.Files;
+                    foreach (IFormFile sou in _uploadedFiles)
+                    {
+                        string FileName = sou.FileName;
+
+                        if (sou.Length > 0)
+                        {
+                            string fullPath = Path.Combine(newPath, FileName);
+                            string SavedPath = folderPath + "/" + FileName;
+                            string fileType = Path.GetExtension(FileName).Replace(".", "");
+                            using (var stream = new FileStream(fullPath, FileMode.Create))
+                            {
+                                sou.CopyTo(stream);
+
+                                EmailInfoAttach obj = new EmailInfoAttach();
+                                obj.idEmailInfo = emailInfo.id;
+                                obj.pathFile = SavedPath;
+                                obj.fileName = FileName;
+                                _context.EmailInfoAttachs.Add(obj);
+                                await _context.SaveChangesAsync();
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
 
                 return new SendMailResponse
                 {
@@ -787,44 +852,6 @@ namespace HelpDeskSystem.Controller
             };
         }
 
-        //[HttpPost]
-        //[Route("GetFillterCount")]
-        //public async Task<EmailInfoGetFillteResponse> GetFillterCount(EmailInfoGetFillterRequest request)
-        //{
-        //    if (_context.Accounts == null)
-        //    {
-        //        return new EmailInfoGetFillteResponse
-        //        {
-        //            Status = ResponseStatus.Fail
-        //        };
-        //    }
-        //    List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
-        //    List<int> listIdEmailLabel = new List<int>();
-        //    foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel)
-        //    {
-        //        listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
-        //    }
-
-        //    int listAll = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
-        //    && (r.status == request.status || request.status == 0)
-        //    && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
-        //    && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
-        //    && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)).ToList().Count;
-        //    int listByAgent = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.type == 1 && r.isDelete == false
-        //     && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
-        //    && (r.status == request.status || request.status == 0)
-        //    && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
-        //    && ((r.from.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == "") || (r.subject.Contains(request.textSearch) || request.textSearch == "\"\"" || request.textSearch == ""))
-        //    && (r.assign == request.assign || request.assign == 0)).ToList().Count;
-
-        //    return new EmailInfoGetFillteResponse
-        //    {
-        //        Status = ResponseStatus.Susscess,
-        //        All = listAll,
-        //        ByAgent = listByAgent
-        //    };
-        //}
-
         [HttpPost]
         [Route("GetMenuCount")]
         public async Task<EmailInfoGetMenuCountResponse> GetMenuCount(EmailInfoGetMenuCountRequest request)
@@ -1120,8 +1147,33 @@ namespace HelpDeskSystem.Controller
                     message.From.Add(new MailboxAddress(configMail[0].yourName, configMail[0].email));
                     message.To.Add(new MailboxAddress("", request.to));
                     message.Subject = "Re: " + request.subject;
-                    message.Body = new TextPart("html") { Text = request.body };
-                    //message.InReplyTo = message.MessageId;
+                    //message.Body = new TextPart("html") { Text = request.body };
+                    ////message.InReplyTo = message.MessageId;
+
+                    var emailBody = new MimeKit.BodyBuilder
+                    {
+                        HtmlBody = request.body
+                    };
+                    var _uploadedFiles = Request.Form.Files;
+
+
+                    foreach (IFormFile sou in _uploadedFiles)
+                    {
+                        string FileName = sou.FileName;
+
+                        //sou.CopyToAsync()
+                        if (sou.Length > 0)
+                        {
+                            using (var ms = new MemoryStream())
+                            {
+                                sou.CopyTo(ms);
+                                var fileBytes = ms.ToArray();
+                                emailBody.Attachments.Add(FileName, fileBytes);
+                            }
+                        }
+                    }
+
+                    message.Body = emailBody.ToMessageBody();
 
                     var smtp = new SmtpClient();
                     smtp.Connect(configMail[0].outgoing, configMail[0].outgoingPort.Value);
@@ -1152,6 +1204,45 @@ namespace HelpDeskSystem.Controller
                     emailInfo.idReference = emailInfo.messageId;
                     _context.Entry(emailInfo).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
+
+
+                    try
+                    {
+                        string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+                        string folderPath = "Upload/EmailInfo/" + emailInfo.id;
+                        string newPath = Path.Combine(webRootPath, folderPath);
+                        if (!Directory.Exists(newPath))
+                        {
+                            Directory.CreateDirectory(newPath);
+                        }
+
+                        foreach (IFormFile sou in _uploadedFiles)
+                        {
+                            string FileName = sou.FileName;
+
+                            if (sou.Length > 0)
+                            {
+                                string fullPath = Path.Combine(newPath, FileName);
+                                string SavedPath = folderPath + "/" + FileName;
+                                string fileType = Path.GetExtension(FileName).Replace(".", "");
+                                using (var stream = new FileStream(fullPath, FileMode.Create))
+                                {
+                                    sou.CopyTo(stream);
+
+                                    EmailInfoAttach obj = new EmailInfoAttach();
+                                    obj.idEmailInfo = emailInfo.id;
+                                    obj.pathFile = SavedPath;
+                                    obj.fileName = FileName;
+                                    _context.EmailInfoAttachs.Add(obj);
+                                    await _context.SaveChangesAsync();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
                 }
 
 
@@ -1169,6 +1260,20 @@ namespace HelpDeskSystem.Controller
                 };
             }
         }
+        
+        [HttpPost]
+        [Route("EmailInfoDownloadFile")]
+        public async Task<IActionResult> EmailInfoDownloadFile(EmailInfoDownloadFileRequest request)
+        {
+            string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
+            string pathFile = Path.Combine(webRootPath, request.pathFile);
+
+            if (System.IO.File.Exists(pathFile))
+            {
+                return File(System.IO.File.OpenRead(pathFile), "application/octet-stream", Path.GetFileName(pathFile));
+            }
+            return NotFound();
+        }
     }
 }

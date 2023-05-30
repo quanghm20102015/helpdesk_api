@@ -3,6 +3,7 @@ using System;
 using HelpDeskSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     [DbContext(typeof(EF_DataContext))]
-    partial class EF_DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230530080834_Migration27")]
+    partial class Migration27
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,8 +303,9 @@ namespace HelpDeskSystem.Migrations
                         .IsRequired()
                         .HasColumnType("integer");
 
-                    b.Property<int>("idContact")
-                        .HasColumnType("integer");
+                    b.Property<string>("idContact")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("idGuId")
                         .HasColumnType("text");
@@ -369,29 +373,6 @@ namespace HelpDeskSystem.Migrations
                     b.HasKey("id");
 
                     b.ToTable("EmailInfoAssigns");
-                });
-
-            modelBuilder.Entity("HelpDeskSystem.Models.EmailInfoAttach", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
-
-                    b.Property<string>("fileName")
-                        .HasColumnType("text");
-
-                    b.Property<int?>("idEmailInfo")
-                        .IsRequired()
-                        .HasColumnType("integer");
-
-                    b.Property<string>("pathFile")
-                        .HasColumnType("text");
-
-                    b.HasKey("id");
-
-                    b.ToTable("EmailInfoAttachs");
                 });
 
             modelBuilder.Entity("HelpDeskSystem.Models.EmailInfoFollow", b =>

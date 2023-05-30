@@ -23,6 +23,9 @@ using static Interfaces.Model.EmailInfoLabel.LabelDistributionResponse;
 using System.Drawing;
 using static Interfaces.Model.EmailInfoLabel.TopConversationAgentResponse;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using static Interfaces.Model.EmailInfoLabel.ReportAgentOverviewResponse;
+using static Interfaces.Model.EmailInfoLabel.CsatResponeDistributionResponse;
+using System.Linq.Expressions;
 
 namespace HelpDeskSystem.Controller
 {
@@ -435,8 +438,8 @@ namespace HelpDeskSystem.Controller
         }
 
         [HttpGet]
-        [Route("TopConversationAgent")]
-        public async Task<TopConversationAgentResponse> TopConversationAgent([FromQuery] TopConversationAgentRequest request)
+        [Route("AgentTopConversation")]
+        public async Task<TopConversationAgentResponse> AgentTopConversation([FromQuery] TopConversationAgentRequest request)
         {
             List<LabelDistribution> result = new List<LabelDistribution>();
 
@@ -489,10 +492,9 @@ namespace HelpDeskSystem.Controller
             };
         }
 
-
         [HttpGet]
-        [Route("PerformentMonitorAgentTotal")]
-        public async Task<PerformentMonitorTotalResponse> PerformentMonitorAgentTotal([FromQuery] PerformentMonitorAgentTotalRequest request)
+        [Route("AgentPerformentMonitorTotal")]
+        public async Task<PerformentMonitorTotalResponse> AgentPerformentMonitorTotal([FromQuery] PerformentMonitorAgentTotalRequest request)
         {
             ObjectPerformentMonitorTotal result = new ObjectPerformentMonitorTotal();
 
@@ -575,14 +577,14 @@ namespace HelpDeskSystem.Controller
         }
 
         [HttpGet]
-        [Route("PerformentMonitorAgent")]
-        public async Task<PerformentMonitorResponse> PerformentMonitorAgent([FromQuery] PerformentMonitorAgentRequest request)
+        [Route("AgentPerformentMonitor")]
+        public async Task<PerformentMonitorResponse> AgentPerformentMonitor([FromQuery] PerformentMonitorAgentRequest request)
         {
             ReportOverview reportOverview = new ReportOverview();
             //var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList();
 
 
-            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.IdUser).ToList();
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.IdUser || request.IdUser == 0).ToList();
 
             List<int> listIdEmailAssign = new List<int>();
             foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
@@ -603,7 +605,119 @@ namespace HelpDeskSystem.Controller
                 Result = resutl
             };
         }
-       
+
+        [HttpGet]
+        [Route("AgentOverview")]
+        public async Task<ReportAgentOverviewResponse> AgentOverview([FromQuery] int idCompany)
+        {
+            ReportAgentOverviewObject result = new ReportAgentOverviewObject();
+
+            var listAccount = _context.Accounts.Where(x => x.idCompany == idCompany && x.status != 0)
+                .GroupBy(t => t.status)
+                       .Select(t => new
+                       {
+                           key = t.Key,
+                           value = t.Count()
+                       }).ToList();
+
+            var totalAccount = _context.Accounts.Where(x => x.idCompany == idCompany).Count();
+            result.Total = totalAccount;
+
+            listAccount.ForEach(x =>
+            {
+                if(x.key == 1)
+                {
+                    result.Online = x.value;
+                }
+                if (x.key == 2)
+                {
+                    result.Busy = x.value;
+                }
+                if (x.key == 3)
+                {
+                    result.Online = x.value;
+                }
+            });
+
+            return new ReportAgentOverviewResponse
+            {
+                Status = ResponseStatus.Susscess,
+                result = result
+            };
+        }
+
+
+        [HttpGet]
+        [Route("CsatResponeDistribution")]
+        public async Task<CsatResponeDistributionResponse> CsatResponeDistribution([FromQuery] CsatResponeDistributionRequest request)
+        {
+            List<LabelDistribution> result = new List<LabelDistribution>();
+
+            var listCsat = _context.Csats.Where(r => r.idCompany == request.idCompany
+            && r.dateTime >= request.fromDate.ToUniversalTime() && r.dateTime <= request.toDate.ToUniversalTime()).GroupBy(t => t.idFeedBack)
+                           .Select(t => new
+                           {
+                               key = t.Key,
+                               value = t.Count()
+                           }).ToList();
+
+            Random rnd = new Random();
+            List<string> colors = new List<string>();
+            List<CsatResponeDistribution> listCsatResponeDistribution = new List<CsatResponeDistribution>();
+            List<CsatResponeDistributionTable> listCsatResponeDistributionTable = new List<CsatResponeDistributionTable>();
+
+            int Sum = listCsat.Sum(r => r.value);
+            foreach (var csat in listCsat)
+            {
+                CsatResponeDistributionTable objTable = new CsatResponeDistributionTable();
+                CsatResponeDistribution obj = new CsatResponeDistribution();
+                //TopTrendingLabel topTrendingLabel = new TopTrendingLabel();
+                //var label = _context.Labels.Where(r => r.id == emailInfoLabel.key).FirstOrDefault();
+                string nameRate = "";
+                switch (csat.key)
+                {
+                    case 1:
+                        nameRate = "Very Bad";
+                        break;
+                    case 2:
+                        nameRate = "Bad";
+                        break;
+                    case 3:
+                        nameRate = "Nomal";
+                        break;
+                    case 4:
+                        nameRate = "Good";
+                        break;
+                    case 5:
+                        nameRate = "Very Good";
+                        break;
+                    default:
+                        // code block
+                        break;
+                }
+                obj.Name = nameRate;
+                obj.Y = Math.Round((decimal)csat.value / Sum, 2);
+
+                Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+                string colorHex = ColorTranslator.ToHtml(randomColor);
+                colors.Add(colorHex);
+                listCsatResponeDistribution.Add(obj);
+
+                objTable.ClassName = nameRate;
+                objTable.Distribution = Math.Round((obj.Y * 100), 0).ToString() + "%";
+                objTable.Conversation = csat.value.ToString();
+
+                listCsatResponeDistributionTable.Add(objTable);
+            }
+
+            return new CsatResponeDistributionResponse
+            {
+                Status = ResponseStatus.Susscess,
+                result = listCsatResponeDistribution,
+                colors = colors,
+                resultTable = listCsatResponeDistributionTable
+            };
+        }
     }
 
 }

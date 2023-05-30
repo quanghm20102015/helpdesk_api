@@ -127,5 +127,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public int idContact
+        {
+            get;
+            set;
+        }
     }
 }

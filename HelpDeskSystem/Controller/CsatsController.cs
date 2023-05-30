@@ -98,6 +98,8 @@ namespace HelpDeskSystem.Controller
                     Message = "Entity set 'EF_DataContext.Csats'  is null."
                 };
             }
+
+            csat.dateTime = DateTime.Now.ToUniversalTime();
             _context.Csats.Add(csat);
             await _context.SaveChangesAsync();
 

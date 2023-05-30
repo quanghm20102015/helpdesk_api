@@ -91,5 +91,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<EmailInfoAttach> EmailInfoAttachs
+        {
+            get;
+            set;
+        }
     }
 }

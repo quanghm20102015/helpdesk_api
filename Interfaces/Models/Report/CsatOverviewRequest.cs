@@ -2,11 +2,10 @@
 
 namespace Interfaces.Model.EmailInfoLabel
 {
-    public class LabelDistributionRequest
+    public class CsatOverviewRequest
     {
         public DateTime fromDate { get; set; }
         public DateTime toDate { get; set; }
         public int idCompany { get; set; }
-        public List<int> idLabel { get; set; }
     }
 }

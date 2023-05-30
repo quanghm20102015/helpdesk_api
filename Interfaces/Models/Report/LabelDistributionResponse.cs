@@ -6,6 +6,7 @@ namespace Interfaces.Model.EmailInfoLabel
 {
     public class LabelDistributionResponse : BaseResponse<ResponseStatus>
     {
+        public int total { get; set; }
         public List<LabelDistribution> result { get; set; }
         public List<string> colors { get; set; }
         public List<LabelDistributionTable> resultTable { get; set; }

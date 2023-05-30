@@ -9,7 +9,7 @@ namespace Interfaces.Model.EmailInfoLabel
         public List<CsatResponeDistribution> result { get; set; }
         public List<string> colors { get; set; }
         public List<CsatResponeDistributionTable> resultTable { get; set; }
-        //public List<TopTrendingLabel> topTrending { get; set; }
+        public int total { get; set; }
 
         public class CsatResponeDistribution
         {

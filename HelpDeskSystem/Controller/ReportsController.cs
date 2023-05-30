@@ -26,6 +26,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using static Interfaces.Model.EmailInfoLabel.ReportAgentOverviewResponse;
 using static Interfaces.Model.EmailInfoLabel.CsatResponeDistributionResponse;
 using System.Linq.Expressions;
+using static Interfaces.Model.EmailInfoLabel.CsatOverviewResponse;
 
 namespace HelpDeskSystem.Controller
 {
@@ -371,9 +372,9 @@ namespace HelpDeskSystem.Controller
             return result;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("LabelDistribution")]
-        public async Task<LabelDistributionResponse> LabelDistribution([FromQuery] LabelDistributionRequest request)
+        public async Task<LabelDistributionResponse> LabelDistribution([FromBody] LabelDistributionRequest request)
         {
             List<LabelDistribution> result = new List<LabelDistribution>();
 
@@ -385,7 +386,7 @@ namespace HelpDeskSystem.Controller
                 listIdEmail.Add(emailInfo.id);
             }
 
-            var listEmailInfoLabel = _context.EmailInfoLabels.Where(r => (r.idLabel == request.idLabel || request.idLabel == 0) && listIdEmail.Contains(r.idEmailInfo.Value)).ToList()
+            var listEmailInfoLabel = _context.EmailInfoLabels.Where(r => (request.idLabel.Contains(r.idLabel.Value) || request.idLabel.Count == 0) && listIdEmail.Contains(r.idEmailInfo.Value)).ToList()
                 .GroupBy(t => t.idLabel.Value)
                            .Select(t => new
                            {
@@ -433,7 +434,8 @@ namespace HelpDeskSystem.Controller
                 result = result,
                 colors = colors,
                 resultTable = listLabelDistributionTable,
-                topTrending = listTopTrendingLabel
+                topTrending = listTopTrendingLabel,
+                total = 100
             };
         }
 
@@ -648,6 +650,26 @@ namespace HelpDeskSystem.Controller
 
 
         [HttpGet]
+        [Route("CsatOverview")]
+        public async Task<CsatOverviewResponse> CsatOverview([FromQuery] CsatOverviewRequest request)
+        {
+            CsatOverview result = new CsatOverview();
+            result.SatisfactionScore.Total = 10;
+            result.ResponseRate.Total = 20;
+            result.TotalResponses.Total = 30;
+            CsatOverview resultUpDown = new CsatOverview();
+            resultUpDown.SatisfactionScore.UpDown = 5;
+            resultUpDown.ResponseRate.UpDown = -2;
+            resultUpDown.TotalResponses.UpDown = -4;
+
+            return new CsatOverviewResponse
+            {
+                Status = ResponseStatus.Susscess,
+                result = result
+            };
+        }
+
+        [HttpGet]
         [Route("CsatResponeDistribution")]
         public async Task<CsatResponeDistributionResponse> CsatResponeDistribution([FromQuery] CsatResponeDistributionRequest request)
         {
@@ -715,9 +737,45 @@ namespace HelpDeskSystem.Controller
                 Status = ResponseStatus.Susscess,
                 result = listCsatResponeDistribution,
                 colors = colors,
-                resultTable = listCsatResponeDistributionTable
+                resultTable = listCsatResponeDistributionTable,
+                total = Sum
             };
         }
+
+
+        [HttpGet]
+        [Route("CsatResponeDetail")]
+        public async Task<CsatResponeDetailResponse> CsatResponeDetail([FromQuery] CsatResponeDetailRequest request)
+        {
+            List<Csat> listCsat = _context.Csats.Where(r => r.dateTime >= request.fromDate.ToUniversalTime() && r.dateTime <= request.toDate.ToUniversalTime() && r.idCompany == request.idCompany).ToList();
+            List<string> listGuid = new List<string>();
+            foreach(Csat cs in listCsat)
+            {
+                listGuid.Add(cs.idGuIdEmailInfo);
+            }
+
+            var listResult = (from csat in listCsat
+                                 join emailInfo in _context.EmailInfos.Where(r => r.idCompany == request.idCompany).ToList() on csat.idGuIdEmailInfo equals emailInfo.idGuId
+                                 join acccount in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on emailInfo.idContact equals acccount.id
+                                 select new
+                                 {
+                                     contact = acccount.fullname,
+                                     assignedagent = "",
+                                     rating = csat.idFeedBack,
+                                     feedback = csat.descriptionFeedBack,
+                                     datetime = csat.dateTime.ToString("HH:mm dd/MM/yyyy")
+                                 })
+                                .Skip(request.pageSize * request.pageIndex)
+                                .Take(request.pageSize).ToList<Object>();
+
+
+            return new CsatResponeDetailResponse
+            {
+                Status = ResponseStatus.Susscess,
+                result = listResult
+            };
+        }
+
     }
 
 }

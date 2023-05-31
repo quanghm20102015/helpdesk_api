@@ -202,14 +202,20 @@ namespace HelpDeskSystem.Controller
             List<dynamic> listEmailInfoDynamic = new List<dynamic>();
             foreach (EmailInfo obj in listEmailInfo)
             {
-                List<EmailInfoAttach> listEmailInfoAttach = _context.EmailInfoAttachs.Where(r => r.idEmailInfo == obj.id).ToList();
+                try
+                {
+                    List<EmailInfoAttach> listEmailInfoAttach = _context.EmailInfoAttachs.Where(r => r.idEmailInfo == obj.id).ToList();
 
-                dynamic obj1 = new System.Dynamic.ExpandoObject();
+                    dynamic obj1 = new System.Dynamic.ExpandoObject();
 
-                obj1.EmailInfo = obj;
-                obj1.ListAttach = listEmailInfoAttach;
+                    obj1.EmailInfo = obj;
+                    obj1.ListAttach = listEmailInfoAttach;
 
-                listEmailInfoDynamic.Add(obj1);
+                    listEmailInfoDynamic.Add(obj1);
+                }
+                catch (Exception ex)
+                {
+                }
             }
 
             return new EmailInfoResponse

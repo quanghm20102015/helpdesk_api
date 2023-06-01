@@ -27,6 +27,8 @@ using static Interfaces.Model.EmailInfoLabel.ReportAgentOverviewResponse;
 using static Interfaces.Model.EmailInfoLabel.CsatResponeDistributionResponse;
 using System.Linq.Expressions;
 using static Interfaces.Model.EmailInfoLabel.CsatOverviewResponse;
+using static Interfaces.Model.EmailInfoLabel.TrafficResponse;
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 namespace HelpDeskSystem.Controller
 {
@@ -57,10 +59,10 @@ namespace HelpDeskSystem.Controller
             double ttt = request.toDate.Subtract(request.fromDate).TotalDays;
             var listEmailInfoBefor = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && r.date <= request.fromDate.ToUniversalTime() && r.date >= request.fromDate.AddDays(-ttt).ToUniversalTime()).ToList();
 
-            reportOverviewUpDown.Opened.UpDown = reportOverview.Opened.Total -listEmailInfoBefor.Where(r => r.status == 1).Count();
-            reportOverviewUpDown.Resolved.UpDown = reportOverview.Resolved.Total - listEmailInfoBefor.Where(r => r.status == 2).Count();
-            reportOverviewUpDown.Unattended.UpDown = reportOverview.Unattended.Total - 0;
-            reportOverviewUpDown.Unassigned.UpDown = reportOverview.Unassigned.Total - listEmailInfoBefor.Where(r => r.isAssign == false).Count();
+            reportOverview.Opened.UpDown = reportOverview.Opened.Total -listEmailInfoBefor.Where(r => r.status == 1).Count();
+            reportOverview.Resolved.UpDown = reportOverview.Resolved.Total - listEmailInfoBefor.Where(r => r.status == 2).Count();
+            reportOverview.Unattended.UpDown = reportOverview.Unattended.Total - 0;
+            reportOverview.Unassigned.UpDown = reportOverview.Unassigned.Total - listEmailInfoBefor.Where(r => r.isAssign == false).Count();
 
 
             //ListPerformentMonitor reportData = GetReportData(request.fromDate, request.toDate, listEmailInfo, request.idCompany);
@@ -96,31 +98,14 @@ namespace HelpDeskSystem.Controller
             var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList();
 
 
-            result.Total = listEmailInfo.GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
-                       .Select(t => new
-                       {
-                           key = t.Key,
-                           value = t.Count()
-                       }).Count();
+            result.Total = listEmailInfo.Count();
 
             result.Incoming = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 1
-                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList()
-                        .GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
-                       .Select(t => new
-                       {
-                           key = t.Key,
-                           value = t.Count()
-                       }).Count();
+                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList().Count();
 
 
             result.Outgoing = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 2
-                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList()
-                        .GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
-                       .Select(t => new
-                       {
-                           key = t.Key,
-                           value = t.Count()
-                       }).Count();
+                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList().Count();
 
 
             result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved).GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
@@ -144,14 +129,19 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            result.ResponeTime = listObjectReportTime.GroupBy(r => r.date)
+
+            double timeSecond = listObjectReportTime.GroupBy(r => r.date)
                        .Select(t => new
                        {
                            key = t.Key,
                            value = t.Average(p => p.value)
-                       }).Count();
+                       }).ToList().Sum(r => r.value);
+
+            TimeSpan timeSpan = TimeSpan.FromSeconds(timeSecond);
+            string str = timeSpan.ToString(@"HH\:mm\:ss\");
 
 
+            result.ResponeTime = str;
             result.ResolveTime = 0;
 
             return new PerformentMonitorTotalResponse
@@ -566,7 +556,7 @@ namespace HelpDeskSystem.Controller
                        {
                            key = t.Key,
                            value = t.Average(p => p.value)
-                       }).Count();
+                       }).Count().ToString();
 
 
             result.ResolveTime = 0;
@@ -645,6 +635,180 @@ namespace HelpDeskSystem.Controller
             {
                 Status = ResponseStatus.Susscess,
                 result = result
+            };
+        }
+
+        [HttpGet]
+        [Route("GroupTopConversation")]
+        public async Task<TopConversationAgentResponse> GroupTopConversation([FromQuery] TopConversationAgentRequest request)
+        {
+            List<LabelDistribution> result = new List<LabelDistribution>();
+
+            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true
+            && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
+            && r.status == Common.Open).ToList();
+
+            List<int> listIdEmail = new List<int>();
+            foreach (EmailInfo emailInfo in listEmailInfo)
+            {
+                listIdEmail.Add(emailInfo.id);
+            }
+
+
+            var partialResult = (from c in listEmailInfo
+                                 join o in _context.EmailInfoAssigns.Where(r => listIdEmail.Contains(r.idEmailInfo.Value)).ToList() on c.id equals o.idEmailInfo
+                                 join agent in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on o.idUser equals agent.id
+                                 select new
+                                 {
+                                     agent.fullname,
+                                     agent.workemail,
+                                     c.status,
+                                     agent.id
+                                 }).GroupBy(t => new
+                                 {
+                                     t.fullname,
+                                     t.workemail,
+                                     t.status,
+                                     t.id
+                                 })
+                                   .Select(t => new
+                                   {
+                                       IdUser = t.Key.id,
+                                       Agent = t.Key.fullname,
+                                       Mail = t.Key.workemail,
+                                       Open = t.Count()
+                                   }).ToList();
+
+            List<TopConversationAgentObject> Result = new List<TopConversationAgentObject>();
+            foreach (dynamic obj in partialResult)
+            {
+                TopConversationAgentObject objTopConversationAgent = new TopConversationAgentObject();
+                objTopConversationAgent.IdUser = obj.IdUser;
+                objTopConversationAgent.Agent = obj.Agent;
+                objTopConversationAgent.Mail = obj.Mail;
+                objTopConversationAgent.Open = obj.Open;
+                objTopConversationAgent.Unattended = 0;
+                Result.Add(objTopConversationAgent);
+            }
+
+            return new TopConversationAgentResponse
+            {
+                Status = ResponseStatus.Susscess,
+                Result = Result
+            };
+        }
+
+        [HttpGet]
+        [Route("GroupPerformentMonitorTotal")]
+        public async Task<PerformentMonitorTotalResponse> GroupPerformentMonitorTotal([FromQuery] PerformentMonitorAgentTotalRequest request)
+        {
+            ObjectPerformentMonitorTotal result = new ObjectPerformentMonitorTotal();
+
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.IdUser).ToList();
+
+            List<int> listIdEmailAssign = new List<int>();
+            foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+            {
+                listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+            }
+
+            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
+            && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
+            && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).ToList();
+
+
+            result.Total = listEmailInfo.GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
+                       .Select(t => new
+                       {
+                           key = t.Key,
+                           value = t.Count()
+                       }).Count();
+
+            result.Incoming = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 1
+                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList()
+                        .GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
+                       .Select(t => new
+                       {
+                           key = t.Key,
+                           value = t.Count()
+                       }).Count();
+
+
+            result.Outgoing = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 2
+                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList()
+                        .GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
+                       .Select(t => new
+                       {
+                           key = t.Key,
+                           value = t.Count()
+                       }).Count();
+
+
+            result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved).GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
+                       .Select(t => new
+                       {
+                           key = t.Key,
+                           value = t.Count()
+                       }).Count();
+
+            List<ObjectReportTime> listObjectReportTime = new List<ObjectReportTime>();
+            foreach (EmailInfo obj in listEmailInfo)
+            {
+                EmailInfo objReply = _context.EmailInfos.Where(r => r.idReference == obj.messageId && r.type == 2 && r.id != obj.id).FirstOrDefault();
+                if (objReply != null)
+                {
+                    ObjectReportTime obj1 = new ObjectReportTime();
+                    double time = objReply.date.Value.Subtract(obj.date.Value).TotalSeconds;
+                    obj1.date = obj.date.Value.ToString("dd-MM-yyyy");
+                    obj1.value = time;
+                    listObjectReportTime.Add(obj1);
+                }
+            }
+
+            result.ResponeTime = listObjectReportTime.GroupBy(r => r.date)
+                       .Select(t => new
+                       {
+                           key = t.Key,
+                           value = t.Average(p => p.value)
+                       }).Count().ToString();
+
+
+            result.ResolveTime = 0;
+
+            return new PerformentMonitorTotalResponse
+            {
+                Status = ResponseStatus.Susscess,
+                Result = result
+            };
+        }
+
+        [HttpGet]
+        [Route("GroupPerformentMonitor")]
+        public async Task<PerformentMonitorResponse> GroupPerformentMonitor([FromQuery] PerformentMonitorAgentRequest request)
+        {
+            ReportOverview reportOverview = new ReportOverview();
+            //var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList();
+
+
+            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.IdUser || request.IdUser == 0).ToList();
+
+            List<int> listIdEmailAssign = new List<int>();
+            foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+            {
+                listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+            }
+
+            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
+            && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
+            && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).ToList();
+
+
+            ObjectPerformentMonitor resutl = PerformentMonitor(request.fromDate, request.toDate, listEmailInfo, request.idCompany, request.type);
+
+            return new PerformentMonitorResponse
+            {
+                Status = ResponseStatus.Susscess,
+                Result = resutl
             };
         }
 
@@ -755,24 +919,67 @@ namespace HelpDeskSystem.Controller
             }
 
             var listResult = (from csat in listCsat
-                                 join emailInfo in _context.EmailInfos.Where(r => r.idCompany == request.idCompany).ToList() on csat.idGuIdEmailInfo equals emailInfo.idGuId
-                                 join acccount in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on emailInfo.idContact equals acccount.id
-                                 select new
-                                 {
-                                     contact = acccount.fullname,
-                                     assignedagent = "",
-                                     rating = csat.idFeedBack,
-                                     feedback = csat.descriptionFeedBack,
-                                     datetime = csat.dateTime.ToString("HH:mm dd/MM/yyyy")
-                                 })
-                                .Skip(request.pageSize * request.pageIndex)
+                              join emailInfo in _context.EmailInfos.Where(r => r.idCompany == request.idCompany).ToList() on csat.idGuIdEmailInfo equals emailInfo.idGuId
+                              join acccount in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on emailInfo.idContact equals acccount.id
+                              select new
+                              {
+                                  contact = acccount.fullname,
+                                  assignedagent = "",
+                                  rating = csat.idFeedBack,
+                                  feedback = csat.descriptionFeedBack,
+                                  datetime = csat.dateTime.ToString("HH:mm dd/MM/yyyy")
+                              }).Skip(request.pageSize * (request.pageIndex-1))
                                 .Take(request.pageSize).ToList<Object>();
-
 
             return new CsatResponeDetailResponse
             {
                 Status = ResponseStatus.Susscess,
-                result = listResult
+                result = listResult,
+                total = listCsat.Count
+            };
+        }
+
+
+        [HttpGet]
+        [Route("Traffic")]
+        public async Task<TrafficResponse> Traffic([FromQuery] ReportOverviewRequest request)
+        {
+            DateTime dt = request.fromDate;
+            List<TrafficDay> categories = new List<TrafficDay>();
+            List<List<int>> data = new List<List<int>>();
+
+            int k = 1;
+            while(dt <= request.toDate)
+            {
+                TrafficDay obj = new TrafficDay();
+                obj.id = k;
+                obj.labels = dt.ToString("dd/MM/yyyy");
+
+                DateTimeOffset dateOffsetValue = new DateTimeOffset(dt, TimeZoneInfo.Local.GetUtcOffset(dt));
+                obj.days = dateOffsetValue.ToString("dddd");
+
+                dt = dt.AddDays(1);
+                categories.Add(obj);
+                k++;
+            }
+
+            for(int i = 0; i < 23; i++)
+            {
+                for(int j = 0; j< categories.Count; j++)
+                {
+                    List<int> obj = new List<int>();
+                    obj.Add(i);
+                    obj.Add(j);
+                    Random rand = new Random();
+                    obj.Add(rand.Next(0, 100));
+                    data.Add(obj);
+                }
+            }
+            return new TrafficResponse
+            {
+                Status = ResponseStatus.Susscess,
+                categories = categories,
+                data = data
             };
         }
 

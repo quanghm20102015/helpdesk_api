@@ -150,7 +150,7 @@ namespace HelpDeskSystem.Controller
                     }
                 }
 
-                if (obj.avatar != null)
+                if (obj.avatar != null && obj.avatar!="")
                 {
                     byte[] imageByteArray = Convert.FromBase64String(obj.avatar);
 
@@ -184,7 +184,7 @@ namespace HelpDeskSystem.Controller
                     }
                 }
 
-                if (obj.avatar != null)
+                if (obj.avatar != null && obj.avatar != "")
                 {
                     byte[] imageByteArray = Convert.FromBase64String(obj.avatar);
 
@@ -357,8 +357,16 @@ namespace HelpDeskSystem.Controller
                     {
                         string FileName = sou.FileName;
 
-                        //sou.CopyToAsync()
-                        if (sou.Length > 0)
+                        //if (sou.Length > 0)
+                        //{
+                        //    using (var ms = new MemoryStream())
+                        //    {
+                        //        sou.CopyTo(ms);
+                        //        var fileBytes = ms.ToArray();
+                        //        emailBody.Attachments.Add(FileName, fileBytes);
+                        //    }
+                        //}
+                        try
                         {
                             using (var ms = new MemoryStream())
                             {
@@ -366,14 +374,9 @@ namespace HelpDeskSystem.Controller
                                 var fileBytes = ms.ToArray();
                                 emailBody.Attachments.Add(FileName, fileBytes);
                             }
-
-                            //string fullPath = Path.Combine(newPath, FileName);
-                            //string SavedPath = folderPath + "/" + FileName;
-                            //string fileType = Path.GetExtension(FileName).Replace(".", "");
-                            //using (var stream = new FileStream(fullPath, FileMode.Create))
-                            //{
-                            //    sou.CopyTo(stream);
-                            //}
+                        }
+                        catch (Exception ex)
+                        {
                         }
                     }
 
@@ -411,7 +414,9 @@ namespace HelpDeskSystem.Controller
                 emailInfo.read = true;
                 emailInfo.idReference = request.messageId;
 
-                emailInfo.idContact = _context.Accounts.Where(x => x.workemail == emailInfo.to).FirstOrDefault().id;
+                Account acc = _context.Accounts.Where(x => x.workemail == emailInfo.to && x.idCompany == request.idCompany).FirstOrDefault();
+                if(acc!= null)
+                    emailInfo.idContact = acc.id;
 
                 _context.EmailInfos.Add(emailInfo);
                 await _context.SaveChangesAsync();
@@ -432,7 +437,31 @@ namespace HelpDeskSystem.Controller
                     {
                         string FileName = sou.FileName;
 
-                        if (sou.Length > 0)
+                        //if (sou.Length > 0)
+                        //{
+                        //    string fullPath = Path.Combine(newPath, FileName);
+                        //    string SavedPath = folderPath + "/" + FileName;
+                        //    string fileType = Path.GetExtension(FileName).Replace(".", "");
+                        //    using (var stream = new FileStream(fullPath, FileMode.Create))
+                        //    {
+                        //        sou.CopyTo(stream);
+
+                        //        EmailInfoAttach obj = new EmailInfoAttach();
+
+                        //        string[] lst = FileName.Split('.');
+                        //        obj.idEmailInfo = emailInfo.id;
+                        //        obj.pathFile = SavedPath;
+                        //        obj.extension = lst[lst.Length - 1];
+                        //        obj.sizeText = sou.Length < 1000 ? "1kb" : (sou.Length < 10000 ? (sou.Length / 1000).ToString() + "kb" : (sou.Length / 1000000).ToString() + "mb");
+                        //        obj.type = sou.ContentType;
+                        //        obj.name = FileName;
+                        //        obj.fileName = FileName.Substring(0, FileName.Length - obj.extension.Length - 1);
+                        //        _context.EmailInfoAttachs.Add(obj);
+                        //        await _context.SaveChangesAsync();
+                        //    }
+                        //}
+
+                        try
                         {
                             string fullPath = Path.Combine(newPath, FileName);
                             string SavedPath = folderPath + "/" + FileName;
@@ -442,12 +471,21 @@ namespace HelpDeskSystem.Controller
                                 sou.CopyTo(stream);
 
                                 EmailInfoAttach obj = new EmailInfoAttach();
+
+                                string[] lst = FileName.Split('.');
                                 obj.idEmailInfo = emailInfo.id;
                                 obj.pathFile = SavedPath;
-                                obj.fileName = FileName;
+                                obj.extension = lst[lst.Length - 1];
+                                obj.sizeText = sou.Length < 1000 ? "1kb" : (sou.Length < 10000 ? ((decimal)sou.Length / 1000).ToString() + "kb" : Math.Round(((decimal)sou.Length / 1000000), 2).ToString() + "mb");
+                                obj.type = sou.ContentType;
+                                obj.name = FileName;
+                                obj.fileName = FileName.Substring(0, FileName.Length - obj.extension.Length - 1);
                                 _context.EmailInfoAttachs.Add(obj);
                                 await _context.SaveChangesAsync();
                             }
+                        }
+                        catch (Exception ex)
+                        {
                         }
                     }
                 }
@@ -1167,8 +1205,17 @@ namespace HelpDeskSystem.Controller
                     {
                         string FileName = sou.FileName;
 
-                        //sou.CopyToAsync()
-                        if (sou.Length > 0)
+                        //if (sou.Length > 0)
+                        //{
+                        //    using (var ms = new MemoryStream())
+                        //    {
+                        //        sou.CopyTo(ms);
+                        //        var fileBytes = ms.ToArray();
+                        //        emailBody.Attachments.Add(FileName, fileBytes);
+                        //    }
+                        //}
+
+                        try
                         {
                             using (var ms = new MemoryStream())
                             {
@@ -1176,6 +1223,9 @@ namespace HelpDeskSystem.Controller
                                 var fileBytes = ms.ToArray();
                                 emailBody.Attachments.Add(FileName, fileBytes);
                             }
+                        }
+                        catch (Exception ex)
+                        {
                         }
                     }
 
@@ -1227,7 +1277,30 @@ namespace HelpDeskSystem.Controller
                         {
                             string FileName = sou.FileName;
 
-                            if (sou.Length > 0)
+                            //if (sou.Length > 0)
+                            //{
+                            //    string fullPath = Path.Combine(newPath, FileName);
+                            //    string SavedPath = folderPath + "/" + FileName;
+                            //    string fileType = Path.GetExtension(FileName).Replace(".", "");
+                            //    using (var stream = new FileStream(fullPath, FileMode.Create))
+                            //    {
+                            //        sou.CopyTo(stream);
+
+                            //        EmailInfoAttach obj = new EmailInfoAttach();
+
+                            //        string[] lst = FileName.Split('.');
+                            //        obj.idEmailInfo = emailInfo.id;
+                            //        obj.pathFile = SavedPath;
+                            //        obj.extension = lst[lst.Length - 1];
+                            //        obj.sizeText = sou.Length < 1000 ? "1kb" : (sou.Length < 10000 ? (sou.Length / 1000).ToString() + "kb" : (sou.Length / 1000000).ToString() + "mb");
+                            //        obj.type = sou.ContentType;
+                            //        obj.name = FileName;
+                            //        obj.fileName = FileName.Substring(0, FileName.Length - obj.extension.Length - 1);
+                            //        _context.EmailInfoAttachs.Add(obj);
+                            //        await _context.SaveChangesAsync();
+                            //    }
+                            //}
+                            try
                             {
                                 string fullPath = Path.Combine(newPath, FileName);
                                 string SavedPath = folderPath + "/" + FileName;
@@ -1237,12 +1310,21 @@ namespace HelpDeskSystem.Controller
                                     sou.CopyTo(stream);
 
                                     EmailInfoAttach obj = new EmailInfoAttach();
+
+                                    string[] lst = FileName.Split('.');
                                     obj.idEmailInfo = emailInfo.id;
                                     obj.pathFile = SavedPath;
-                                    obj.fileName = FileName;
+                                    obj.extension = lst[lst.Length - 1];
+                                    obj.sizeText = sou.Length < 1000 ? "1kb" : (sou.Length < 10000 ? ((decimal)sou.Length / 1000).ToString() + "kb" : Math.Round(((decimal)sou.Length / 1000000), 2).ToString() + "mb");
+                                    obj.type = sou.ContentType;
+                                    obj.name = FileName;
+                                    obj.fileName = FileName.Substring(0, FileName.Length - obj.extension.Length - 1);
                                     _context.EmailInfoAttachs.Add(obj);
                                     await _context.SaveChangesAsync();
                                 }
+                            }
+                            catch (Exception ex)
+                            {
                             }
                         }
                     }

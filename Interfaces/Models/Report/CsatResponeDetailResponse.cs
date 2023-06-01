@@ -7,6 +7,7 @@ namespace Interfaces.Model.EmailInfoLabel
     public class CsatResponeDetailResponse : BaseResponse<ResponseStatus>
     {
         public List<Object> result { get; set; }
+        public int total { get; set; }
 
     }
 }

@@ -94,7 +94,7 @@ namespace HelpDeskSystem.Controller
                 return NotFound();
             }
             var account = await _context.Accounts.FirstOrDefaultAsync
-                (u => u.workemail.Equals(workemail));
+                (u => u.workemail.Equals(workemail) && u.isDelete == false);
             //var account = await _context.Accounts.FindAsync(workemail);
 
             if (account == null)
@@ -108,31 +108,31 @@ namespace HelpDeskSystem.Controller
         // PUT: api/Accounts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<BaseResponse<ResponseStatus>> PutAccount([FromForm] Account account)
+        public async Task<BaseResponse<ResponseStatus>> PutAccount(Account account)
         {
-            try
-            {
-                var _uploadedFiles = Request.Form.Files;
-                foreach (IFormFile sou in _uploadedFiles)
-                {
-                    string FileName = sou.FileName;
-                    //sou.CopyToAsync()
-                    if (sou.Length > 0)
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            sou.CopyTo(ms);
-                            var fileBytes = ms.ToArray();
-                            string s = Convert.ToBase64String(fileBytes);
-                            account.avatar = s;
-                            account.fileName = FileName;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-            }
+            //try
+            //{
+            //    var _uploadedFiles = Request.Form.Files;
+            //    foreach (IFormFile sou in _uploadedFiles)
+            //    {
+            //        string FileName = sou.FileName;
+            //        //sou.CopyToAsync()
+            //        if (sou.Length > 0)
+            //        {
+            //            using (var ms = new MemoryStream())
+            //            {
+            //                sou.CopyTo(ms);
+            //                var fileBytes = ms.ToArray();
+            //                string s = Convert.ToBase64String(fileBytes);
+            //                account.avatar = s;
+            //                account.fileName = FileName;
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception)
+            //{
+            //}
 
 
             _context.Entry(account).State = EntityState.Modified;
@@ -216,6 +216,7 @@ namespace HelpDeskSystem.Controller
                     }
 
                     account.idGuId = Guid.NewGuid().ToString();
+                    account.isDelete = false;
 
 
                     _context.Accounts.Add(account);
@@ -246,7 +247,9 @@ namespace HelpDeskSystem.Controller
                 return NotFound();
             }
 
-            _context.Accounts.Remove(account);
+            account.isDelete = true;
+
+            _context.Entry(account).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -372,7 +375,7 @@ namespace HelpDeskSystem.Controller
             {
                 return NotFound();
             }
-            List<Account> account = _context.Accounts.Where(r => r.idCompany == idCompany).ToList();
+            List<Account> account = _context.Accounts.Where(r => r.idCompany == idCompany && r.isDelete == false).ToList();
 
             List<dynamic> result = new List<dynamic>();
             foreach (Account acc in account)
@@ -389,8 +392,9 @@ namespace HelpDeskSystem.Controller
                 objAccount.login = acc.login;
                 objAccount.status = acc.status;
                 objAccount.idGuId = acc.idGuId;
+                objAccount.role = acc.role;
 
-                if(acc.avatar!= null)
+                if (acc.avatar!= null && acc.avatar!="")
                 {
                     byte[] imageByteArray = Convert.FromBase64String(acc.avatar);
 

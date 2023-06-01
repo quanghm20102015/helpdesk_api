@@ -3,6 +3,7 @@ using System;
 using HelpDeskSystem.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HelpDeskSystem.Migrations
 {
     [DbContext(typeof(EF_DataContext))]
-    partial class EF_DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230531161051_Migration38")]
+    partial class Migration38
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,17 +55,11 @@ namespace HelpDeskSystem.Migrations
                     b.Property<string>("idGuId")
                         .HasColumnType("text");
 
-                    b.Property<bool>("isDelete")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("login")
                         .HasColumnType("boolean");
 
                     b.Property<string>("password")
                         .HasColumnType("text");
-
-                    b.Property<int?>("role")
-                        .HasColumnType("integer");
 
                     b.Property<int>("status")
                         .HasColumnType("integer");
@@ -402,9 +399,6 @@ namespace HelpDeskSystem.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("sizeText")
-                        .HasColumnType("text");
-
-                    b.Property<string>("type")
                         .HasColumnType("text");
 
                     b.HasKey("id");

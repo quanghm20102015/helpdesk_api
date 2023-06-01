@@ -26,30 +26,25 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
-        //public string? extension
-        //{
-        //    get;
-        //    set;
-        //}
-        //public string? sizeText
-        //{
-        //    get;
-        //    set;
-        //}
-        //public string? fileType
-        //{
-        //    get;
-        //    set;
-        //}
-        //public string? name
-        //{
-        //    get;
-        //    set;
-        //}
-        //public string? part
-        //{
-        //    get;
-        //    set;
-        //}
+        public string? extension
+        {
+            get;
+            set;
+        }
+        public string? sizeText
+        {
+            get;
+            set;
+        }
+        public string? name
+        {
+            get;
+            set;
+        }
+        public string? type
+        {
+            get;
+            set;
+        }
     }
 }

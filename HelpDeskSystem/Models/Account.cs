@@ -66,5 +66,15 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public int? role
+        {
+            get;
+            set;
+        }
+        public bool isDelete
+        {
+            get;
+            set;
+        }
     }
 }

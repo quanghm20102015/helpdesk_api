@@ -15,7 +15,7 @@ namespace Interfaces.Model.EmailInfo
             public int Incoming { get; set; }
             public int Outgoing { get; set; }
             public int Resolved { get; set; }
-            public int ResponeTime { get; set; }
+            public string ResponeTime { get; set; }
             public int ResolveTime { get; set; }
         }
     }

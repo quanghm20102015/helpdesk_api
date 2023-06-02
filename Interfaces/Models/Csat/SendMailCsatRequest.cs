@@ -8,5 +8,7 @@ namespace Interfaces.Model.Account
     {
         public string link { get; set; }
         public string to { get; set; }
+        public string idGuIdEmailInfo { get; set; }
+        public int idCompany { get; set; }
     }
 }

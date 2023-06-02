@@ -645,6 +645,11 @@ namespace HelpDeskSystem.Controller
             var EmailInfo = await _context.EmailInfos.FindAsync(emailInfo.id);
             var Status = await _context.Status.FindAsync(emailInfo.status);
             EmailInfo.status = emailInfo.status;
+            if(emailInfo.status == Common.Resolved)
+            {
+                EmailInfo.resolveTime = DateTime.Now.ToUniversalTime();
+            }
+
             var EmailInfoInsert = EmailInfo;
 
             _context.Entry(EmailInfo).State = EntityState.Modified;

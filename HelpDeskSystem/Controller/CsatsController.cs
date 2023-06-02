@@ -140,7 +140,7 @@ namespace HelpDeskSystem.Controller
         public async Task<LoginResponse> SendMail(SendMailCsatRequest request)
         {
             var account = await _context.Accounts.FirstOrDefaultAsync
-                (u => u.workemail == request.to);
+                (u => u.workemail == request.to && u.idCompany == request.idCompany);
 
             if (account != null)
             {
@@ -181,6 +181,14 @@ namespace HelpDeskSystem.Controller
                 smtp.Send(message);
                 smtp.Disconnect(true);
 
+                Csat csat = new Csat();
+                csat.idGuIdEmailInfo = request.idGuIdEmailInfo;
+                csat.dateTime = DateTime.Now.ToUniversalTime();
+                csat.idFeedBack = 0;
+                csat.idCompany = request.idCompany;
+                _context.Csats.Add(csat);
+                await _context.SaveChangesAsync();
+
                 return new LoginResponse
                 {
                     Status = ResponseStatus.Susscess
@@ -194,6 +202,35 @@ namespace HelpDeskSystem.Controller
                     Message = "Email does not exist"
                 };
             }
+        }
+        
+        [HttpPut]
+        [Route("UpdateCsat")]
+        public async Task<CsatResponse> UpdateCsat(Csat csat)
+        {
+            if (_context.Csats == null)
+            {
+                return new CsatResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = "Entity set 'EF_DataContext.Csats'  is null."
+                };
+            }
+
+            Csat csatObject = _context.Csats.Where(r => r.idGuIdEmailInfo == csat.idGuIdEmailInfo && r.idFeedBack == 0).FirstOrDefault();
+            csatObject.idFeedBack = csat.idFeedBack;
+            csatObject.idCompany = csat.idCompany;
+            csatObject.descriptionFeedBack = csat.descriptionFeedBack;
+            csatObject.dateTime = DateTime.Now.ToUniversalTime();
+
+            _context.Entry(csatObject).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return new CsatResponse
+            {
+                Status = ResponseStatus.Susscess,
+                Message = ""
+            };
         }
 
     }

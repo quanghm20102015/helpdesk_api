@@ -132,5 +132,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DateTime? resolveTime
+        {
+            get;
+            set;
+        }
     }
 }

@@ -581,44 +581,24 @@ namespace HelpDeskSystem.Controller
             && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).ToList();
 
 
-            result.Total = listEmailInfo.GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
-                       .Select(t => new
-                       {
-                           key = t.Key,
-                           value = t.Count()
-                       }).Count();
-
-            result.Incoming = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 1
-                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList()
-                        .GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
-                       .Select(t => new
-                       {
-                           key = t.Key,
-                           value = t.Count()
-                       }).Count();
-
+            result.Total = listEmailInfo.Count();
 
             result.Outgoing = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 2
-                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList()
-                        .GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
-                       .Select(t => new
-                       {
-                           key = t.Key,
-                           value = t.Count()
-                       }).Count();
+                        && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
+                         && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).ToList().Count();
 
 
-            result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved).GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
-                       .Select(t => new
-                       {
-                           key = t.Key,
-                           value = t.Count()
-                       }).Count();
+
+            result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved
+             && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).Count();
+
+
 
             List<ObjectReportTime> listObjectReportTime = new List<ObjectReportTime>();
             foreach (EmailInfo obj in listEmailInfo)
             {
-                EmailInfo objReply = _context.EmailInfos.Where(r => r.idReference == obj.messageId && r.type == 2 && r.id != obj.id).FirstOrDefault();
+                EmailInfo objReply = _context.EmailInfos.Where(r => r.idReference == obj.messageId && r.type == 2 && r.id != obj.id
+                && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).FirstOrDefault();
                 if (objReply != null)
                 {
                     ObjectReportTime obj1 = new ObjectReportTime();
@@ -629,15 +609,45 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            result.ResponeTime = listObjectReportTime.GroupBy(r => r.date)
+
+            double timeSecond = listObjectReportTime.GroupBy(r => r.date)
                        .Select(t => new
                        {
                            key = t.Key,
                            value = t.Average(p => p.value)
-                       }).Count().ToString();
+                       }).ToList().Sum(r => r.value);
+
+            string str = TimeSpan.FromSeconds(timeSecond).ToString(@"hh\:mm\:ss");
+
+            result.ResponeTime = str;
 
 
-            result.ResolveTime = "0";
+
+            List<ObjectReportTime> listObjectResolvedTime = new List<ObjectReportTime>();
+            listEmailInfo = listEmailInfo.Where(r => r.status == Common.Resolved
+            && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).ToList();
+            foreach (EmailInfo obj in listEmailInfo)
+            {
+                ObjectReportTime obj1 = new ObjectReportTime();
+                double time = obj.resolveTime.Value.Subtract(obj.date.Value).TotalSeconds;
+                obj1.date = obj.date.Value.ToString("dd-MM-yyyy");
+                obj1.value = time;
+                listObjectResolvedTime.Add(obj1);
+            }
+
+
+            double resolveTime = listObjectResolvedTime.GroupBy(r => r.date)
+                       .Select(t => new
+                       {
+                           key = t.Key,
+                           value = t.Average(p => p.value)
+                       }).ToList().Sum(r => r.value);
+
+
+            string strResolveTime = TimeSpan.FromSeconds(resolveTime).ToString(@"hh\:mm\:ss");
+
+            result.ResolveTime = strResolveTime;
+
 
             return new PerformentMonitorTotalResponse
             {
@@ -667,7 +677,7 @@ namespace HelpDeskSystem.Controller
             && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).ToList();
 
 
-            ObjectPerformentMonitor resutl = PerformentMonitor(request.fromDate, request.toDate, listEmailInfo, request.idCompany, request.type);
+            ObjectPerformentMonitor resutl = AgentPerformentMonitor(request.fromDate, request.toDate, listEmailInfo, request.idCompany, request.type);
 
             return new PerformentMonitorResponse
             {
@@ -675,6 +685,218 @@ namespace HelpDeskSystem.Controller
                 Result = resutl
             };
         }
+
+
+        private ObjectPerformentMonitor AgentPerformentMonitor(DateTime fromDate, DateTime toDate, List<EmailInfo> listEmailInfo, int idCompany, int type)
+        {
+            ObjectPerformentMonitor result = new ObjectPerformentMonitor();
+
+            int totalDay = (int)toDate.Subtract(fromDate).TotalDays;
+            int interval = 1;
+            if (totalDay > 25)
+            {
+                interval = (totalDay / 20) + 1;
+            }
+
+            DateTime dt = fromDate;
+            if (type == 1)//total
+            {
+                var listReport = listEmailInfo.GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
+                           .Select(t => new
+                           {
+                               key = t.Key,
+                               value = t.Count()
+                           }).ToList();
+
+                while (dt <= toDate)
+                {
+                    result.label.Add(dt.ToString("dd-MM-yyyy"));
+                    ObjectReport objTotal = new ObjectReport();
+                    for (int i = 1; i <= interval; i++)
+                    {
+                        int value = 0;
+                        //add total
+                        var objectEmailInfo = listReport.Where(r => r.key == dt.ToString("dd-MM-yyyy")).FirstOrDefault();
+                        if (objectEmailInfo == null)
+                        {
+                            value = 0;
+                        }
+                        else
+                        {
+                            value = objectEmailInfo.value;
+                        }
+                        objTotal.value = objTotal.value + value;
+
+                        dt = dt.AddDays(1);
+                    }
+                    result.data.Add(objTotal.value);
+                }
+            }
+            else if (type == 2)//Outgoing
+            {
+                var listReport = _context.EmailInfos.Where(r => r.idCompany == idCompany && r.isDelete == false && r.type == 2
+                            && r.date >= fromDate.ToUniversalTime() && r.date <= toDate.ToUniversalTime()).ToList()
+                            .GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
+                           .Select(t => new
+                           {
+                               key = t.Key,
+                               value = t.Count()
+                           }).ToList();
+
+                while (dt <= toDate)
+                {
+                    result.label.Add(dt.ToString("dd-MM-yyyy"));
+                    ObjectReport objTotal = new ObjectReport();
+                    for (int i = 1; i <= interval; i++)
+                    {
+                        int value = 0;
+                        //add total
+                        var objectEmailInfo = listReport.Where(r => r.key == dt.ToString("dd-MM-yyyy")).FirstOrDefault();
+                        if (objectEmailInfo == null)
+                        {
+                            value = 0;
+                        }
+                        else
+                        {
+                            value = objectEmailInfo.value;
+                        }
+                        objTotal.value = objTotal.value + value;
+
+                        dt = dt.AddDays(1);
+                    }
+                    result.data.Add(objTotal.value);
+                }
+            }
+            else if (type == 3)//IncResolveoming
+            {
+                var listReport = listEmailInfo.Where(r => r.status == Common.Resolved).GroupBy(t => t.date.Value.ToString("dd-MM-yyyy"))
+                           .Select(t => new
+                           {
+                               key = t.Key,
+                               value = t.Count()
+                           }).ToList();
+
+                while (dt <= toDate)
+                {
+                    result.label.Add(dt.ToString("dd-MM-yyyy"));
+                    ObjectReport objTotal = new ObjectReport();
+                    for (int i = 1; i <= interval; i++)
+                    {
+                        int value = 0;
+                        //add total
+                        var objectEmailInfo = listReport.Where(r => r.key == dt.ToString("dd-MM-yyyy")).FirstOrDefault();
+                        if (objectEmailInfo == null)
+                        {
+                            value = 0;
+                        }
+                        else
+                        {
+                            value = objectEmailInfo.value;
+                        }
+                        objTotal.value = objTotal.value + value;
+
+                        dt = dt.AddDays(1);
+                    }
+                    result.data.Add(objTotal.value);
+                }
+            }
+            else if (type == 4)//FirstRespone
+            {
+                List<ObjectReportTime> listObjectReportTime = new List<ObjectReportTime>();
+                foreach (EmailInfo obj in listEmailInfo)
+                {
+                    EmailInfo objReply = _context.EmailInfos.Where(r => r.idReference == obj.messageId && r.type == 2 && r.id != obj.id).FirstOrDefault();
+                    if (objReply != null)
+                    {
+                        ObjectReportTime obj1 = new ObjectReportTime();
+                        double time = objReply.date.Value.Subtract(obj.date.Value).TotalSeconds;
+                        obj1.date = obj.date.Value.ToString("dd-MM-yyyy");
+                        obj1.value = time;
+                        listObjectReportTime.Add(obj1);
+                    }
+                }
+
+
+                var listReport = listObjectReportTime.GroupBy(r => r.date)
+                           .Select(t => new
+                           {
+                               key = t.Key,
+                               value = t.Average(p => p.value)
+                           }).ToList();
+
+                while (dt <= toDate)
+                {
+                    result.label.Add(dt.ToString("dd-MM-yyyy"));
+                    ObjectReport objTotal = new ObjectReport();
+                    for (int i = 1; i <= interval; i++)
+                    {
+                        int value = 0;
+                        //add total
+                        var objectEmailInfo = listReport.Where(r => r.key == dt.ToString("dd-MM-yyyy")).FirstOrDefault();
+                        if (objectEmailInfo == null)
+                        {
+                            value = 0;
+                        }
+                        else
+                        {
+                            value = (int)objectEmailInfo.value;
+                        }
+                        objTotal.value = objTotal.value + value;
+
+                        dt = dt.AddDays(1);
+                    }
+                    result.data.Add(objTotal.value);
+                }
+            }
+            else if (type == 5)//resolvetime
+            {
+                List<ObjectReportTime> listObjectResolvedTime = new List<ObjectReportTime>();
+                listEmailInfo = listEmailInfo.Where(r => r.status == Common.Resolved).ToList();
+                foreach (EmailInfo obj in listEmailInfo)
+                {
+                    ObjectReportTime obj1 = new ObjectReportTime();
+                    double time = obj.resolveTime.Value.Subtract(obj.date.Value).TotalSeconds;
+                    obj1.date = obj.date.Value.ToString("dd-MM-yyyy");
+                    obj1.value = time;
+                    listObjectResolvedTime.Add(obj1);
+                }
+
+
+                var listReport = listObjectResolvedTime.GroupBy(r => r.date)
+                           .Select(t => new
+                           {
+                               key = t.Key,
+                               value = t.Average(p => p.value)
+                           }).ToList();
+
+                while (dt <= toDate)
+                {
+                    result.label.Add(dt.ToString("dd-MM-yyyy"));
+                    ObjectReport objTotal = new ObjectReport();
+                    for (int i = 1; i <= interval; i++)
+                    {
+                        int value = 0;
+                        //add total
+                        var objectEmailInfo = listReport.Where(r => r.key == dt.ToString("dd-MM-yyyy")).FirstOrDefault();
+                        if (objectEmailInfo == null)
+                        {
+                            value = 0;
+                        }
+                        else
+                        {
+                            value = (int)objectEmailInfo.value;
+                        }
+                        objTotal.value = objTotal.value + value;
+
+                        dt = dt.AddDays(1);
+                    }
+                    result.data.Add(objTotal.value);
+                }
+            }
+
+            return result;
+        }
+
 
         [HttpGet]
         [Route("AgentOverview")]
@@ -1033,6 +1255,19 @@ namespace HelpDeskSystem.Controller
         [Route("Traffic")]
         public async Task<TrafficResponse> Traffic([FromQuery] ReportOverviewRequest request)
         {
+            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
+            && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList().GroupBy(t =>
+            new
+            {
+                hour = t.date.Value.Hour,
+                day = t.date.Value.ToString("dd/MM/yyyy")
+            }).Select(t => new
+            {
+                day = t.Key.day,
+                hour = t.Key.hour,
+                value = t.Count()
+            }).ToList();
+
             int totalDay = (int)request.toDate.Subtract(request.fromDate).TotalDays;
             int interval = 1;
             if (totalDay > 10)
@@ -1059,43 +1294,24 @@ namespace HelpDeskSystem.Controller
                 k++;
             }
 
-
-            //result.label.Add(dt.ToString("dd-MM-yyyy"));
-            //ObjectReport objTotal = new ObjectReport();
-            //for (int i = 1; i <= interval; i++)
-            //{
-            //    int value = 0;
-            //    //add total
-            //    var objectEmailInfo = listReport.Where(r => r.key == dt.ToString("dd-MM-yyyy")).FirstOrDefault();
-            //    if (objectEmailInfo == null)
-            //    {
-            //        value = 0;
-            //    }
-            //    else
-            //    {
-            //        value = objectEmailInfo.value;
-            //    }
-            //    objTotal.value = objTotal.value + value;
-
-            //    dt = dt.AddDays(1);
-            //}
-            //result.data.Add(objTotal.value);
-
             List<TrafficDay> categoriesResult = new List<TrafficDay>();
             for (int i = 0; i < 23; i++)
             {
                 int kk = 0;
-                for(int j = 0; j< categories.Count; j++)
+                int value = 0;
+                for (int j = 0; j< categories.Count; j++)
                 {
-                    int value = 0;
                     Random rand = new Random();
-                    value = value + rand.Next(0, 100);
+                    var objEmailInfo = listEmailInfo.Find(r => r.day == categories[j].labels && r.hour == i);
+                    value = value + (objEmailInfo == null ? 0 : objEmailInfo.value);
+                    
                     if (j% interval == interval - 1)
                     {
                         List<int> obj = new List<int>();
                         obj.Add(i);
                         obj.Add(kk);
                         obj.Add(value);
+                        value = 0;
                         data.Add(obj);
 
                         if(i == 0 && interval > 1)

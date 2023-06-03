@@ -20,6 +20,7 @@ using Interfaces.Model.EmailInfo;
 using static Interfaces.Model.EmailInfo.EmailInfoGetMenuCountResponse;
 using Interfaces.Base;
 using Org.BouncyCastle.Utilities;
+using Microsoft.AspNetCore.StaticFiles;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -1354,19 +1355,57 @@ namespace HelpDeskSystem.Controller
             }
         }
         
-        [HttpPost]
+        //[HttpPost]
+        //[Route("EmailInfoDownloadFile")]
+        //public async Task<IActionResult> EmailInfoDownloadFile(EmailInfoDownloadFileRequest request)
+        //{
+        //    //string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+        //    //string pathFile = Path.Combine(webRootPath, request.pathFile);
+
+        //    //if (System.IO.File.Exists(pathFile))
+        //    //{
+        //    //    return File(System.IO.File.OpenRead(pathFile), "application/octet-stream", Path.GetFileName(pathFile));
+        //    //}
+        //    //return NotFound();
+
+        //    string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+        //    var filePath = Path.Combine(webRootPath, request.pathFile);
+        //    if (!System.IO.File.Exists(filePath)) return NotFound();
+        //    var memory = new MemoryStream();
+        //    await using (var stream = new FileStream(filePath, FileMode.Open))
+        //    {
+        //        await stream.CopyToAsync(memory);
+        //    }
+        //    memory.Position = 0;
+        //    return File(memory, GetContentType(filePath), filePath);
+        //}
+        [HttpGet]
         [Route("EmailInfoDownloadFile")]
-        public async Task<IActionResult> EmailInfoDownloadFile(EmailInfoDownloadFileRequest request)
+        public async Task<IActionResult> DocumentsDownload([FromQuery] string fileUrl)
         {
             string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
 
-            string pathFile = Path.Combine(webRootPath, request.pathFile);
-
-            if (System.IO.File.Exists(pathFile))
+            var filePath = Path.Combine(webRootPath, fileUrl);
+            if (!System.IO.File.Exists(filePath)) return NotFound();
+            var memory = new MemoryStream();
+            await using (var stream = new FileStream(filePath, FileMode.Open))
             {
-                return File(System.IO.File.OpenRead(pathFile), "application/octet-stream", Path.GetFileName(pathFile));
+                await stream.CopyToAsync(memory);
             }
-            return NotFound();
+            memory.Position = 0;
+            return File(memory, GetContentType(filePath), filePath);
+        }
+        private string GetContentType(string path)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            string contentType;
+            if (!provider.TryGetContentType(path, out contentType))
+            {
+                contentType = "application/octet-stream";
+            }
+            return contentType;
         }
     }
 }

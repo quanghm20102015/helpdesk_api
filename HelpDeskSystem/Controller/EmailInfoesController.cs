@@ -21,6 +21,8 @@ using static Interfaces.Model.EmailInfo.EmailInfoGetMenuCountResponse;
 using Interfaces.Base;
 using Org.BouncyCastle.Utilities;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Drawing.Printing;
 //using System.Net.Mail;
 
 namespace HelpDeskSystem.Controller
@@ -812,6 +814,96 @@ namespace HelpDeskSystem.Controller
         }
 
 
+        //[HttpPost]
+        //[Route("GetFillter")]
+        //public async Task<EmailInfoGetFillteResponse> GetFillter(EmailInfoGetFillterRequest request)
+        //{
+        //    List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
+        //    List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.assign).ToList();
+        //    List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idUser == request.idUserFollow).ToList();
+        //    List<int> listIdEmailLabel = new List<int>();
+        //    List<int> listIdEmailAssign = new List<int>();
+        //    List<int> listIdEmailFollow = new List<int>();
+        //    foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel) 
+        //    {
+        //        listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
+        //    }
+        //    foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+        //    {
+        //        listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+        //    }
+        //    foreach (EmailInfoFollow emailInfoFollow in listEmailInfoFollow)
+        //    {
+        //        listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
+        //    }
+
+        //    List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && ((r.isDelete == false && request.idUserTrash == 0) || request.idUserTrash != 0) && r.mainConversation == true
+        //    //&& (r.assign == request.assign || request.assign == 0)
+        //    && (r.status == request.status || request.status == 0)
+        //    && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
+        //    && (listIdEmailAssign.Contains(r.id) || request.assign == 0)
+        //    && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
+        //    && ((r.from == null ? "" : r.from).ToUpper().Contains(request.textSearch.ToUpper()) || request.textSearch == "\"\"" || request.textSearch == ""
+        //    || r.subject.ToUpper().Contains(request.textSearch.ToUpper())
+        //    || r.textBody.ToUpper().Contains(request.textSearch.ToUpper())
+        //    || r.fromName.ToUpper().Contains(request.textSearch.ToUpper()))
+        //    && (r.idConfigEmail == request.idConfigEmail || request.idConfigEmail == 0)
+        //    && ((request.unAssign == true && r.isAssign == false) || request.unAssign == false)
+        //    && ((r.isDelete == true && r.idUserDelete == request.idUserTrash) || request.idUserTrash == 0)
+        //    && (r.date >= (request.fromDate == null ? request.fromDate : request.fromDate.Value.ToUniversalTime()) || request.fromDate == null)
+        //    && (r.date <= (request.toDate == null ? request.toDate : request.toDate.Value.ToUniversalTime()) || request.toDate == null)).OrderByDescending(x => x.date).ToList();
+
+        //    List<dynamic> listDynamic = new List<dynamic>();
+
+        //    foreach (EmailInfo obj in label)
+        //    {
+        //        dynamic objEmailInfo = new System.Dynamic.ExpandoObject();
+        //        try
+        //        {
+        //            objEmailInfo.id = obj.id;
+        //            objEmailInfo.idConfigEmail = obj.idConfigEmail;
+        //            objEmailInfo.messageId = obj.messageId;
+        //            objEmailInfo.date = obj.date;
+        //            objEmailInfo.from = obj.from;
+        //            objEmailInfo.fromName = obj.fromName.Replace("\"", "");
+        //            objEmailInfo.to = obj.to;
+        //            objEmailInfo.cc = obj.cc;
+        //            objEmailInfo.bcc = obj.bcc;
+        //            objEmailInfo.subject = obj.subject;
+        //            objEmailInfo.textBody = obj.textBody;
+        //            objEmailInfo.status = obj.status;
+        //            objEmailInfo.assign = obj.assign;
+        //            objEmailInfo.idCompany = obj.idCompany;
+        //            objEmailInfo.idLabel = obj.idLabel;
+        //            objEmailInfo.idGuId = obj.idGuId;
+        //            objEmailInfo.type = obj.type;
+        //            objEmailInfo.typeChannel = Common.Email;
+        //            objEmailInfo.countUnread = _context.EmailInfos.Where(x => x.idReference == obj.messageId && !x.read && !x.isDelete).Count();
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            objEmailInfo = obj;
+        //        }
+
+        //        listDynamic.Add(objEmailInfo);
+        //    }
+
+        //    if (listDynamic == null)
+        //    {
+        //        return new EmailInfoGetFillteResponse
+        //        {
+        //            Status = ResponseStatus.Fail
+        //        };
+        //    }
+
+        //    return new EmailInfoGetFillteResponse
+        //    {
+        //        Status = ResponseStatus.Susscess,
+        //        listEmailInfo = listDynamic,
+        //        total = listDynamic.Count
+        //    };
+        //}
+
         [HttpPost]
         [Route("GetFillter")]
         public async Task<EmailInfoGetFillteResponse> GetFillter(EmailInfoGetFillterRequest request)
@@ -822,7 +914,7 @@ namespace HelpDeskSystem.Controller
             List<int> listIdEmailLabel = new List<int>();
             List<int> listIdEmailAssign = new List<int>();
             List<int> listIdEmailFollow = new List<int>();
-            foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel) 
+            foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel)
             {
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
             }
@@ -851,9 +943,11 @@ namespace HelpDeskSystem.Controller
             && (r.date >= (request.fromDate == null ? request.fromDate : request.fromDate.Value.ToUniversalTime()) || request.fromDate == null)
             && (r.date <= (request.toDate == null ? request.toDate : request.toDate.Value.ToUniversalTime()) || request.toDate == null)).OrderByDescending(x => x.date).ToList();
 
+            List<EmailInfo> labelPaging = label.Skip(0 * request.pageSize).Take(request.pageSize).ToList();
+
             List<dynamic> listDynamic = new List<dynamic>();
 
-            foreach (EmailInfo obj in label)
+            foreach (EmailInfo obj in labelPaging)
             {
                 dynamic objEmailInfo = new System.Dynamic.ExpandoObject();
                 try
@@ -876,6 +970,7 @@ namespace HelpDeskSystem.Controller
                     objEmailInfo.idGuId = obj.idGuId;
                     objEmailInfo.type = obj.type;
                     objEmailInfo.typeChannel = Common.Email;
+                    //objEmailInfo.countUnread = 0;
                     objEmailInfo.countUnread = _context.EmailInfos.Where(x => x.idReference == obj.messageId && !x.read && !x.isDelete).Count();
                 }
                 catch (Exception ex)
@@ -898,7 +993,7 @@ namespace HelpDeskSystem.Controller
             {
                 Status = ResponseStatus.Susscess,
                 listEmailInfo = listDynamic,
-                total = listDynamic.Count
+                total = label.Count
             };
         }
 

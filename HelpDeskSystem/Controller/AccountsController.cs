@@ -170,7 +170,7 @@ namespace HelpDeskSystem.Controller
         {
             string message = "";
             var accountEmail = await _context.Accounts.FirstOrDefaultAsync
-                (u => u.workemail.Equals(account.workemail));
+                (u => u.workemail.Equals(account.workemail) && !u.isDelete);
 
             var accountCompany = await _context.Accounts.FirstOrDefaultAsync
                 (u => u.company.Equals(account.company));
@@ -265,7 +265,7 @@ namespace HelpDeskSystem.Controller
         public async Task<LoginResponse> CheckLogin([FromBody] LoginRequest user)
         {
             var account = await _context.Accounts.FirstOrDefaultAsync
-                (u => u.workemail.Equals(user.workemail) && u.password.Equals(user.password));
+                (u => u.workemail.Equals(user.workemail) && u.password.Equals(user.password) && !u.isDelete);
 
 
             if (account == null)

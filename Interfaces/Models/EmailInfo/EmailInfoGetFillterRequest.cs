@@ -15,6 +15,7 @@ namespace Interfaces.Model.EmailInfo
         public bool unAssign { get; set; }
         public DateTime? fromDate { get; set; }
         public DateTime? toDate { get; set; }
+        public int pageSize { get; set; }
 
     }
 }

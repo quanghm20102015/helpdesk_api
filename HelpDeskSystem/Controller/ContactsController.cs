@@ -128,6 +128,15 @@ namespace HelpDeskSystem.Controller
         {
             try
             {
+                Contact contactObject = _context.Contacts.Where(r => r.email == contact.email && r.idCompany == contact.idCompany).FirstOrDefault();
+                if(contactObject != null)
+                {
+                    return new ContactResponse
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "Email already exists"
+                    };
+                }
                 if (_context.Contacts == null)
                 {
                     return new ContactResponse

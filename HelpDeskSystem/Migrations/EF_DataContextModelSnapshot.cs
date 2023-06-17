@@ -138,6 +138,9 @@ namespace HelpDeskSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("id"));
 
+                    b.Property<string>("address")
+                        .HasColumnType("text");
+
                     b.Property<string>("bio")
                         .HasColumnType("text");
 

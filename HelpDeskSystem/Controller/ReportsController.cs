@@ -33,6 +33,14 @@ using Npgsql;
 using NuGet.Protocol;
 using System.Data;
 using System.Dynamic;
+using System.Text;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Org.BouncyCastle.Ocsp;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
+using ClosedXML.Excel;
+using System.Composition;
+using System.Reflection;
 
 namespace HelpDeskSystem.Controller
 {
@@ -185,9 +193,6 @@ namespace HelpDeskSystem.Controller
                 reportOverview.Resolved.UpDown = reportOverview.Resolved.Total - reportOverviewUpDown.Resolved.Total;
                 reportOverview.Unassigned.UpDown = reportOverview.Unassigned.Total - reportOverviewUpDown.Unassigned.Total;
                 reportOverview.Unattended.UpDown = reportOverview.Unattended.Total - reportOverviewUpDown.Unattended.Total;
-
-                List<dynamic> dynamicDt = ToDynamic(dt);
-
 
                 return new ReportOverviewResponse
                 {
@@ -571,9 +576,13 @@ namespace HelpDeskSystem.Controller
             List<LabelDistribution> result = new List<LabelDistribution>();
 
             var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true
-            && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList();
+            && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime())
+            .Select(t => new
+            {
+                id = t.id
+            }).ToList();
             List<int> listIdEmail = new List<int>();
-            foreach (EmailInfo emailInfo in listEmailInfo)
+            foreach (dynamic emailInfo in listEmailInfo)
             {
                 listIdEmail.Add(emailInfo.id);
             }
@@ -639,10 +648,14 @@ namespace HelpDeskSystem.Controller
 
             var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true
             && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
-            && r.status == Common.Open).ToList();
+            && r.status == Common.Open).Select(t => new
+            {
+                id = t.id,
+                status = t.status
+            }).ToList();
 
             List<int> listIdEmail = new List<int>();
-            foreach (EmailInfo emailInfo in listEmailInfo)
+            foreach (dynamic emailInfo in listEmailInfo)
             {
                 listIdEmail.Add(emailInfo.id);
             }
@@ -1655,6 +1668,317 @@ namespace HelpDeskSystem.Controller
         //    }
         //}
 
+        [HttpGet]
+        [Route("OverviewExcel")]
+        public async Task<IActionResult> OverviewExcel([FromQuery] ReportOverviewRequest request)
+        {
+            ReportOverview reportOverview = new ReportOverview();
+            reportOverview.Opened.Total = 0;
+            reportOverview.Resolved.Total = 0;
+            reportOverview.Unassigned.Total = 0;
+            reportOverview.Unattended.Total = 0;
+
+
+            ReportOverview reportOverviewUpDown = new ReportOverview();
+            reportOverviewUpDown.Opened.Total = 0;
+            reportOverviewUpDown.Resolved.Total = 0;
+            reportOverviewUpDown.Unassigned.Total = 0;
+            reportOverviewUpDown.Unattended.Total = 0;
+
+            string connectionString = _config.GetValue<string>("ConnectionStrings:Ef_Postgres_Db");
+
+            NpgsqlConnection conn = null;
+
+            try
+            {
+                conn = new NpgsqlConnection(connectionString);
+                conn.Open();
+
+                DateTime fromDateAgo = request.fromDate.AddDays(-request.toDate.Subtract(request.fromDate).TotalDays);
+                var sql = "select * from Overview(cast('" + request.fromDate.ToString("yyyy-MM-dd") + "' as date), cast('" + request.toDate.ToString("yyyy-MM-dd") + "' as date), cast('" + fromDateAgo.ToString("yyyy-MM-dd") + "' as date)," + request.idCompany.ToString() + ")";
+
+                using var cmd = new NpgsqlCommand(sql, conn);
+                NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, connectionString);
+
+                DataTable dt = new System.Data.DataTable();
+                da.Fill(dt);
+
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i]["type"].ToString() == "0")
+                    {
+                        int Tong = int.Parse(dt.Rows[i]["tong"].ToString());
+                        if (dt.Rows[i]["id"].ToString() == "1")
+                        {
+                            reportOverview.Opened.Total = Tong;
+                        }
+                        else if (dt.Rows[i]["id"].ToString() == "2")
+                        {
+                            reportOverview.Resolved.Total = Tong;
+                        }
+                        else if (dt.Rows[i]["id"].ToString() == "3")
+                        {
+                            reportOverview.Unassigned.Total = Tong;
+                        }
+                        else if (dt.Rows[i]["id"].ToString() == "4")
+                        {
+                            reportOverview.Unattended.Total = Tong;
+                        }
+                    }
+                    else
+                    {
+                        int Tong = int.Parse(dt.Rows[i]["tong"].ToString());
+                        if (dt.Rows[i]["id"].ToString() == "1")
+                        {
+                            reportOverviewUpDown.Opened.Total = Tong;
+                        }
+                        else if (dt.Rows[i]["id"].ToString() == "2")
+                        {
+                            reportOverviewUpDown.Resolved.Total = Tong;
+                        }
+                        else if (dt.Rows[i]["id"].ToString() == "3")
+                        {
+                            reportOverviewUpDown.Unassigned.Total = Tong;
+                        }
+                        else if (dt.Rows[i]["id"].ToString() == "4")
+                        {
+                            reportOverviewUpDown.Unattended.Total = Tong;
+                        }
+                    }
+                }
+                reportOverview.Opened.UpDown = reportOverview.Opened.Total - reportOverviewUpDown.Opened.Total;
+                reportOverview.Resolved.UpDown = reportOverview.Resolved.Total - reportOverviewUpDown.Resolved.Total;
+                reportOverview.Unassigned.UpDown = reportOverview.Unassigned.Total - reportOverviewUpDown.Unassigned.Total;
+                reportOverview.Unattended.UpDown = reportOverview.Unattended.Total - reportOverviewUpDown.Unattended.Total;
+
+                DataTable dtExport = new DataTable();
+                dtExport.Columns.Add("Report");
+                dtExport.Columns.Add("Opened");
+                dtExport.Columns.Add("Resolved");
+                dtExport.Columns.Add("Unassigned");
+                dtExport.Columns.Add("Unattended");
+
+                dtExport.Rows.Add("Total", reportOverview.Opened.Total, reportOverview.Resolved.Total, reportOverview.Unassigned.Total, reportOverview.Unattended.Total);
+                dtExport.Rows.Add("UpDown", reportOverview.Opened.UpDown, reportOverview.Resolved.UpDown, reportOverview.Unassigned.UpDown, reportOverview.Unattended.UpDown);
+
+                return Download(dtExport, "Overview");
+            }
+            catch (Exception ex)
+            {
+                return NoContent();
+            }
+            finally
+            {
+                // Close connection
+                if (null != conn)
+                {
+                    conn.Close();
+
+                }
+            }
+        }
+
+
+        [HttpGet]
+        [Route("LabelDistributionExcel")]
+        public async Task<IActionResult> LabelDistributionExcel([FromQuery] LabelDistributionExcelRequest request)
+        {
+            List<LabelDistribution> result = new List<LabelDistribution>();
+
+            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true
+            && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime())
+            .Select(t => new
+            {
+                id = t.id
+            }).ToList();
+            List<int> listIdEmail = new List<int>();
+            foreach (dynamic emailInfo in listEmailInfo)
+            {
+                listIdEmail.Add(emailInfo.id);
+            }
+
+            var listEmailInfoLabel = _context.EmailInfoLabels.Where(r => listIdEmail.Contains(r.idEmailInfo.Value)).ToList()
+                .GroupBy(t => t.idLabel.Value)
+                           .Select(t => new
+                           {
+                               key = t.Key,
+                               value = t.Count()
+                           }).ToList();
+
+
+            Random rnd = new Random();
+            List<string> colors = new List<string>();
+            List<LabelDistributionTable> listLabelDistributionTable = new List<LabelDistributionTable>();
+            List<TopTrendingLabel> listTopTrendingLabel = new List<TopTrendingLabel>();
+
+            int Sum = listEmailInfoLabel.Sum(r => r.value);
+            foreach (var emailInfoLabel in listEmailInfoLabel)
+            {
+                LabelDistributionTable labelDistributionTable = new LabelDistributionTable();
+                LabelDistribution obj = new LabelDistribution();
+                TopTrendingLabel topTrendingLabel = new TopTrendingLabel();
+                var label = _context.Labels.Where(r => r.id == emailInfoLabel.key).FirstOrDefault();
+                obj.Name = "#" + (label == null ? "" : label.name);
+                obj.Y = Math.Round((decimal)emailInfoLabel.value / Sum, 2);
+
+                Color randomColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+                string colorHex = ColorTranslator.ToHtml(randomColor);
+                colors.Add(colorHex);
+                result.Add(obj);
+
+                labelDistributionTable.Name = "#" + (label == null ? "" : label.name);
+                labelDistributionTable.ClassName = colorHex;
+                labelDistributionTable.Distribution = Math.Round((obj.Y * 100), 0).ToString() + "%";
+                labelDistributionTable.Conversation = emailInfoLabel.value.ToString();
+
+                topTrendingLabel.Name = "#" + (label == null ? "" : label.name);
+                topTrendingLabel.UserTime = "0";
+                topTrendingLabel.Conversation = emailInfoLabel.value.ToString();
+
+                listLabelDistributionTable.Add(labelDistributionTable);
+                listTopTrendingLabel.Add(topTrendingLabel);
+            }
+
+
+            return Download(ToDataTable(listTopTrendingLabel), "TopTrendingLabel");
+        }
+
+        [HttpGet]
+        [Route("AgentTopConversationExcel")]
+        public async Task<IActionResult> AgentTopConversationExcel([FromQuery] TopConversationAgentRequest request)
+        {
+            List<LabelDistribution> result = new List<LabelDistribution>();
+
+            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true
+            && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
+            && r.status == Common.Open).Select(t => new
+            {
+                id = t.id,
+                status = t.status
+            }).ToList();
+
+            List<int> listIdEmail = new List<int>();
+            foreach (dynamic emailInfo in listEmailInfo)
+            {
+                listIdEmail.Add(emailInfo.id);
+            }
+
+
+            var partialResult = (from c in listEmailInfo
+                                 join o in _context.EmailInfoAssigns.Where(r => listIdEmail.Contains(r.idEmailInfo.Value)).ToList() on c.id equals o.idEmailInfo
+                                 join agent in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on o.idUser equals agent.id
+                                 select new
+                                 {
+                                     agent.fullname,
+                                     agent.workemail,
+                                     c.status,
+                                     agent.id
+                                 }).GroupBy(t => new
+                                 {
+                                     t.fullname,
+                                     t.workemail,
+                                     t.status,
+                                     t.id
+                                 })
+                                   .Select(t => new
+                                   {
+                                       IdUser = t.Key.id,
+                                       Agent = t.Key.fullname,
+                                       Mail = t.Key.workemail,
+                                       Open = t.Count()
+                                   }).ToList();
+
+            List<TopConversationAgentObject> Result = new List<TopConversationAgentObject>();
+            foreach (dynamic obj in partialResult)
+            {
+                TopConversationAgentObject objTopConversationAgent = new TopConversationAgentObject();
+                objTopConversationAgent.IdUser = obj.IdUser;
+                objTopConversationAgent.Agent = obj.Agent;
+                objTopConversationAgent.Mail = obj.Mail;
+                objTopConversationAgent.Open = obj.Open;
+                objTopConversationAgent.Unattended = 0;
+                Result.Add(objTopConversationAgent);
+            }
+
+            return Download(ToDataTable(Result), "AgentTopConversation");
+        }
+        [HttpGet]
+        [Route("CsatResponeDetailExcel")]
+        public async Task<IActionResult> CsatResponeDetailExcel([FromQuery] CsatResponeDetailRequest request)
+        {
+            string connectionString = _config.GetValue<string>("ConnectionStrings:Ef_Postgres_Db");
+
+            NpgsqlConnection conn = null;
+
+            try
+            {
+                // Initialization
+                conn = new NpgsqlConnection(connectionString);
+
+                // Open connection
+                conn.Open();
+
+                var sql = "select * from CsatResponeDetail(cast('" + request.fromDate.ToString("yyyy-MM-dd") + "' as date), cast('" + request.toDate.ToString("yyyy-MM-dd") + "' as date), " + request.idCompany.ToString() + ")";
+
+                using var cmd = new NpgsqlCommand(sql, conn);
+                NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, connectionString);
+
+                DataTable dt = new System.Data.DataTable();
+                da.Fill(dt);
+
+                return Download(dt, "CsatResponeDetail");
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+            finally
+            {
+                // Close connection
+                if (null != conn)
+                {
+                    conn.Close();
+
+                }
+            }
+        }
+
+        private FileResult Download(DataTable dt, string fileName)
+        {
+            using (XLWorkbook xl = new XLWorkbook())
+            {
+                xl.Worksheets.Add(dt, "sheet1");
+
+                using (MemoryStream mstream = new MemoryStream())
+                {
+                    xl.SaveAs(mstream);
+                    return File(mstream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName + ".xlsx");
+                }
+            }
+        }
+        public DataTable ToDataTable<T>(List<T> items)
+        {
+            DataTable dataTable = new DataTable(typeof(T).Name);
+            //Get all the properties
+            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (PropertyInfo prop in Props)
+            {
+                //Setting column names as Property names
+                dataTable.Columns.Add(prop.Name);
+            }
+            foreach (T item in items)
+            {
+                var values = new object[Props.Length];
+                for (int i = 0; i < Props.Length; i++)
+                {
+                    //inserting property values to datatable rows
+                    values[i] = Props[i].GetValue(item, null);
+                }
+                dataTable.Rows.Add(values);
+            }
+            //put a breakpoint here and check datatable
+            return dataTable;
+        }
     }
 
 }

@@ -175,7 +175,7 @@ namespace HelpDeskSystem.Controller
             var accountCompany = await _context.Accounts.FirstOrDefaultAsync
                 (u => u.company.Equals(account.company));
 
-            if(accountEmail != null)
+            if(accountEmail != null && account.confirm)
             {
                 message += "Email already exist" + System.Environment.NewLine;
             }

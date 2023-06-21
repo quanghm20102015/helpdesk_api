@@ -144,6 +144,18 @@ namespace HelpDeskSystem.Controller
                 obj1.idGuId = obj.idGuId;
                 obj1.check = false;
 
+                Team team = _context.Teams.Where(r => r.listAgent.Contains(obj.id)).FirstOrDefault();
+                if (team != null)
+                {
+                    obj1.idTeam = team.id;
+                    obj1.nameTeam = team.name;
+                }
+                else
+                {
+                    obj1.idTeam = 0;
+                    obj1.nameTeam = "Team unknow";
+                }
+
                 foreach (EmailInfoAssign objEmailInfoAssign in listEmailInfoAssign)
                 {
                     if (obj.id == objEmailInfoAssign.idUser)

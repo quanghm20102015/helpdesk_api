@@ -26,5 +26,20 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public bool? autoAssign
+        {
+            get;
+            set;
+        }
+        public List<int>? listAgent
+        {
+            get;
+            set;
+        }
+        public bool? isDelete
+        {
+            get;
+            set;
+        }
     }
 }

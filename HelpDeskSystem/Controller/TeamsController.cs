@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HelpDeskSystem.Models;
-using Interfaces.Constants;
-using Interfaces.Model.Account;
-using Interfaces.Base;
 
 namespace HelpDeskSystem.Controller
 {
@@ -52,28 +49,10 @@ namespace HelpDeskSystem.Controller
             return team;
         }
 
-        [HttpGet]
-        [Route("GetByIdCompany")]
-        public async Task<ActionResult<List<Team>>> GetByIdCompany(int idCompany)
-        {
-            if (_context.Accounts == null)
-            {
-                return NotFound();
-            }
-            List<Team> teams = _context.Teams.Where(r => r.idCompany == idCompany).ToList();
-
-            if (teams == null)
-            {
-                return NotFound();
-            }
-
-            return teams;
-        }
-
         // PUT: api/Teams/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
-        public async Task<BaseResponse<ResponseStatus>> PutTeam(Team team)
+        public async Task<IActionResult> PutTeam(Team team)
         {
             _context.Entry(team).State = EntityState.Modified;
 
@@ -85,11 +64,7 @@ namespace HelpDeskSystem.Controller
             {
                 if (!TeamExists(team.id))
                 {
-                    return new BaseResponse<ResponseStatus>
-                    {
-                        Status = ResponseStatus.Fail,
-                        Message = "NotFound"
-                    };
+                    return NotFound();
                 }
                 else
                 {
@@ -97,10 +72,7 @@ namespace HelpDeskSystem.Controller
                 }
             }
 
-            return new BaseResponse<ResponseStatus>
-            {
-                Status = ResponseStatus.Susscess
-            };
+            return NoContent();
         }
 
         // POST: api/Teams
@@ -112,6 +84,8 @@ namespace HelpDeskSystem.Controller
           {
               return Problem("Entity set 'EF_DataContext.Teams'  is null.");
           }
+
+            team.isDelete = false;
             _context.Teams.Add(team);
             await _context.SaveChangesAsync();
 
@@ -132,7 +106,9 @@ namespace HelpDeskSystem.Controller
                 return NotFound();
             }
 
-            _context.Teams.Remove(team);
+            team.isDelete = true;
+
+            _context.Entry(team).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -142,5 +118,24 @@ namespace HelpDeskSystem.Controller
         {
             return (_context.Teams?.Any(e => e.id == id)).GetValueOrDefault();
         }
+
+        [HttpGet]
+        [Route("GetByIdCompany")]
+        public async Task<ActionResult<List<Team>>> GetByIdCompany(int idCompany)
+        {
+            if (_context.Accounts == null)
+            {
+                return NotFound();
+            }
+            List<Team> team = _context.Teams.Where(r => r.idCompany == idCompany).ToList();
+
+            if (team == null)
+            {
+                return NotFound();
+            }
+
+            return team;
+        }
+
     }
 }

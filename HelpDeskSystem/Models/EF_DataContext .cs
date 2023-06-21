@@ -96,5 +96,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DbSet<LabelGroup> LabelGroups
+        {
+            get;
+            set;
+        }
     }
 }

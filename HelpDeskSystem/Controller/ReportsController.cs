@@ -146,7 +146,7 @@ namespace HelpDeskSystem.Controller
                 DataTable dt = new System.Data.DataTable();
                 da.Fill(dt);
 
-                for(int i = 0; i< dt.Rows.Count; i++)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     if (dt.Rows[i]["type"].ToString() == "0")
                     {
@@ -666,11 +666,16 @@ namespace HelpDeskSystem.Controller
                                  join agent in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on o.idUser equals agent.id
                                  select new
                                  {
-                                     agent.fullname, agent.workemail, c.status,
+                                     agent.fullname,
+                                     agent.workemail,
+                                     c.status,
                                      agent.id
                                  }).GroupBy(t => new
                                  {
-                                     t.fullname, t.workemail, t.status, t.id
+                                     t.fullname,
+                                     t.workemail,
+                                     t.status,
+                                     t.id
                                  })
                                    .Select(t => new
                                    {
@@ -683,7 +688,7 @@ namespace HelpDeskSystem.Controller
             List<TopConversationAgentObject> Result = new List<TopConversationAgentObject>();
             foreach (dynamic obj in partialResult)
             {
-                TopConversationAgentObject objTopConversationAgent = new TopConversationAgentObject();                
+                TopConversationAgentObject objTopConversationAgent = new TopConversationAgentObject();
                 objTopConversationAgent.IdUser = obj.IdUser;
                 objTopConversationAgent.Agent = obj.Agent;
                 objTopConversationAgent.Mail = obj.Mail;
@@ -726,12 +731,7 @@ namespace HelpDeskSystem.Controller
                 }).ToList<dynamic>();
 
 
-                result.Total = listEmailInfo.GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                result.Total = listEmailInfo.Count();
 
                 result.Incoming = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 1
                             && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).Select(t => new
@@ -740,13 +740,7 @@ namespace HelpDeskSystem.Controller
                                 id = t.id,
                                 messageId = t.messageId,
                                 status = t.status
-                            }).ToList<dynamic>()
-                            .GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                            }).ToList<dynamic>().Count();
 
 
                 result.Outgoing = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 2
@@ -756,21 +750,10 @@ namespace HelpDeskSystem.Controller
                                 id = t.id,
                                 messageId = t.messageId,
                                 status = t.status
-                            }).ToList<dynamic>()
-                            .GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                            }).ToList<dynamic>().Count();
 
 
-                result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved).GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved).Count();
 
                 List<ObjectReportTime> listObjectReportTime = new List<ObjectReportTime>();
                 foreach (dynamic obj in listEmailInfo)
@@ -792,12 +775,7 @@ namespace HelpDeskSystem.Controller
                     }
                 }
 
-                result.ResponeTime = listObjectReportTime.GroupBy(r => r.date)
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Average(p => p.value)
-                           }).Count().ToString();
+                result.ResponeTime = listObjectReportTime.Count().ToString();
 
 
                 result.ResolveTime = "0";
@@ -1081,7 +1059,7 @@ namespace HelpDeskSystem.Controller
 
             listAccount.ForEach(x =>
             {
-                if(x.key == 1)
+                if (x.key == 1)
                 {
                     result.Online = x.value;
                 }
@@ -1104,86 +1082,122 @@ namespace HelpDeskSystem.Controller
 
         [HttpGet]
         [Route("GroupTopConversation")]
-        public async Task<TopConversationAgentResponse> GroupTopConversation([FromQuery] TopConversationAgentRequest request)
+        public async Task<TopConversationGroupRespone> GroupTopConversation([FromQuery] TopConversationAgentRequest request)
         {
+            //try
+            //{
+            //    List<LabelDistribution> result = new List<LabelDistribution>();
+
+            //    var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true
+            //    && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
+            //    && r.status == Common.Open).Select(t => new
+            //    {
+            //        date = t.date,
+            //        id = t.id,
+            //        messageId = t.messageId,
+            //        status = t.status
+            //    }).ToList<dynamic>();
+
+            //    List<int> listIdEmail = new List<int>();
+            //    foreach (dynamic emailInfo in listEmailInfo)
+            //    {
+            //        listIdEmail.Add(emailInfo.id);
+            //    }
+
+
+            //    var partialResult = (from c in listEmailInfo
+            //                         join o in _context.EmailInfoAssigns.Where(r => listIdEmail.Contains(r.idEmailInfo.Value)).ToList() on c.id equals o.idEmailInfo
+            //                         join agent in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on o.idUser equals agent.id
+            //                         select new
+            //                         {
+            //                             agent.fullname,
+            //                             agent.workemail,
+            //                             c.status,
+            //                             agent.id
+            //                         }).GroupBy(t => new
+            //                         {
+            //                             t.fullname,
+            //                             t.workemail,
+            //                             t.status,
+            //                             t.id
+            //                         })
+            //                           .Select(t => new
+            //                           {
+            //                               IdUser = t.Key.id,
+            //                               Agent = t.Key.fullname,
+            //                               Mail = t.Key.workemail,
+            //                               Open = t.Count()
+            //                           }).ToList();
+
+            //    List<TopConversationAgentObject> Result = new List<TopConversationAgentObject>();
+            //    foreach (dynamic obj in partialResult)
+            //    {
+            //        TopConversationAgentObject objTopConversationAgent = new TopConversationAgentObject();
+            //        objTopConversationAgent.IdUser = obj.IdUser;
+            //        objTopConversationAgent.Agent = obj.Agent;
+            //        objTopConversationAgent.Mail = obj.Mail;
+            //        objTopConversationAgent.Open = obj.Open;
+            //        objTopConversationAgent.Unattended = 0;
+            //        Result.Add(objTopConversationAgent);
+            //    }
+
+            //    return new TopConversationGroupRespone
+            //    {
+            //        Status = ResponseStatus.Susscess,
+            //        Result = Result
+            //    };
+            //}
+            //catch (Exception ex)
+            //{
+            //    return null;
+            //}
+            string connectionString = _config.GetValue<string>("ConnectionStrings:Ef_Postgres_Db");
+
+            NpgsqlConnection conn = null;
+
             try
             {
-                List<LabelDistribution> result = new List<LabelDistribution>();
+                conn = new NpgsqlConnection(connectionString);
+                conn.Open();
 
-                var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true
-                && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
-                && r.status == Common.Open).Select(t => new
-                {
-                    date = t.date,
-                    id = t.id,
-                    messageId = t.messageId,
-                    status = t.status
-                }).ToList<dynamic>();
+                DateTime fromDateAgo = request.fromDate.AddDays(-request.toDate.Subtract(request.fromDate).TotalDays);
+                var sql = "select * from GroupTopConversation(cast('" + request.fromDate.ToString("yyyy-MM-dd") + "' as date), cast('" + request.toDate.ToString("yyyy-MM-dd") + "' as date)," + request.idCompany.ToString() + ")";
 
-                List<int> listIdEmail = new List<int>();
-                foreach (dynamic emailInfo in listEmailInfo)
-                {
-                    listIdEmail.Add(emailInfo.id);
-                }
+                using var cmd = new NpgsqlCommand(sql, conn);
+                NpgsqlDataAdapter da = new NpgsqlDataAdapter(sql, connectionString);
 
+                DataTable dt = new System.Data.DataTable();
+                da.Fill(dt);
 
-                var partialResult = (from c in listEmailInfo
-                                     join o in _context.EmailInfoAssigns.Where(r => listIdEmail.Contains(r.idEmailInfo.Value)).ToList() on c.id equals o.idEmailInfo
-                                     join agent in _context.Accounts.Where(r => r.idCompany == request.idCompany).ToList() on o.idUser equals agent.id
-                                     select new
-                                     {
-                                         agent.fullname,
-                                         agent.workemail,
-                                         c.status,
-                                         agent.id
-                                     }).GroupBy(t => new
-                                     {
-                                         t.fullname,
-                                         t.workemail,
-                                         t.status,
-                                         t.id
-                                     })
-                                       .Select(t => new
-                                       {
-                                           IdUser = t.Key.id,
-                                           Agent = t.Key.fullname,
-                                           Mail = t.Key.workemail,
-                                           Open = t.Count()
-                                       }).ToList();
+                List<dynamic> dynamicDt = ToDynamic(dt);
 
-                List<TopConversationAgentObject> Result = new List<TopConversationAgentObject>();
-                foreach (dynamic obj in partialResult)
-                {
-                    TopConversationAgentObject objTopConversationAgent = new TopConversationAgentObject();
-                    objTopConversationAgent.IdUser = obj.IdUser;
-                    objTopConversationAgent.Agent = obj.Agent;
-                    objTopConversationAgent.Mail = obj.Mail;
-                    objTopConversationAgent.Open = obj.Open;
-                    objTopConversationAgent.Unattended = 0;
-                    Result.Add(objTopConversationAgent);
-                }
-
-                return new TopConversationAgentResponse
+                return new TopConversationGroupRespone
                 {
                     Status = ResponseStatus.Susscess,
-                    Result = Result
+                    Result = dynamicDt
                 };
             }
             catch (Exception ex)
             {
-                return null;
+                return new TopConversationGroupRespone
+                {
+                    Status = ResponseStatus.Fail
+                };
             }
         }
 
         [HttpGet]
         [Route("GroupPerformentMonitorTotal")]
-        public async Task<PerformentMonitorTotalResponse> GroupPerformentMonitorTotal([FromQuery] PerformentMonitorAgentTotalRequest request)
+        public async Task<PerformentMonitorTotalResponse> GroupPerformentMonitorTotal([FromQuery] PerformentMonitorGroupRequest request)
         {
             try
             {
-                ObjectPerformentMonitorTotal result = new ObjectPerformentMonitorTotal();
+                Team teamObject = _context.Teams.Where(r => r.id == request.idGroup).FirstOrDefault();
+                List<int> listTeam = new List<int>();
+                if (teamObject != null)
+                    listTeam = teamObject.listAgent;
 
-                List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.IdUser).ToList();
+                List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => listTeam.Contains(x.idUser.Value) || request.idGroup == 0).ToList();
 
                 List<int> listIdEmailAssign = new List<int>();
                 foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
@@ -1193,7 +1207,7 @@ namespace HelpDeskSystem.Controller
 
                 var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
                 && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
-                && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).Select(t => new
+                && (listIdEmailAssign.Contains(r.id) || request.idGroup == 0)).Select(t => new
                 {
                     date = t.date,
                     id = t.id,
@@ -1202,12 +1216,9 @@ namespace HelpDeskSystem.Controller
                 }).ToList<dynamic>();
 
 
-                result.Total = listEmailInfo.GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                ObjectPerformentMonitorTotal result = new ObjectPerformentMonitorTotal();
+
+                result.Total = listEmailInfo.Count();
 
                 result.Incoming = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 1
                             && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).Select(t => new
@@ -1216,13 +1227,7 @@ namespace HelpDeskSystem.Controller
                                 id = t.id,
                                 messageId = t.messageId,
                                 status = t.status
-                            }).ToList<dynamic>()
-                            .GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                            }).ToList<dynamic>().Count();
 
 
                 result.Outgoing = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == false && r.type == 2
@@ -1232,21 +1237,10 @@ namespace HelpDeskSystem.Controller
                                 id = t.id,
                                 messageId = t.messageId,
                                 status = t.status
-                            }).ToList<dynamic>()
-                            .GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                            }).ToList<dynamic>().Count();
 
 
-                result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved).GroupBy(t => Convert.ToDateTime(t.date).ToString("dd-MM-yyyy"))
-                           .Select(t => new
-                           {
-                               key = t.Key,
-                               value = t.Count()
-                           }).Count();
+                result.Resolved = listEmailInfo.Where(r => r.status == Common.Resolved).Count();
 
                 List<ObjectReportTime> listObjectReportTime = new List<ObjectReportTime>();
                 foreach (dynamic obj in listEmailInfo)
@@ -1286,44 +1280,59 @@ namespace HelpDeskSystem.Controller
             }
             catch (Exception ex)
             {
-                return null;
+                return new PerformentMonitorTotalResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
             }
         }
 
         [HttpGet]
         [Route("GroupPerformentMonitor")]
-        public async Task<PerformentMonitorResponse> GroupPerformentMonitor([FromQuery] PerformentMonitorAgentRequest request)
+        public async Task<PerformentMonitorResponse> GroupPerformentMonitor([FromQuery] PerformentMonitorGroupRequest request)
         {
-            ReportOverview reportOverview = new ReportOverview();
-            //var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()).ToList();
-
-
-            List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.IdUser || request.IdUser == 0).ToList();
-
-            List<int> listIdEmailAssign = new List<int>();
-            foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+            try
             {
-                listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+                ReportOverview reportOverview = new ReportOverview();
+                Team teamObject = _context.Teams.Where(r => r.id == request.idGroup).FirstOrDefault();
+                List<int> listTeam = new List<int>();
+                if (teamObject != null)
+                    listTeam = teamObject.listAgent;
+
+                List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => listTeam.Contains(x.idUser.Value) || request.idGroup == 0).ToList();
+
+                List<int> listIdEmailAssign = new List<int>();
+                foreach (EmailInfoAssign emailInfoAssign in listEmailInfoAssign)
+                {
+                    listIdEmailAssign.Add(emailInfoAssign.idEmailInfo.Value);
+                }
+
+                var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
+                && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
+                && (listIdEmailAssign.Contains(r.id) || request.idGroup == 0)).Select(t => new
+                {
+                    date = t.date,
+                    id = t.id,
+                    messageId = t.messageId,
+                    status = t.status
+                }).ToList<dynamic>();
+
+
+                ObjectPerformentMonitor resutl = PerformentMonitor(request.fromDate, request.toDate, listEmailInfo, request.idCompany, request.type);
+
+                return new PerformentMonitorResponse
+                {
+                    Status = ResponseStatus.Susscess,
+                    Result = resutl
+                };
             }
-
-            var listEmailInfo = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
-            && r.date >= request.fromDate.ToUniversalTime() && r.date <= request.toDate.ToUniversalTime()
-            && (listIdEmailAssign.Contains(r.id) || request.IdUser == 0)).Select(t => new
+            catch (Exception ex)
             {
-                date = t.date,
-                id = t.id,
-                messageId = t.messageId,
-                status = t.status
-            }).ToList<dynamic>();
-
-
-            ObjectPerformentMonitor resutl = PerformentMonitor(request.fromDate, request.toDate, listEmailInfo, request.idCompany, request.type);
-
-            return new PerformentMonitorResponse
-            {
-                Status = ResponseStatus.Susscess,
-                Result = resutl
-            };
+                return new PerformentMonitorResponse
+                {
+                    Status = ResponseStatus.Fail
+                };
+            }
         }
 
 
@@ -1341,7 +1350,7 @@ namespace HelpDeskSystem.Controller
             result.TotalResponses.Total = TotalResponses;
 
 
-            double ttt = request.toDate.Subtract(request.fromDate).TotalDays; 
+            double ttt = request.toDate.Subtract(request.fromDate).TotalDays;
             List<Csat> listCsatBefor = _context.Csats.Where(r => r.idCompany == request.idCompany && r.dateTime >= request.fromDate.AddDays(-ttt).ToUniversalTime() && r.dateTime <= request.fromDate.ToUniversalTime()).ToList();
             //CsatOverview resultUpDown = new CsatOverview();
             int TotalResponsesBefor = listCsatBefor.Where(r => r.idFeedBack != 0).Count();

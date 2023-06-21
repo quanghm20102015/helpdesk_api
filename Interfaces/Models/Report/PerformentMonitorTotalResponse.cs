@@ -17,6 +17,16 @@ namespace Interfaces.Model.EmailInfo
             public int Resolved { get; set; }
             public string ResponeTime { get; set; }
             public string ResolveTime { get; set; }
+
+            public ObjectPerformentMonitorTotal()
+            {
+                Total = 0;
+                Incoming = 0;
+                Outgoing = 0;
+                Resolved = 0;
+                ResponeTime = "";
+                ResolveTime = "";
+            }
         }
     }
 }

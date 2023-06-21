@@ -508,7 +508,63 @@ namespace HelpDeskSystem.Controller
                 };
             }
         }
+        [HttpPost]
+        [Route("SendMailConfirmAddAgent")]
+        public async Task<SendMailResponse> SendMailConfirmAddAgent(SendMailConfirmResquest request)
+        {
+            try
+            {
+                string Email = "";
+                string YourName = "";
+                string Password = "";
+                string Incoming = "";
+                int IncomingPort = 0;
+                string Outgoing = "";
+                int OutgoingPort = 0;
+                int IdConfigEmail = 0;
 
+                var configuration = new ConfigurationBuilder().AddJsonFile($"appsettings.json");
+                var config = configuration.Build();
+                Email = config["MailSettings:Mail"];
+                YourName = config["MailSettings:DisplayName"];
+                Password = config["MailSettings:Password"];
+                Incoming = config["MailSettings:Incoming"];
+                IncomingPort = int.Parse(config["MailSettings:IncomingPort"]);
+                Outgoing = config["MailSettings:Outgoing"];
+                OutgoingPort = int.Parse(config["MailSettings:OutgoingPort"]);
+
+
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(YourName, Email));
+                message.To.Add(new MailboxAddress("", request.to));
+                message.Subject = "Bạn đã được mời tham gia Greeting";
+                message.Body = new TextPart(TextFormat.Plain)
+                {
+                    Text = "Bạn đã được mời tham gia Greeting Bắt đầu theo dõi và xử lý ticket của bạn và nhóm của bạn. Bạn có thể chia sẻ công việc của mình và xem những gì nhóm của bạn đang làm.\r\n"
+                    + "Link xác nhận\r\n"
+                    + request.linkConfirm
+                };
+
+                var smtp = new SmtpClient();
+                smtp.Connect(Outgoing, OutgoingPort, SecureSocketOptions.StartTls);
+                smtp.Authenticate(Email, Password);
+                smtp.Send(message);
+                smtp.Disconnect(true);
+
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Susscess
+                };
+            }
+            catch (Exception ex)
+            {
+                return new SendMailResponse
+                {
+                    Status = ResponseStatus.Fail,
+                    Message = ex.Message
+                };
+            }
+        }
 
         [HttpPost]
         [Route("ConfirmSigup")]

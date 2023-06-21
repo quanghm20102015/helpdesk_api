@@ -920,12 +920,14 @@ namespace HelpDeskSystem.Controller
         [Route("GetFillter")]
         public async Task<EmailInfoGetFillteResponse> GetFillter(EmailInfoGetFillterRequest request)
         {
+            List<ConfigMail> listConfigMail = _context.ConfigMails.Where(x => x.idCompany == request.idCompany).ToList();
             List<EmailInfoLabel> listEmailInfoLabel = _context.EmailInfoLabels.Where(x => x.idLabel == request.idLabel).ToList();
             List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.assign).ToList();
             List<EmailInfoFollow> listEmailInfoFollow = _context.EmailInfoFollows.Where(x => x.idUser == request.idUserFollow).ToList();
             List<int> listIdEmailLabel = new List<int>();
             List<int> listIdEmailAssign = new List<int>();
             List<int> listIdEmailFollow = new List<int>();
+            List<int> listIdConfigMail = new List<int>();
             foreach (EmailInfoLabel emailInfoLabel in listEmailInfoLabel)
             {
                 listIdEmailLabel.Add(emailInfoLabel.idEmailInfo.Value);
@@ -938,10 +940,15 @@ namespace HelpDeskSystem.Controller
             {
                 listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
             }
+            foreach (ConfigMail configMail in listConfigMail)
+            {
+                listIdConfigMail.Add(configMail.id);
+            }
 
             List<EmailInfo> label = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && ((r.isDelete == false && request.idUserTrash == 0) || request.idUserTrash != 0) && r.mainConversation == true
             //&& (r.assign == request.assign || request.assign == 0)
             && (r.status == request.status || request.status == 0)
+            &&(listIdConfigMail.Contains(r.idConfigEmail.Value))
             && (listIdEmailLabel.Contains(r.id) || request.idLabel == 0)
             && (listIdEmailAssign.Contains(r.id) || request.assign == 0)
             && (listIdEmailFollow.Contains(r.id) || request.idUserFollow == 0)
@@ -1013,6 +1020,13 @@ namespace HelpDeskSystem.Controller
         [Route("GetMenuCount")]
         public async Task<EmailInfoGetMenuCountResponse> GetMenuCount(EmailInfoGetMenuCountRequest request)
         {
+            List<ConfigMail> listConfigMail = _context.ConfigMails.Where(x => x.idCompany == request.idCompany).ToList();
+            List<int> listIdConfigMail = new List<int>();
+            foreach (ConfigMail configMail in listConfigMail)
+            {
+                listIdConfigMail.Add(configMail.id);
+            }
+
             if (_context.Accounts == null)
             {
                 return new EmailInfoGetMenuCountResponse
@@ -1021,8 +1035,8 @@ namespace HelpDeskSystem.Controller
                 };
             }
 
-            int all = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false).Count();
-            int unAssign = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isAssign == false && r.isDelete == false && r.mainConversation == true).Count();
+            int all = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && listIdConfigMail.Contains(r.idConfigEmail.Value)).Count();
+            int unAssign = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isAssign == false && r.isDelete == false && r.mainConversation == true && listIdConfigMail.Contains(r.idConfigEmail.Value)).Count();
 
 
             List<EmailInfoAssign> listEmailInfoAssign = _context.EmailInfoAssigns.Where(x => x.idUser == request.idUser).ToList();
@@ -1039,15 +1053,15 @@ namespace HelpDeskSystem.Controller
             {
                 listIdEmailFollow.Add(emailInfoFollow.idEmailInfo.Value);
             }
-            int mine = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
+            int mine = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && listIdConfigMail.Contains(r.idConfigEmail.Value)
             && listIdEmailAssign.Contains(r.id)).Count();
-            int follow = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
+            int follow = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && listIdConfigMail.Contains(r.idConfigEmail.Value)
             && listIdEmailFollow.Contains(r.id)).Count();
 
-            int resolved = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false
+            int resolved = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.mainConversation == true && r.isDelete == false && listIdConfigMail.Contains(r.idConfigEmail.Value)
             && r.status == 2).Count();
 
-            int trash = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == true && r.idUserDelete == request.idUser && r.mainConversation == true).Count();
+            int trash = _context.EmailInfos.Where(r => r.idCompany == request.idCompany && r.isDelete == true && r.idUserDelete == request.idUser && r.mainConversation == true && listIdConfigMail.Contains(r.idConfigEmail.Value)).Count();
 
             emailInfoCount.All = all;
             emailInfoCount.Mine = mine;

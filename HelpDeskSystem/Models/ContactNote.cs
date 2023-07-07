@@ -21,5 +21,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public DateTime? timeNote
+        {
+            get;
+            set;
+        }
     }
 }

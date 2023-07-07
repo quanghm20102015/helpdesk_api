@@ -223,6 +223,9 @@ namespace HelpDeskSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("timeNote")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("id");
 
                     b.ToTable("ContactNotes");

@@ -89,6 +89,8 @@ namespace HelpDeskSystem.Controller
           {
               return Problem("Entity set 'EF_DataContext.ContactNotes'  is null.");
           }
+
+            contactNote.timeNote = DateTime.Now.ToUniversalTime();
             _context.ContactNotes.Add(contactNote);
             await _context.SaveChangesAsync();
 

@@ -65,6 +65,9 @@ namespace HelpDeskSystem.Migrations
                     b.Property<int?>("role")
                         .HasColumnType("integer");
 
+                    b.Property<string>("signature")
+                        .HasColumnType("text");
+
                     b.Property<int>("status")
                         .HasColumnType("integer");
 

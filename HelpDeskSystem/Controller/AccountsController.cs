@@ -18,6 +18,7 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using System.Reflection.Metadata;
 using MailKit.Security;
 using System.IO.Compression;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace HelpDeskSystem.Controller
 {
@@ -64,6 +65,7 @@ namespace HelpDeskSystem.Controller
             objAccount.login = account.login;
             objAccount.status = account.status;
             objAccount.idGuId = account.idGuId;
+            objAccount.signature = account.signature;
             if (account.avatar != null)
             {
                 byte[] imageByteArray = Convert.FromBase64String(account.avatar);
@@ -743,5 +745,40 @@ namespace HelpDeskSystem.Controller
 
             return Ok(Results);
         }
+        [HttpPut]
+        [Route("UpdateSignature")]
+        public async Task<BaseResponse<ResponseStatus>> AccountUpdateSignature(int Id, string Signature)
+        {
+            Account account = _context.Accounts.Where(r => r.id == Id).FirstOrDefault();
+            account.signature = Signature;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new BaseResponse<ResponseStatus>
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new BaseResponse<ResponseStatus>
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
     }
 }

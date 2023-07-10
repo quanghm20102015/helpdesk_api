@@ -76,5 +76,10 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public string? signature
+        {
+            get;
+            set;
+        }
     }
 }

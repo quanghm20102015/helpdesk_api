@@ -40,6 +40,9 @@ namespace HelpDeskSystem.Migrations
                     b.Property<bool>("confirm")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("displayName")
+                        .HasColumnType("text");
+
                     b.Property<string>("fileName")
                         .HasColumnType("text");
 
@@ -56,8 +59,14 @@ namespace HelpDeskSystem.Migrations
                     b.Property<bool>("isDelete")
                         .HasColumnType("boolean");
 
+                    b.Property<int?>("language")
+                        .HasColumnType("integer");
+
                     b.Property<bool>("login")
                         .HasColumnType("boolean");
+
+                    b.Property<int?>("numberOfDay")
+                        .HasColumnType("integer");
 
                     b.Property<string>("password")
                         .HasColumnType("text");

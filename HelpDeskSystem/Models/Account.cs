@@ -81,5 +81,20 @@ namespace HelpDeskSystem.Models
             get;
             set;
         }
+        public int? language
+        {
+            get;
+            set;
+        }
+        public string? displayName
+        {
+            get;
+            set;
+        }
+        public int? numberOfDay
+        {
+            get;
+            set;
+        }
     }
 }

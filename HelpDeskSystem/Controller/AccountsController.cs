@@ -18,6 +18,7 @@ using Org.BouncyCastle.Asn1.Ocsp;
 using System.Reflection.Metadata;
 using MailKit.Security;
 using System.IO.Compression;
+using DocumentFormat.OpenXml.Office2010.Excel;
 
 namespace HelpDeskSystem.Controller
 {
@@ -64,6 +65,10 @@ namespace HelpDeskSystem.Controller
             objAccount.login = account.login;
             objAccount.status = account.status;
             objAccount.idGuId = account.idGuId;
+            objAccount.signature = account.signature;
+            objAccount.language = account.language;
+            objAccount.numberDay = account.numberOfDay;
+            objAccount.displayName = account.displayName;
             if (account.avatar != null)
             {
                 byte[] imageByteArray = Convert.FromBase64String(account.avatar);
@@ -175,7 +180,7 @@ namespace HelpDeskSystem.Controller
             var accountCompany = await _context.Accounts.FirstOrDefaultAsync
                 (u => u.company.Equals(account.company));
 
-            if(accountEmail != null && account.confirm)
+            if (accountEmail != null && account.confirm)
             {
                 message += "Email already exist" + System.Environment.NewLine;
             }
@@ -204,7 +209,7 @@ namespace HelpDeskSystem.Controller
                 }
                 else
                 {
-                    if(account.idCompany == 0)
+                    if (account.idCompany == 0)
                     {
                         Company cpn = new Company();
                         cpn.companyName = account.company;
@@ -394,7 +399,7 @@ namespace HelpDeskSystem.Controller
                 objAccount.idGuId = acc.idGuId;
                 objAccount.role = acc.role;
 
-                if (acc.avatar!= null && acc.avatar!="")
+                if (acc.avatar != null && acc.avatar != "")
                 {
                     byte[] imageByteArray = Convert.FromBase64String(acc.avatar);
 
@@ -483,7 +488,9 @@ namespace HelpDeskSystem.Controller
                 message.From.Add(new MailboxAddress(YourName, Email));
                 message.To.Add(new MailboxAddress("", request.to));
                 message.Subject = "Confirmation Instructions";
-                message.Body = new TextPart(TextFormat.Plain) { Text = "Welcome, " + request.fullName + ",\r\n"
+                message.Body = new TextPart(TextFormat.Plain)
+                {
+                    Text = "Welcome, " + request.fullName + ",\r\n"
                     + "You can confirm your account email through the link below:\r\n"
                     + request.linkConfirm
                 };
@@ -608,7 +615,7 @@ namespace HelpDeskSystem.Controller
         {
             var account = await _context.Accounts.FirstOrDefaultAsync
                 (u => u.workemail == request.to);
-             
+
             if (account != null)
             {
                 string Email = "";
@@ -672,7 +679,7 @@ namespace HelpDeskSystem.Controller
             var account = await _context.Accounts.FirstOrDefaultAsync
                 (u => u.idGuId == request.idGuId);
 
-            if(account != null)
+            if (account != null)
             {
                 account.password = request.password;
 
@@ -743,5 +750,113 @@ namespace HelpDeskSystem.Controller
 
             return Ok(Results);
         }
+        [HttpPut]
+        [Route("UpdateSignature")]
+        public async Task<BaseResponse<ResponseStatus>> AccountUpdateSignature([FromBody] SignatureRequest request)
+        {
+            Account account = _context.Accounts.Where(r => r.id == request.id).FirstOrDefault();
+            account.signature = request.signature;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new BaseResponse<ResponseStatus>
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new BaseResponse<ResponseStatus>
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+        [HttpPut]
+        [Route("UpdateGeneral")]
+        public async Task<BaseResponse<ResponseStatus>> AccountGeneral([FromBody] GeneralRequest request)
+        {
+            Account account = _context.Accounts.Where(r => r.id == request.id).FirstOrDefault();
+            account.fullname = request.accountName;
+            account.language = request.language;
+            account.company = request.companyName;
+            account.numberOfDay = request.numberDay;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new BaseResponse<ResponseStatus>
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new BaseResponse<ResponseStatus>
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+
+        [HttpPut]
+        [Route("UpdateProfile")]
+        public async Task<BaseResponse<ResponseStatus>> AccountProfile([FromBody] ProfileRequest request)
+        {
+            Account account = _context.Accounts.Where(r => r.id == request.id).FirstOrDefault();
+            account.fullname = request.accountName;
+            account.displayName = request.displayName;
+
+            _context.Entry(account).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!AccountExists(account.id))
+                {
+                    return new BaseResponse<ResponseStatus>
+                    {
+                        Status = ResponseStatus.Fail,
+                        Message = "NotFound"
+                    };
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return new BaseResponse<ResponseStatus>
+            {
+                Status = ResponseStatus.Susscess
+            };
+        }
+        
     }
 }
